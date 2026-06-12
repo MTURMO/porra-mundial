@@ -434,10 +434,10 @@ const LB_PAGE_SIZE = 50;
 // ═══════════════════════════════════════════════════════
 
 // Cross-browser fetch with timeout (AbortSignal.timeout not in Safari < 17)
-function fetchWithTimeout(url, ms, opts = {}) {
+function fetchWithTimeout(url, ms) {
   const ctrl = new AbortController();
   const id = setTimeout(() => ctrl.abort(), ms);
-  return fetch(url, { ...opts, signal: ctrl.signal }).finally(() => clearTimeout(id));
+  return fetch(url, { signal: ctrl.signal }).finally(() => clearTimeout(id));
 }
 
 // ═══════════════════════════════════════════════════════
@@ -525,10 +525,9 @@ async function init() {
   // 2. Try worldcup26.ir (primary, live), fall back to openfootball
   let loaded = false;
   try {
-    // cache:'no-cache' sends If-None-Match but forces the server to always return body
-    // This avoids getting a 304 with empty body that breaks .json()
-    const r2 = await fetchWithTimeout(API_PRIMARY, 7000, { cache: 'no-cache' });
-    if (!r2.ok && r2.status !== 304) throw new Error('HTTP ' + r2.status);
+    const r2 = await fetchWithTimeout(API_PRIMARY, 7000);
+    // 200 OK or 304 Not Modified (browser serves from cache with full body)
+    if (r2.status !== 200 && r2.status !== 304) throw new Error('HTTP ' + r2.status);
     const j = await r2.json();
     const parsed = parseWorldcup26(j);
     if (parsed.length === 0) throw new Error('empty response');
@@ -539,11 +538,10 @@ async function init() {
     console.warn('worldcup26.ir failed:', e.message, '— trying openfootball fallback');
   }
 
-/*
   if (!loaded) {
     try {
-      const r3 = await fetchWithTimeout(API_FALLBACK, 9000, { cache: 'no-cache' });
-      if (!r3.ok && r3.status !== 304) throw new Error('HTTP ' + r3.status);
+      const r3 = await fetchWithTimeout(API_FALLBACK, 9000);
+      if (r3.status !== 200 && r3.status !== 304) throw new Error('HTTP ' + r3.status);
       const j = await r3.json();
       const parsed = parseOpenfootball(j);
       API_RESULTS = parsed;
@@ -554,7 +552,7 @@ async function init() {
       setApiStatus('warn', 'Sin resultados en tiempo real — ambas APIs no disponibles');
     }
   }
-*/
+
   buildScores();
   computeRankings();
   renderRanking();

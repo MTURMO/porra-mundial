@@ -409,33 +409,48 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
 // ═══════════════════════════════════════════════════════
 // CONFIG
 // ═══════════════════════════════════════════════════════
-const DATA_URL  = 'data.json';
-const API_URL   = 'https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json';
+const DATA_URL      = 'data.json';
+// Primary: worldcup26.ir — live scores, no API key, CORS open
+const API_PRIMARY   = 'https://worldcup26.ir/get/games';
+// Fallback: openfootball — updated ~daily by hand, no API key
+const API_FALLBACK  = 'https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json';
 
-// Points system
 const PTS_EXACT = 15;
-// Sign correct: 10 - total_goal_diff (min 0)
 
 // ═══════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════
-let DATA       = null;   // from data.json
-let API_RESULTS = [];    // from openfootball API
-let SCORES     = {};     // match_num -> {g1, g2} or null
-let RANKINGS   = [];     // computed ranking array
-let currentUser = null;  // selected participant object
-let lbPage     = 0;
+let DATA        = null;
+// Normalised results: array of {t1, t2, g1, g2}
+// g1/g2 = null if match not yet played
+let API_RESULTS = [];
+let SCORES      = {};
+let RANKINGS    = [];
+let currentUser = null;
+let lbPage      = 0;
 const LB_PAGE_SIZE = 50;
 
 // ═══════════════════════════════════════════════════════
 // TEAM NORMALIZATION
+// Maps anything an API might send → canonical name in data.json
 // ═══════════════════════════════════════════════════════
 const TEAM_MAP = {
-  "south africa":"South Africa","south korea":"South Korea","korea republic":"South Korea",
-  "czech republic":"Czech Republic","ivory coast":"Ivory Coast","cote d'ivoire":"Ivory Coast",
-  "usa":"USA","united states":"USA","netherlands":"Netherlands","new zealand":"New Zealand",
-  "saudi arabia":"Saudi Arabia","cape verde":"Cape Verde","bosnia-herzegovina":"Bosnia Herzegovina",
-  "curaçao":"Curaçao","curacao":"Curaçao","united arab emirates":"UAE","england":"England",
+  // Generic aliases
+  "south africa":"South Africa","south korea":"South Korea",
+  "korea republic":"South Korea","republic of korea":"South Korea",
+  "czech republic":"Czech Republic","czechia":"Czech Republic",
+  "ivory coast":"Ivory Coast","cote d'ivoire":"Ivory Coast","côte d'ivoire":"Ivory Coast",
+  "usa":"USA","united states":"USA","us":"USA",
+  "netherlands":"Netherlands","holland":"Netherlands",
+  "new zealand":"New Zealand","nz":"New Zealand",
+  "saudi arabia":"Saudi Arabia","ksa":"Saudi Arabia",
+  "cape verde":"Cape Verde","cabo verde":"Cape Verde",
+  "bosnia-herzegovina":"Bosnia Herzegovina","bosnia & herzegovina":"Bosnia Herzegovina",
+  "bosnia and herzegovina":"Bosnia Herzegovina",
+  "curaçao":"Curaçao","curacao":"Curaçao",
+  "dr congo":"Congo","congo dr":"Congo","democratic republic of congo":"Congo",
+  "iran":"Iran","ir iran":"Iran",
+  "scotland":"Scotland","england":"England","wales":"Wales","northern ireland":"Northern Ireland",
 };
 function normTeam(n) {
   if (!n) return '';
@@ -444,9 +459,54 @@ function normTeam(n) {
 }
 
 // ═══════════════════════════════════════════════════════
+// PARSE API RESPONSES → unified {t1, t2, g1, g2} array
+// Handles both worldcup26.ir and openfootball formats
+// ═══════════════════════════════════════════════════════
+function parseWorldcup26(data) {
+  // worldcup26.ir /get/games returns an array of match objects.
+  // Possible field names (open-source repo uses these):
+  //   homeTeam / awayTeam  (string or object with .name)
+  //   homeScore / awayScore  (number or null)
+  //   home_team / away_team
+  //   team1 / team2  +  score1 / score2
+  const arr = Array.isArray(data) ? data : (data.games || data.matches || data.data || []);
+  return arr.map(m => {
+    // Team name — try several possible field layouts
+    const rawT1 = m.homeTeam || m.home_team || m.team1 || '';
+    const rawT2 = m.awayTeam || m.away_team || m.team2 || '';
+    const t1 = normTeam(typeof rawT1 === 'object' ? (rawT1.name || rawT1.nameEn || '') : rawT1);
+    const t2 = normTeam(typeof rawT2 === 'object' ? (rawT2.name || rawT2.nameEn || '') : rawT2);
+
+    // Score — null if not played yet
+    const rawG1 = m.homeScore ?? m.home_score ?? m.score1 ?? m.goalsHome ?? null;
+    const rawG2 = m.awayScore ?? m.away_score ?? m.score2 ?? m.goalsAway ?? null;
+    const g1 = rawG1 !== null && rawG1 !== '' && rawG1 !== undefined ? Number(rawG1) : null;
+    const g2 = rawG2 !== null && rawG2 !== '' && rawG2 !== undefined ? Number(rawG2) : null;
+    // Only count as played if both scores are valid numbers
+    const played = g1 !== null && g2 !== null && !isNaN(g1) && !isNaN(g2);
+    return { t1, t2, g1: played ? g1 : null, g2: played ? g2 : null };
+  }).filter(m => m.t1 && m.t2);
+}
+
+function parseOpenfootball(data) {
+  // openfootball 2026 format: { matches: [{team1, team2, score1, score2, ...}] }
+  // score1/score2 are absent (undefined) when not played yet
+  const arr = data.matches || [];
+  return arr.map(m => {
+    const t1 = normTeam(m.team1 || '');
+    const t2 = normTeam(m.team2 || '');
+    const g1 = m.score1 !== undefined ? Number(m.score1) : null;
+    const g2 = m.score2 !== undefined ? Number(m.score2) : null;
+    const played = g1 !== null && g2 !== null && !isNaN(g1) && !isNaN(g2);
+    return { t1, t2, g1: played ? g1 : null, g2: played ? g2 : null };
+  }).filter(m => m.t1 && m.t2);
+}
+
+// ═══════════════════════════════════════════════════════
 // LOAD DATA
 // ═══════════════════════════════════════════════════════
 async function init() {
+  // 1. Load our participants data
   try {
     const r = await fetch(DATA_URL);
     DATA = await r.json();
@@ -456,13 +516,28 @@ async function init() {
     return;
   }
 
+  // 2. Try primary API (worldcup26.ir) first, fall back to openfootball
+  let apiSource = '';
   try {
-    const r2 = await fetch(API_URL);
+    const r2 = await fetch(API_PRIMARY, { signal: AbortSignal.timeout(6000) });
+    if (!r2.ok) throw new Error('HTTP ' + r2.status);
     const j = await r2.json();
-    API_RESULTS = j.matches || [];
-    setApiStatus('ok', `API conectada · ${API_RESULTS.length} partidos`);
+    API_RESULTS = parseWorldcup26(j);
+    if (API_RESULTS.length === 0) throw new Error('empty');
+    apiSource = 'worldcup26.ir';
+    setApiStatus('ok', `${apiSource} · ${API_RESULTS.length} partidos`);
   } catch(e) {
-    setApiStatus('warn', 'Sin datos en tiempo real (API no disponible)');
+    // Primary failed → try openfootball fallback
+    try {
+      const r3 = await fetch(API_FALLBACK, { signal: AbortSignal.timeout(8000) });
+      if (!r3.ok) throw new Error('HTTP ' + r3.status);
+      const j = await r3.json();
+      API_RESULTS = parseOpenfootball(j);
+      apiSource = 'openfootball (backup)';
+      setApiStatus('warn', `${apiSource} · ${API_RESULTS.length} partidos · actualización diaria`);
+    } catch(e2) {
+      setApiStatus('warn', 'Sin datos en tiempo real — APIs no disponibles');
+    }
   }
 
   buildScores();
@@ -481,18 +556,17 @@ function setApiStatus(state, msg) {
 function buildScores() {
   SCORES = {};
   if (!DATA) return;
-  const matchesMeta = DATA.matches;
-  for (const [mnum, meta] of Object.entries(matchesMeta)) {
+  for (const [mnum, meta] of Object.entries(DATA.matches)) {
     const t1 = normTeam(meta.team1).toLowerCase();
     const t2 = normTeam(meta.team2).toLowerCase();
     let found = null;
     for (const m of API_RESULTS) {
-      const at1 = normTeam(m.team1).toLowerCase();
-      const at2 = normTeam(m.team2).toLowerCase();
-      if ((at1===t1&&at2===t2)||(at1===t2&&at2===t1)) {
-        if (m.score && m.score.ft) {
-          if (at1===t1) found = {g1:m.score.ft[0], g2:m.score.ft[1]};
-          else          found = {g1:m.score.ft[1], g2:m.score.ft[0]};
+      const at1 = m.t1.toLowerCase();
+      const at2 = m.t2.toLowerCase();
+      if ((at1===t1 && at2===t2) || (at1===t2 && at2===t1)) {
+        if (m.g1 !== null) {
+          // Swap if API had teams in reverse order
+          found = at1===t1 ? {g1:m.g1, g2:m.g2} : {g1:m.g2, g2:m.g1};
         } else {
           found = {g1:null, g2:null};
         }

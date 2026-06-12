@@ -537,7 +537,7 @@ async function init() {
   } catch(e) {
     console.warn('worldcup26.ir failed:', e.message, '— trying openfootball fallback');
   }
-/*
+
   if (!loaded) {
     try {
       const r3 = await fetchWithTimeout(API_FALLBACK, 9000);
@@ -552,7 +552,7 @@ async function init() {
       setApiStatus('warn', 'Sin resultados en tiempo real — ambas APIs no disponibles');
     }
   }
-*/
+
   buildScores();
   computeRankings();
   renderRanking();

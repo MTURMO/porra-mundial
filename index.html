@@ -141,6 +141,7 @@
 
 <header>
   <h1>⚽ Pronósticos <span>Mundial 2026</span></h1>
+  <p>mturmo02@gmail.com — Fase de Grupos · Clasificación Final · Máximo Goleador</p>
   <div class="status-bar">
     <div class="status-pill loading" id="api-status">
       <div class="dot"></div>
@@ -449,17 +450,11 @@ function getResultClass(match, real) {
 function renderMatches() {
   const container = document.getElementById('matches-list');
   let html = '';
-  let currentGroup = '';
 
-  const groups = {};
-  PRONOSTICOS.forEach(m => {
-    if (!groups[m.group]) groups[m.group] = [];
-    groups[m.group].push(m);
-  });
+  const sorted = [...PRONOSTICOS].sort((a, b) => a.match - b.match);
 
-  Object.entries(groups).forEach(([group, matches]) => {
-    html += `<div class="group-label">${group}</div>`;
-    matches.forEach(match => {
+  sorted.forEach(match => {
+    {
       const real = findRealResult(match);
       const cls = getResultClass(match, real);
       const hasReal = real && real.g1 !== null;
@@ -494,7 +489,7 @@ function renderMatches() {
           </div>
         </div>
       `;
-    });
+    }
   });
 
   container.innerHTML = html;

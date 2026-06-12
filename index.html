@@ -546,7 +546,7 @@ async function init() {
       const parsed = parseOpenfootball(j);
       API_RESULTS = parsed;
       loaded = true;
-      setApiStatus('warn', `openfootball (backup) · ${API_RESULTS.length} partidos · actualización diaria`);
+      setApiStatus('warn', `openfootball · ${API_RESULTS.length} partidos · actualización diaria`);
     } catch(e2) {
       console.warn('openfootball fallback also failed:', e2.message);
       setApiStatus('warn', 'Sin resultados en tiempo real — ambas APIs no disponibles');

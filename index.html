@@ -157,6 +157,7 @@
   <button class="active" onclick="showTab('fase-grupos')">📋 Fase de Grupos</button>
   <button onclick="showTab('clasificacion')">🏆 Clasificación Final</button>
   <button onclick="showTab('estadisticas')">📊 Estadísticas</button>
+  <button onclick="showTab('puntuacion')">🏅 Puntuación</button>
   <button onclick="showTab('acerca')">ℹ️ Acerca de</button>
 </nav>
 
@@ -245,6 +246,51 @@
     <div id="goals-chart" style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;">
       <div style="color:var(--muted);font-size:0.85rem;margin-bottom:16px">Distribución de resultados pronosticados</div>
       <div id="goals-bars"></div>
+    </div>
+  </div>
+
+  <!-- TAB: PUNTUACIÓN -->
+  <div id="tab-puntuacion" class="tab-panel">
+    <div class="section-title">🏅 Puntuación — Partidos Jugados</div>
+
+    <div class="stats-grid" id="pts-summary">
+      <div class="stat-card champion" style="border-color:var(--accent)">
+        <div class="stat-num" id="pts-total" style="color:var(--accent)">—</div>
+        <div class="stat-label">Puntos totales</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-num" id="pts-exact-count">—</div>
+        <div class="stat-label">Exactos (×15 pts)</div>
+      </div>
+      <div class="stat-card" style="border-color:var(--accent)">
+        <div class="stat-num" id="pts-sign-count" style="color:var(--accent)">—</div>
+        <div class="stat-label">Signo correcto</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-num" id="pts-wrong-count">—</div>
+        <div class="stat-label">Incorrectos (0 pts)</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-num" id="pts-played-count">—</div>
+        <div class="stat-label">Partidos jugados</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="pts-avg">—</div>
+        <div class="stat-label">Puntos por partido</div>
+      </div>
+    </div>
+
+    <div class="section-title">📋 Detalle por Partido</div>
+    <div class="matches-container">
+      <div class="match-header" style="grid-template-columns:50px 1fr 90px 1fr 60px 60px">
+        <span>#</span>
+        <span style="text-align:right">Local</span>
+        <span style="text-align:center">Pred / Real</span>
+        <span>Visitante</span>
+        <span style="text-align:center">Pts</span>
+        <span style="text-align:center">Motivo</span>
+      </div>
+      <div id="pts-list"><div class="loading-spinner"><div class="spinner"></div></div></div>
     </div>
   </div>
 
@@ -591,11 +637,104 @@ function renderAll() {
   renderMatches();
   renderStats();
   renderTournamentStatus();
+  renderPuntuacion();
 }
 
 // ============================================================
-// NAV
+// PUNTUACIÓN
 // ============================================================
+function calcPoints(match, real) {
+  if (!real || real.g1 === null || match.pred1 === null || match.pred2 === null) {
+    return { pts: null, reason: 'pending' };
+  }
+  // Resultado exacto
+  if (match.pred1 === real.g1 && match.pred2 === real.g2) {
+    return { pts: 15, reason: 'exact' };
+  }
+  // Signo correcto (1, X, 2)
+  const predSign = Math.sign(match.pred1 - match.pred2);
+  const realSign = Math.sign(real.g1 - real.g2);
+  if (predSign === realSign) {
+    const diff = Math.abs((match.pred1 - real.g1)) + Math.abs((match.pred2 - real.g2));
+    const pts = Math.max(0, 10 - diff);
+    return { pts, reason: 'sign', diff };
+  }
+  return { pts: 0, reason: 'wrong' };
+}
+
+function renderPuntuacion() {
+  const sorted = [...PRONOSTICOS].sort((a, b) => a.match - b.match);
+  let html = '';
+  let totalPts = 0, exactCount = 0, signCount = 0, wrongCount = 0, playedCount = 0;
+
+  sorted.forEach(match => {
+    const real = findRealResult(match);
+    const { pts, reason, diff } = calcPoints(match, real);
+    const hasReal = real && real.g1 !== null;
+    const predStr1 = match.pred1 !== null ? match.pred1 : '?';
+    const predStr2 = match.pred2 !== null ? match.pred2 : '?';
+
+    let ptsBadge = '<span style="color:var(--muted);font-size:0.8rem">—</span>';
+    let reasonBadge = '<span style="color:var(--muted);font-size:0.7rem">pend.</span>';
+    let rowBg = '';
+
+    if (pts !== null) {
+      playedCount++;
+      totalPts += pts;
+      if (reason === 'exact') {
+        exactCount++;
+        ptsBadge = `<span style="color:var(--green);font-weight:800;font-size:1rem">15</span>`;
+        reasonBadge = `<span style="color:var(--green);font-size:0.7rem">exacto</span>`;
+        rowBg = 'background:rgba(34,197,94,0.04);';
+      } else if (reason === 'sign') {
+        signCount++;
+        ptsBadge = `<span style="color:var(--accent);font-weight:800;font-size:1rem">${pts}</span>`;
+        reasonBadge = `<span style="color:var(--accent);font-size:0.7rem">10-${diff}</span>`;
+        rowBg = 'background:rgba(245,158,11,0.04);';
+      } else {
+        wrongCount++;
+        ptsBadge = `<span style="color:var(--red);font-weight:800;font-size:1rem">0</span>`;
+        reasonBadge = `<span style="color:var(--red);font-size:0.7rem">fallo</span>`;
+      }
+    }
+
+    html += `
+      <div class="match-row" style="grid-template-columns:50px 1fr 90px 1fr 60px 60px;${rowBg}">
+        <div class="num">#${match.match}</div>
+        <div class="team team1">${match.team1}</div>
+        <div class="score-box">
+          <div class="two-scores">
+            <div style="display:flex;gap:4px;align-items:center">
+              <div class="score-pred">${predStr1}</div>
+              <div class="score-dash">-</div>
+              <div class="score-pred">${predStr2}</div>
+            </div>
+            <div style="display:flex;gap:4px;align-items:center;margin-top:2px">
+              <div class="score-real ${hasReal ? '' : 'tbd'}">${hasReal ? real.g1 : '—'}</div>
+              <div class="score-dash">-</div>
+              <div class="score-real ${hasReal ? '' : 'tbd'}">${hasReal ? real.g2 : '—'}</div>
+            </div>
+          </div>
+        </div>
+        <div class="team team2">${match.team2}</div>
+        <div style="text-align:center">${ptsBadge}</div>
+        <div style="text-align:center">${reasonBadge}</div>
+      </div>
+    `;
+  });
+
+  document.getElementById('pts-list').innerHTML = html || '<p style="padding:16px;color:var(--muted)">Sin resultados aún.</p>';
+
+  // Summary
+  document.getElementById('pts-total').textContent = totalPts;
+  document.getElementById('pts-exact-count').textContent = exactCount;
+  document.getElementById('pts-sign-count').textContent = signCount;
+  document.getElementById('pts-wrong-count').textContent = wrongCount;
+  document.getElementById('pts-played-count').textContent = playedCount;
+  document.getElementById('pts-avg').textContent = playedCount > 0 ? (totalPts / playedCount).toFixed(1) : '—';
+}
+
+
 function showTab(tab) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));

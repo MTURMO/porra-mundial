@@ -127,14 +127,14 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
 /* ── MATCH TABLE ─────────────────────────────────── */
 .match-table { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 24px; }
 .match-head {
-  display: grid; grid-template-columns: 44px 1fr 130px 1fr 36px;
+  display: grid; grid-template-columns: 44px 1fr 120px 1fr 36px;
   padding: 8px 14px; background: var(--surface2);
   font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted);
   gap: 6px;
 }
 .match-row {
-  display: grid; grid-template-columns: 44px 1fr 130px 1fr 36px;
-  padding: 11px 14px; border-top: 1px solid var(--border);
+  display: grid; grid-template-columns: 44px 1fr 120px 1fr 36px;
+  padding: 10px 14px; border-top: 1px solid var(--border);
   gap: 6px; align-items: center; transition: background .1s;
 }
 .match-row:hover { background: var(--surface2); }
@@ -142,9 +142,7 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
 .match-row .team { font-size: 0.84rem; font-weight: 600; }
 .match-row .t1 { text-align: right; }
 .match-row .t2 { text-align: left; }
-.score-cell {
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
-}
+.score-cell { display: flex; flex-direction: column; align-items: center; gap: 3px; }
 .score-pair { display: flex; align-items: center; gap: 5px; }
 .s-box {
   min-width: 26px; text-align: center; padding: 3px 7px;
@@ -154,7 +152,7 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
 .s-real { background: rgba(52,152,219,.12); border: 1px solid rgba(52,152,219,.3); color: var(--blue); }
 .s-real.tbd { background: transparent; border-color: var(--border); color: var(--muted); }
 .s-dash { font-size: 0.7rem; color: var(--muted); }
-.score-lbl { display: flex; gap: 18px; font-size: 0.62rem; color: var(--muted); }
+.score-lbl { display: none; }
 .dot-ind { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .dot-exact { background: var(--green); }
 .dot-sign  { background: var(--amber); }
@@ -216,16 +214,59 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ── PTS DETAIL ──────────────────────────────────── */
-.match-row.pts-row { grid-template-columns: 44px 1fr 130px 1fr 46px 60px; }
-.match-head.pts-head { grid-template-columns: 44px 1fr 130px 1fr 46px 60px; }
+.match-row.pts-row { grid-template-columns: 44px 1fr 120px 1fr 46px 58px; }
+.match-head.pts-head { grid-template-columns: 44px 1fr 120px 1fr 46px 58px; }
 
 /* ── RESPONSIVE ──────────────────────────────────── */
-@media (max-width: 560px) {
-  main { padding: 14px; }
-  .match-row, .match-head { grid-template-columns: 34px 1fr 110px 1fr 30px; }
-  .match-row .team { font-size: 0.76rem; }
-  .s-box { padding: 2px 5px; font-size: 0.76rem; }
-  .match-row.pts-row, .match-head.pts-head { grid-template-columns: 34px 1fr 110px 1fr 38px 52px; }
+@media (max-width: 600px) {
+  main { padding: 12px; }
+  .search-wrap { padding: 12px 14px; }
+  .search-btn { padding: 10px 12px; font-size: 0.82rem; }
+
+  /* Hide desktop header, show nothing — rows are self-explanatory */
+  .match-head { display: none; }
+
+  /* Mobile match row: team1 | scores | team2 · dot below team2 */
+  .match-row {
+    grid-template-columns: 1fr auto 1fr;
+    grid-template-rows: auto auto;
+    padding: 10px 12px;
+    gap: 2px 8px;
+  }
+  .match-row .num { display: none; }
+  .match-row .t1 { grid-column: 1; grid-row: 1; text-align: right; font-size: 0.78rem; align-self: center; }
+  .match-row .score-cell { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
+  .match-row .t2 { grid-column: 3; grid-row: 1; text-align: left; font-size: 0.78rem; align-self: center; }
+  /* result dot */
+  .match-row > div:nth-child(5) { grid-column: 3; grid-row: 2; justify-content: flex-start; }
+
+  /* pts-row extra cols (pts + reason) go under team2 */
+  .match-row.pts-row {
+    grid-template-columns: 1fr auto 1fr auto;
+    grid-template-rows: auto auto;
+  }
+  .match-row.pts-row .t1  { grid-column:1; grid-row:1; }
+  .match-row.pts-row .score-cell { grid-column:2; grid-row:1/span 2; }
+  .match-row.pts-row .t2  { grid-column:3; grid-row:1; }
+  .match-row.pts-row > div:nth-child(5) { grid-column:4; grid-row:1; text-align:center; align-self:center; font-size:.9rem; padding-left:4px; }
+  .match-row.pts-row > div:nth-child(6) { grid-column:4; grid-row:2; text-align:center; align-self:center; padding-left:4px; }
+
+  .s-box { min-width: 22px; padding: 3px 5px; font-size: 0.78rem; }
+
+  /* Leaderboard: hide bar + played cols on small screens */
+  .lb-table th:nth-child(7), .lb-table td:nth-child(7),
+  .lb-table th:nth-child(8), .lb-table td:nth-child(8) { display: none; }
+  .lb-table th, .lb-table td { padding: 8px 7px; font-size: 0.78rem; }
+  .lb-pts { font-size: 0.9rem; }
+
+  .stats-row { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; }
+  .stat-card { padding: 12px 8px; }
+  .stat-card .num { font-size: 1.5rem; }
+
+  .finals-grid { grid-template-columns: repeat(2, 1fr); }
+
+  .header-pills { gap: 6px; }
+  .pill { font-size: 0.72rem; padding: 3px 10px; }
 }
 </style>
 </head>
@@ -254,7 +295,6 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
 <nav>
   <div class="nav-inner">
     <button class="tab-btn active" data-tab="ranking">🏆 Clasificación</button>
-    <button class="tab-btn" data-tab="mis-prons">📋 Mis pronósticos</button>
     <button class="tab-btn" data-tab="mis-pts">🏅 Mis puntos</button>
     <button class="tab-btn" data-tab="mis-finals">⭐ Mi clasificación final</button>
   </div>
@@ -286,33 +326,6 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
         </table>
       </div>
       <div class="pg-wrap" id="pg-wrap"></div>
-    </div>
-  </div>
-
-  <!-- MIS PRONOSTICOS -->
-  <div id="tab-mis-prons" class="tab-panel">
-    <div id="prons-empty" class="empty">
-      <p style="font-size:1.2rem;margin-bottom:8px">🔍</p>
-      <p>Busca tu nick arriba para ver tus pronósticos</p>
-    </div>
-    <div id="prons-content" style="display:none">
-      <div class="sec-title" id="prons-title">Pronósticos de —</div>
-      <div class="legend">
-        <div class="legend-item"><div class="dot-ind dot-exact"></div> Resultado exacto</div>
-        <div class="legend-item"><div class="dot-ind dot-sign"></div> Signo correcto</div>
-        <div class="legend-item"><div class="dot-ind dot-wrong"></div> Incorrecto</div>
-        <div class="legend-item"><div class="dot-ind dot-pend"></div> Pendiente</div>
-      </div>
-      <div class="match-table">
-        <div class="match-head">
-          <span>#</span>
-          <span style="text-align:right">Local</span>
-          <span style="text-align:center">Pred / Real</span>
-          <span>Visitante</span>
-          <span></span>
-        </div>
-        <div id="prons-rows"></div>
-      </div>
     </div>
   </div>
 
@@ -596,10 +609,10 @@ function selectUser(id) {
   // Highlight in ranking
   renderLbPage();
 
-  // Switch to prons tab if currently on ranking
+  // Switch to pts tab if currently on ranking
   const active = document.querySelector('.tab-btn.active');
   if (active?.dataset.tab === 'ranking') {
-    showTab('mis-prons');
+    showTab('mis-pts');
   }
 }
 
@@ -811,7 +824,7 @@ function showTab(tab) {
 // BOOT
 // ═══════════════════════════════════════════════════════
 init();
-setInterval(() => { buildScores(); computeRankings(); renderRanking(); if (currentUser) { renderUserProns(); renderUserPts(); } }, 5*60*1000);
+setInterval(() => { buildScores(); computeRankings(); renderRanking(); if (currentUser) { renderUserPts(); } }, 5*60*1000);
 </script>
 </body>
 </html>

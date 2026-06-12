@@ -410,7 +410,7 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
 // CONFIG
 // ═══════════════════════════════════════════════════════
 const DATA_URL      = 'data.json';
-// Primary: worldcup26.ir — live scores, no API key, CORS open
+// Primary: worldcup26.ir — live scores, no API key
 const API_PRIMARY   = 'https://worldcup26.ir/get/games';
 // Fallback: openfootball — updated ~daily by hand, no API key
 const API_FALLBACK  = 'https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json';
@@ -422,7 +422,6 @@ const PTS_EXACT = 15;
 // ═══════════════════════════════════════════════════════
 let DATA        = null;
 // Normalised results: array of {t1, t2, g1, g2}
-// g1/g2 = null if match not yet played
 let API_RESULTS = [];
 let SCORES      = {};
 let RANKINGS    = [];
@@ -431,26 +430,34 @@ let lbPage      = 0;
 const LB_PAGE_SIZE = 50;
 
 // ═══════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════
+
+// Cross-browser fetch with timeout (AbortSignal.timeout not in Safari < 17)
+function fetchWithTimeout(url, ms) {
+  const ctrl = new AbortController();
+  const id = setTimeout(() => ctrl.abort(), ms);
+  return fetch(url, { signal: ctrl.signal }).finally(() => clearTimeout(id));
+}
+
+// ═══════════════════════════════════════════════════════
 // TEAM NORMALIZATION
-// Maps anything an API might send → canonical name in data.json
 // ═══════════════════════════════════════════════════════
 const TEAM_MAP = {
-  // Generic aliases
   "south africa":"South Africa","south korea":"South Korea",
   "korea republic":"South Korea","republic of korea":"South Korea",
   "czech republic":"Czech Republic","czechia":"Czech Republic",
   "ivory coast":"Ivory Coast","cote d'ivoire":"Ivory Coast","côte d'ivoire":"Ivory Coast",
-  "usa":"USA","united states":"USA","us":"USA",
+  "usa":"USA","united states":"USA",
   "netherlands":"Netherlands","holland":"Netherlands",
-  "new zealand":"New Zealand","nz":"New Zealand",
+  "new zealand":"New Zealand",
   "saudi arabia":"Saudi Arabia","ksa":"Saudi Arabia",
   "cape verde":"Cape Verde","cabo verde":"Cape Verde",
   "bosnia-herzegovina":"Bosnia Herzegovina","bosnia & herzegovina":"Bosnia Herzegovina",
   "bosnia and herzegovina":"Bosnia Herzegovina",
   "curaçao":"Curaçao","curacao":"Curaçao",
   "dr congo":"Congo","congo dr":"Congo","democratic republic of congo":"Congo",
-  "iran":"Iran","ir iran":"Iran",
-  "scotland":"Scotland","england":"England","wales":"Wales","northern ireland":"Northern Ireland",
+  "ir iran":"Iran",
 };
 function normTeam(n) {
   if (!n) return '';
@@ -459,44 +466,43 @@ function normTeam(n) {
 }
 
 // ═══════════════════════════════════════════════════════
-// PARSE API RESPONSES → unified {t1, t2, g1, g2} array
-// Handles both worldcup26.ir and openfootball formats
+// PARSERS
 // ═══════════════════════════════════════════════════════
+
+// worldcup26.ir: array of { homeTeam:{name}, awayTeam:{name}, homeScore, awayScore }
 function parseWorldcup26(data) {
-  // worldcup26.ir /get/games returns an array of match objects.
-  // Possible field names (open-source repo uses these):
-  //   homeTeam / awayTeam  (string or object with .name)
-  //   homeScore / awayScore  (number or null)
-  //   home_team / away_team
-  //   team1 / team2  +  score1 / score2
   const arr = Array.isArray(data) ? data : (data.games || data.matches || data.data || []);
   return arr.map(m => {
-    // Team name — try several possible field layouts
     const rawT1 = m.homeTeam || m.home_team || m.team1 || '';
     const rawT2 = m.awayTeam || m.away_team || m.team2 || '';
-    const t1 = normTeam(typeof rawT1 === 'object' ? (rawT1.name || rawT1.nameEn || '') : rawT1);
-    const t2 = normTeam(typeof rawT2 === 'object' ? (rawT2.name || rawT2.nameEn || '') : rawT2);
-
-    // Score — null if not played yet
-    const rawG1 = m.homeScore ?? m.home_score ?? m.score1 ?? m.goalsHome ?? null;
-    const rawG2 = m.awayScore ?? m.away_score ?? m.score2 ?? m.goalsAway ?? null;
-    const g1 = rawG1 !== null && rawG1 !== '' && rawG1 !== undefined ? Number(rawG1) : null;
-    const g2 = rawG2 !== null && rawG2 !== '' && rawG2 !== undefined ? Number(rawG2) : null;
-    // Only count as played if both scores are valid numbers
+    const t1 = normTeam(typeof rawT1 === 'object' ? (rawT1.name || rawT1.nameEn || '') : String(rawT1));
+    const t2 = normTeam(typeof rawT2 === 'object' ? (rawT2.name || rawT2.nameEn || '') : String(rawT2));
+    // homeScore / awayScore are the confirmed field names per the Apify example
+    const rawG1 = m.homeScore ?? m.home_score ?? m.score1 ?? null;
+    const rawG2 = m.awayScore ?? m.away_score ?? m.score2 ?? null;
+    const g1 = (rawG1 !== null && rawG1 !== '' && rawG1 !== undefined) ? Number(rawG1) : null;
+    const g2 = (rawG2 !== null && rawG2 !== '' && rawG2 !== undefined) ? Number(rawG2) : null;
     const played = g1 !== null && g2 !== null && !isNaN(g1) && !isNaN(g2);
     return { t1, t2, g1: played ? g1 : null, g2: played ? g2 : null };
   }).filter(m => m.t1 && m.t2);
 }
 
+// openfootball 2026: { matches:[{ team1, team2, score1, score2 }] }
+// score1/score2 are missing (undefined) when not yet played
+// Older format used score.ft — also handled
 function parseOpenfootball(data) {
-  // openfootball 2026 format: { matches: [{team1, team2, score1, score2, ...}] }
-  // score1/score2 are absent (undefined) when not played yet
   const arr = data.matches || [];
   return arr.map(m => {
     const t1 = normTeam(m.team1 || '');
     const t2 = normTeam(m.team2 || '');
-    const g1 = m.score1 !== undefined ? Number(m.score1) : null;
-    const g2 = m.score2 !== undefined ? Number(m.score2) : null;
+    // New 2026 format: score1 / score2 directly on the object
+    let g1 = m.score1 !== undefined ? Number(m.score1) : null;
+    let g2 = m.score2 !== undefined ? Number(m.score2) : null;
+    // Legacy format: score.ft array
+    if (g1 === null && m.score && m.score.ft) {
+      g1 = Number(m.score.ft[0]);
+      g2 = Number(m.score.ft[1]);
+    }
     const played = g1 !== null && g2 !== null && !isNaN(g1) && !isNaN(g2);
     return { t1, t2, g1: played ? g1 : null, g2: played ? g2 : null };
   }).filter(m => m.t1 && m.t2);
@@ -506,7 +512,7 @@ function parseOpenfootball(data) {
 // LOAD DATA
 // ═══════════════════════════════════════════════════════
 async function init() {
-  // 1. Load our participants data
+  // 1. Load participants data (mandatory)
   try {
     const r = await fetch(DATA_URL);
     DATA = await r.json();
@@ -516,27 +522,33 @@ async function init() {
     return;
   }
 
-  // 2. Try primary API (worldcup26.ir) first, fall back to openfootball
-  let apiSource = '';
+  // 2. Try worldcup26.ir (primary, live), fall back to openfootball
+  let loaded = false;
   try {
-    const r2 = await fetch(API_PRIMARY, { signal: AbortSignal.timeout(6000) });
+    const r2 = await fetchWithTimeout(API_PRIMARY, 7000);
     if (!r2.ok) throw new Error('HTTP ' + r2.status);
     const j = await r2.json();
-    API_RESULTS = parseWorldcup26(j);
-    if (API_RESULTS.length === 0) throw new Error('empty');
-    apiSource = 'worldcup26.ir';
-    setApiStatus('ok', `${apiSource} · ${API_RESULTS.length} partidos`);
+    const parsed = parseWorldcup26(j);
+    if (parsed.length === 0) throw new Error('empty response');
+    API_RESULTS = parsed;
+    loaded = true;
+    setApiStatus('ok', `worldcup26.ir · ${API_RESULTS.length} partidos · en vivo`);
   } catch(e) {
-    // Primary failed → try openfootball fallback
+    console.warn('worldcup26.ir failed:', e.message, '— trying openfootball fallback');
+  }
+
+  if (!loaded) {
     try {
-      const r3 = await fetch(API_FALLBACK, { signal: AbortSignal.timeout(8000) });
+      const r3 = await fetchWithTimeout(API_FALLBACK, 9000);
       if (!r3.ok) throw new Error('HTTP ' + r3.status);
       const j = await r3.json();
-      API_RESULTS = parseOpenfootball(j);
-      apiSource = 'openfootball (backup)';
-      setApiStatus('warn', `${apiSource} · ${API_RESULTS.length} partidos · actualización diaria`);
+      const parsed = parseOpenfootball(j);
+      API_RESULTS = parsed;
+      loaded = true;
+      setApiStatus('warn', `openfootball (backup) · ${API_RESULTS.length} partidos · actualización diaria`);
     } catch(e2) {
-      setApiStatus('warn', 'Sin datos en tiempo real — APIs no disponibles');
+      console.warn('openfootball fallback also failed:', e2.message);
+      setApiStatus('warn', 'Sin resultados en tiempo real — ambas APIs no disponibles');
     }
   }
 
@@ -563,12 +575,13 @@ function buildScores() {
     for (const m of API_RESULTS) {
       const at1 = m.t1.toLowerCase();
       const at2 = m.t2.toLowerCase();
-      if ((at1===t1 && at2===t2) || (at1===t2 && at2===t1)) {
+      const match12 = at1 === t1 && at2 === t2;
+      const match21 = at1 === t2 && at2 === t1;
+      if (match12 || match21) {
         if (m.g1 !== null) {
-          // Swap if API had teams in reverse order
-          found = at1===t1 ? {g1:m.g1, g2:m.g2} : {g1:m.g2, g2:m.g1};
+          found = match12 ? {g1: m.g1, g2: m.g2} : {g1: m.g2, g2: m.g1};
         } else {
-          found = {g1:null, g2:null};
+          found = {g1: null, g2: null};
         }
         break;
       }

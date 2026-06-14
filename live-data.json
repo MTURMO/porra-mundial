@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-14T21:22:51.487025+00:00",
+  "updated": "2026-06-14T23:18:49.274430+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -59,8 +59,8 @@
     {
       "t1": "Netherlands",
       "t2": "Japan",
-      "g1": null,
-      "g2": null
+      "g1": 2,
+      "g2": 2
     },
     {
       "t1": "Ivory Coast",
@@ -461,6 +461,8 @@
     "nathaniel brown": 1,
     "deniz undav": 1,
     "virgil van dijk": 1,
-    "keito nakamura": 1
+    "keito nakamura": 1,
+    "crysencio summerville": 1,
+    "daichi kamada": 1
   }
 }

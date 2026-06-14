@@ -91,7 +91,11 @@ def from_football_data(token):
         t2 = norm_team(m.get("awayTeam", {}).get("name", ""))
         ft = (m.get("score") or {}).get("fullTime") or {}
         g1, g2 = ft.get("home"), ft.get("away")
-        played = g1 is not None and g2 is not None
+        # Only treat as a final result once the match has actually finished —
+        # otherwise an in-play scoreline gets locked in for an hour (until the
+        # next scheduled run) and points get computed on a half-finished match.
+        finished = m.get("status") in ("FINISHED", "AWARDED")
+        played = finished and g1 is not None and g2 is not None
         if t1 and t2:
             fixtures.append({"t1": t1, "t2": t2,
                               "g1": g1 if played else None,
@@ -129,7 +133,11 @@ def from_worldcup26():
 
         g1 = m.get("homeScore", m.get("home_score", m.get("score1")))
         g2 = m.get("awayScore", m.get("away_score", m.get("score2")))
-        played = g1 is not None and g2 is not None
+        status = str(m.get("status", "")).strip().lower()
+        # If the source reports a live/in-progress status, don't lock in a
+        # half-time scoreline — wait until it's actually finished.
+        in_progress = status in ("live", "in_play", "inplay", "in progress", "1h", "2h", "ht", "playing")
+        played = g1 is not None and g2 is not None and not in_progress
 
         if t1 and t2:
             out.append({"t1": t1, "t2": t2,

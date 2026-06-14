@@ -226,9 +226,6 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
 .compare-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(240,192,64,0.12); }
 .compare-input::placeholder { color: var(--muted); }
 .compare-suggestions { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 18px; min-height: 1px; }
-.cmp-match-filter-wrap { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; }
-.cmp-match-filter-wrap label { font-size: 0.82rem; color: var(--muted); white-space: nowrap; }
-.cmp-match-filter-wrap select.compare-input { width: auto; min-width: 220px; padding: 9px 14px; cursor: pointer; }
 .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 16px; }
 .compare-chip {
   background: var(--surface2); border: 1px solid var(--gold2); border-radius: 999px;
@@ -397,6 +394,7 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
     <button class="tab-btn" data-tab="mis-pts">🏅 Mis puntos</button>
     <button class="tab-btn" data-tab="mis-finals">⭐ Mi clasificación final</button>
     <button class="tab-btn" data-tab="comparar">🤝 Comparar con amigos</button>
+    <button class="tab-btn" data-tab="por-partido">📊 Por partido</button>
   </div>
 </nav>
 
@@ -495,13 +493,36 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
         </table>
       </div>
       <div class="sec-title" style="margin-top:24px">📋 Partido a partido</div>
-      <div class="cmp-match-filter-wrap">
-        <label for="compare-match-filter">Ver partido:</label>
-        <select id="compare-match-filter" class="compare-input"></select>
-      </div>
       <div class="compare-table-wrap">
         <table class="cmp-match-table" id="compare-match-table"></table>
       </div>
+    </div>
+  </div>
+
+  <!-- POR PARTIDO -->
+  <div id="tab-por-partido" class="tab-panel">
+    <div class="sec-title">📊 Pronósticos por partido</div>
+    <div class="compare-search-wrap">
+      <select id="match-select" class="compare-input"></select>
+    </div>
+    <div class="scorer-banner" id="match-info"></div>
+    <div class="sec-title" style="margin-top:24px">Marcadores más repetidos</div>
+    <div style="overflow-x:auto">
+      <table class="lb-table" id="match-dist-table">
+        <thead>
+          <tr><th>Marcador</th><th>Participantes</th><th>%</th><th>Puntos si acierto</th></tr>
+        </thead>
+        <tbody id="match-dist-body"></tbody>
+      </table>
+    </div>
+    <div class="sec-title" style="margin-top:24px">Todos los pronósticos</div>
+    <div style="overflow-x:auto">
+      <table class="lb-table" id="match-all-table">
+        <thead>
+          <tr><th>Participante</th><th>Pronóstico</th><th>Puntos</th></tr>
+        </thead>
+        <tbody id="match-all-body"></tbody>
+      </table>
     </div>
   </div>
 
@@ -688,6 +709,8 @@ async function init() {
   buildScores();
   computeRankings();
   renderRanking();
+  populateMatchSelect();
+  renderMatchView();
   document.getElementById('update-time').textContent = new Date().toLocaleTimeString('es-ES');
 }
 
@@ -1202,26 +1225,10 @@ function renderCompare() {
     </tr>`;
   }).join('');
 
-  // Populate match filter (only once)
-  const filterEl = document.getElementById('compare-match-filter');
-  if (!filterEl.dataset.populated) {
-    let opts = '<option value="all">Todos los partidos</option>';
-    for (let mn = 1; mn <= 72; mn++) {
-      const meta = DATA.matches[mn];
-      if (!meta) continue;
-      opts += `<option value="${mn}">#${mn} · ${meta.team1} - ${meta.team2}</option>`;
-    }
-    filterEl.innerHTML = opts;
-    filterEl.dataset.populated = '1';
-    filterEl.addEventListener('change', renderCompare);
-  }
-  const selectedMatch = filterEl.value || 'all';
-
   // Match-by-match comparison
   const parts = allIds.map(id => DATA.participants.find(p => p.id === id)).filter(Boolean);
   let html = `<thead><tr><th>#</th><th>Local</th><th>Real</th><th>Visitante</th>${parts.map(p => `<th>${p.name}</th>`).join('')}</tr></thead><tbody>`;
   for (let mn = 1; mn <= 72; mn++) {
-    if (selectedMatch !== 'all' && String(mn) !== selectedMatch) continue;
     const meta = DATA.matches[mn];
     if (!meta) continue;
     const real = SCORES[mn] || null;
@@ -1254,6 +1261,87 @@ function clearCurrentUser() {
 }
 
 // ═══════════════════════════════════════════════════════
+// POR PARTIDO
+// ═══════════════════════════════════════════════════════
+function populateMatchSelect() {
+  const sel = document.getElementById('match-select');
+  let html = '';
+  let currentGroup = '';
+  for (let mn = 1; mn <= 72; mn++) {
+    const meta = DATA.matches[mn];
+    if (!meta) continue;
+    const grp = `Grupo ${meta.group}`;
+    if (grp !== currentGroup) {
+      if (currentGroup) html += '</optgroup>';
+      html += `<optgroup label="${grp}">`;
+      currentGroup = grp;
+    }
+    html += `<option value="${mn}">#${mn} · ${meta.team1} - ${meta.team2}</option>`;
+  }
+  if (currentGroup) html += '</optgroup>';
+  sel.innerHTML = html;
+  sel.addEventListener('change', renderMatchView);
+}
+
+function renderMatchView() {
+  if (!DATA) return;
+  const mn = document.getElementById('match-select').value;
+  const meta = DATA.matches[mn];
+  if (!meta) return;
+  const real = SCORES[mn] || null;
+  const hasReal = real && real.g1 !== null;
+
+  document.getElementById('match-info').innerHTML = `
+    <div class="scorer-info">
+      <div class="scorer-lbl">Grupo ${meta.group} · Partido #${mn}</div>
+      <div class="scorer-name">${meta.team1} vs ${meta.team2}</div>
+    </div>
+    <div class="scorer-stat">
+      <div class="scorer-num ${hasReal ? 'gold' : ''}">${hasReal ? `${real.g1}-${real.g2}` : '—'}</div>
+      <div class="scorer-sub">${hasReal ? 'resultado' : 'pendiente'}</div>
+    </div>
+  `;
+
+  // Distribution of predicted scorelines
+  const dist = {};
+  for (const p of DATA.participants) {
+    const prd = p.preds[mn] || [null, null];
+    if (prd[0] === null) continue;
+    const key = `${prd[0]}-${prd[1]}`;
+    dist[key] = (dist[key] || 0) + 1;
+  }
+  const total = DATA.participants.length;
+  const sorted = Object.entries(dist).sort((a, b) => b[1] - a[1]);
+  document.getElementById('match-dist-body').innerHTML = sorted.map(([key, count]) => {
+    const [g1, g2] = key.split('-').map(Number);
+    const pct = ((count / total) * 100).toFixed(1);
+    let ptsLabel = '—';
+    if (hasReal) {
+      const r = calcPts(g1, g2, real.g1, real.g2);
+      ptsLabel = r ? r.pts : 0;
+    }
+    return `<tr><td>${key}</td><td>${count}</td><td>${pct}%</td><td>${ptsLabel}</td></tr>`;
+  }).join('');
+
+  // All predictions
+  const rows = DATA.participants.map(p => {
+    const prd = p.preds[mn] || [null, null];
+    const r = hasReal ? calcPts(prd[0], prd[1], real.g1, real.g2) : null;
+    return { name: p.name, prd, pts: r ? r.pts : null, reason: r ? r.reason : null };
+  });
+  rows.sort((a, b) => (b.pts ?? -1) - (a.pts ?? -1) || a.name.localeCompare(b.name));
+  document.getElementById('match-all-body').innerHTML = rows.map(r => {
+    const p1 = r.prd[0] !== null ? r.prd[0] : '?', p2 = r.prd[1] !== null ? r.prd[1] : '?';
+    let ptsCell = '<span style="color:var(--muted)">—</span>';
+    if (r.pts !== null) {
+      const color = r.reason === 'exact' ? 'var(--green)' : r.reason === 'sign' ? 'var(--amber)' : 'var(--red)';
+      ptsCell = `<span style="color:${color};font-weight:800">${r.pts}</span>`;
+    }
+    return `<tr><td>${r.name}</td><td>${p1}-${p2}</td><td>${ptsCell}</td></tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
 // TAB SWITCHING
 // ═══════════════════════════════════════════════════════
 document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -1269,7 +1357,7 @@ function showTab(tab) {
 // BOOT
 // ═══════════════════════════════════════════════════════
 init();
-setInterval(() => { buildScores(); computeRankings(); renderRanking(); if (currentUser) { renderUserPts(); } renderCompare(); }, 5*60*1000);
+setInterval(() => { buildScores(); computeRankings(); renderRanking(); if (currentUser) { renderUserPts(); } renderCompare(); renderMatchView(); }, 5*60*1000);
 </script>
 </body>
 </html>

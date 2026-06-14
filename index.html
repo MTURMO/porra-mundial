@@ -522,34 +522,10 @@ function normTeam(n) {
 // PARSERS
 // ═══════════════════════════════════════════════════════
 
-// API-Football: { response: [{ teams:{home:{name},away:{name}}, goals:{home,away} }] }
-function parseApiFootballFixtures(json) {
-  const arr = json.response || [];
-  return arr.map(m => {
-    const t1 = normTeam(m.teams?.home?.name || '');
-    const t2 = normTeam(m.teams?.away?.name || '');
-    const rawG1 = m.goals?.home;
-    const rawG2 = m.goals?.away;
-    const played = rawG1 !== null && rawG2 !== null && rawG1 !== undefined && rawG2 !== undefined;
-    return { t1, t2, g1: played ? Number(rawG1) : null, g2: played ? Number(rawG2) : null };
-  }).filter(m => m.t1 && m.t2);
-}
-
-// API-Football top scorers: { response: [{ player:{name}, statistics:[{goals:{total}}] }] }
-function parseApiFootballTopscorers(json) {
-  const arr = json.response || [];
-  const out = {};
-  for (const item of arr) {
-    const name = normalizeScorerName(item.player?.name || '');
-    const goals = item.statistics?.[0]?.goals?.total || 0;
-    if (name) out[name] = goals;
-  }
-  return out;
-}
-
 // openfootball 2026: { matches:[{ team1, team2, score1, score2 }] }
 // score1/score2 are missing (undefined) when not yet played
 // Older format used score.ft — also handled
+// Used as a client-side fallback if live-data.json is unavailable.
 function parseOpenfootball(data) {
   const arr = data.matches || [];
   return arr.map(m => {
@@ -597,21 +573,23 @@ async function init() {
     console.warn('scorers.json not available');
   }
 
-  // 3. Primary source: live-data.json (refreshed hourly by GitHub Actions
-  //    from API-Football — fixtures + top scorers, no key needed client-side)
+  // 3. Primary source: live-data.json (refreshed hourly by GitHub Actions —
+  //    fixtures + top scorer goals, already normalized server-side)
   let loaded = false;
   try {
     const rl = await fetchWithTimeout(LIVE_DATA_URL, 6000);
     if (rl.ok) {
       const jl = await rl.json();
-      const parsedFixtures = parseApiFootballFixtures(jl.fixtures || {});
-      if (parsedFixtures.length > 0) {
-        API_RESULTS = parsedFixtures;
+      if (Array.isArray(jl.fixtures) && jl.fixtures.length > 0) {
+        API_RESULTS = jl.fixtures;
         loaded = true;
         const updatedStr = jl.updated ? new Date(jl.updated).toLocaleString('es-ES') : '';
-        setApiStatus('ok', `API-Football · ${API_RESULTS.length} partidos · act. ${updatedStr}`);
+        const srcLabel = jl.source || 'live-data';
+        setApiStatus('ok', `${srcLabel} · ${API_RESULTS.length} partidos · act. ${updatedStr}`);
       }
-      API_TOPSCORERS = parseApiFootballTopscorers(jl.topscorers || {});
+      if (jl.topscorers && typeof jl.topscorers === 'object') {
+        API_TOPSCORERS = jl.topscorers;
+      }
     }
   } catch(e) {
     console.warn('live-data.json not available:', e.message);

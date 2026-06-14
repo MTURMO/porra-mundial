@@ -2,8 +2,8 @@ name: Update live World Cup data
 
 on:
   schedule:
-    # Every hour. Adjust frequency as needed — API-Football free tier
-    # allows 100 requests/day, and this workflow uses 2 per run.
+    # Every hour. football-data.org free tier allows 10 req/min,
+    # this workflow makes 2 calls per run — plenty of headroom.
     - cron: '0 * * * *'
   workflow_dispatch: {}   # allows manual runs from the Actions tab
 
@@ -24,9 +24,14 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Fetch latest data from API-Football
+      - name: Fetch latest data
         env:
-          APIFOOTBALL_KEY: ${{ secrets.APIFOOTBALL_KEY }}
+          # Optional but recommended: free token from
+          # https://www.football-data.org/client/register
+          # Gives both match results AND top-scorer goals.
+          # If not set, falls back to worldcup26.ir / openfootball
+          # (fixtures only — scorer goals then use scorers.json).
+          FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
         run: python3 scripts/update_live_data.py
 
       - name: Commit and push if changed

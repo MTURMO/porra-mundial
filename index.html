@@ -714,6 +714,13 @@ async function init() {
   populateMatchSelect();
   renderMatchView();
   document.getElementById('update-time').textContent = new Date().toLocaleTimeString('es-ES');
+
+  // Pre-select a participant from the URL (?nick=Name), e.g. for sharing links
+  const nickParam = new URLSearchParams(window.location.search).get('nick');
+  if (nickParam) {
+    const hit = DATA.participants.find(p => p.name.toLowerCase() === nickParam.toLowerCase());
+    if (hit) selectUser(hit.id, { skipUrlUpdate: true });
+  }
 }
 
 function setApiStatus(state, msg) {
@@ -911,12 +918,19 @@ function selectUserById(id) {
   selectUser(id);
 }
 
-function selectUser(id) {
+function selectUser(id, opts = {}) {
   if (!DATA) return;
   currentUser = DATA.participants.find(p => p.id === id);
   if (!currentUser) return;
   nickInput.value = currentUser.name;
   document.getElementById('suggestions').innerHTML = '';
+
+  // Reflect the selection in the URL so it can be bookmarked/shared
+  if (!opts.skipUrlUpdate) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('nick', currentUser.name);
+    history.replaceState(null, '', url);
+  }
 
   // Render user tabs
   renderUserPts();
@@ -1254,6 +1268,9 @@ function renderCompare() {
 function clearCurrentUser() {
   currentUser = null;
   nickInput.value = '';
+  const url = new URL(window.location.href);
+  url.searchParams.delete('nick');
+  history.replaceState(null, '', url);
   document.getElementById('pts-empty').style.display = 'block';
   document.getElementById('pts-content').style.display = 'none';
   document.getElementById('finals-empty').style.display = 'block';

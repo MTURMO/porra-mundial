@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-14T17:38:03.626911+00:00",
+  "updated": "2026-06-14T19:12:07.849751+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -53,7 +53,7 @@
     {
       "t1": "Germany",
       "t2": "Curaçao",
-      "g1": 1,
+      "g1": 7,
       "g2": 1
     },
     {
@@ -437,6 +437,7 @@
   ],
   "topscorers": {
     "folarin balogun": 2,
+    "kai havertz": 2,
     "julian quinones": 1,
     "raul jimenez": 1,
     "ladislav krejci": 1,
@@ -454,6 +455,10 @@
     "nestor irankunda": 1,
     "connor metcalfe": 1,
     "felix kalu nmecha": 1,
-    "livano comenencia": 1
+    "livano comenencia": 1,
+    "nico schlotterbeck": 1,
+    "jamal musiala": 1,
+    "nathaniel brown": 1,
+    "deniz undav": 1
   }
 }

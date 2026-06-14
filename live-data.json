@@ -1,6 +1,457 @@
 {
-  "updated": null,
-  "source": null,
-  "fixtures": [],
-  "topscorers": {}
+  "updated": "2026-06-14T15:11:50.028406+00:00",
+  "source": "football-data.org",
+  "fixtures": [
+    {
+      "t1": "Mexico",
+      "t2": "South Africa",
+      "g1": 2,
+      "g2": 0
+    },
+    {
+      "t1": "South Korea",
+      "t2": "Czech Republic",
+      "g1": 2,
+      "g2": 1
+    },
+    {
+      "t1": "Canada",
+      "t2": "Bosnia Herzegovina",
+      "g1": 1,
+      "g2": 1
+    },
+    {
+      "t1": "USA",
+      "t2": "Paraguay",
+      "g1": 4,
+      "g2": 1
+    },
+    {
+      "t1": "Qatar",
+      "t2": "Switzerland",
+      "g1": 1,
+      "g2": 1
+    },
+    {
+      "t1": "Brazil",
+      "t2": "Morocco",
+      "g1": 1,
+      "g2": 1
+    },
+    {
+      "t1": "Haiti",
+      "t2": "Scotland",
+      "g1": 0,
+      "g2": 1
+    },
+    {
+      "t1": "Australia",
+      "t2": "Turkey",
+      "g1": 2,
+      "g2": 0
+    },
+    {
+      "t1": "Germany",
+      "t2": "Curaçao",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Netherlands",
+      "t2": "Japan",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Ivory Coast",
+      "t2": "Ecuador",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Sweden",
+      "t2": "Tunisia",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Spain",
+      "t2": "Cape Verde",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Belgium",
+      "t2": "Egypt",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Saudi Arabia",
+      "t2": "Uruguay",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Iran",
+      "t2": "New Zealand",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "France",
+      "t2": "Senegal",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Iraq",
+      "t2": "Norway",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Argentina",
+      "t2": "Algeria",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Austria",
+      "t2": "Jordan",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Portugal",
+      "t2": "Congo",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "England",
+      "t2": "Croatia",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Ghana",
+      "t2": "Panama",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Uzbekistan",
+      "t2": "Colombia",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Czech Republic",
+      "t2": "South Africa",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Switzerland",
+      "t2": "Bosnia Herzegovina",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Canada",
+      "t2": "Qatar",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Mexico",
+      "t2": "South Korea",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "USA",
+      "t2": "Australia",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Scotland",
+      "t2": "Morocco",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Brazil",
+      "t2": "Haiti",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Turkey",
+      "t2": "Paraguay",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Netherlands",
+      "t2": "Sweden",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Germany",
+      "t2": "Ivory Coast",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Ecuador",
+      "t2": "Curaçao",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Tunisia",
+      "t2": "Japan",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Spain",
+      "t2": "Saudi Arabia",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Belgium",
+      "t2": "Iran",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Uruguay",
+      "t2": "Cape Verde",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "New Zealand",
+      "t2": "Egypt",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Argentina",
+      "t2": "Austria",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "France",
+      "t2": "Iraq",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Norway",
+      "t2": "Senegal",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Jordan",
+      "t2": "Algeria",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Portugal",
+      "t2": "Uzbekistan",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "England",
+      "t2": "Ghana",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Panama",
+      "t2": "Croatia",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Colombia",
+      "t2": "Congo",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Switzerland",
+      "t2": "Canada",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Bosnia Herzegovina",
+      "t2": "Qatar",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Morocco",
+      "t2": "Haiti",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Scotland",
+      "t2": "Brazil",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Czech Republic",
+      "t2": "Mexico",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "South Africa",
+      "t2": "South Korea",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Ecuador",
+      "t2": "Germany",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Curaçao",
+      "t2": "Ivory Coast",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Tunisia",
+      "t2": "Netherlands",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Japan",
+      "t2": "Sweden",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Turkey",
+      "t2": "USA",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Paraguay",
+      "t2": "Australia",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Norway",
+      "t2": "France",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Senegal",
+      "t2": "Iraq",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Uruguay",
+      "t2": "Spain",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Cape Verde",
+      "t2": "Saudi Arabia",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "New Zealand",
+      "t2": "Belgium",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Egypt",
+      "t2": "Iran",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Panama",
+      "t2": "England",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Croatia",
+      "t2": "Ghana",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Colombia",
+      "t2": "Portugal",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Congo",
+      "t2": "Uzbekistan",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Jordan",
+      "t2": "Argentina",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Algeria",
+      "t2": "Austria",
+      "g1": null,
+      "g2": null
+    }
+  ],
+  "topscorers": {
+    "folarin balogun": 2,
+    "julian quinones": 1,
+    "raul jimenez": 1,
+    "ladislav krejci": 1,
+    "in-beom hwang": 1,
+    "hyun-gyu oh": 1,
+    "jovo lukic": 1,
+    "cyle larin": 1,
+    "mauricio": 1,
+    "gio reyna": 1,
+    "breel embolo": 1,
+    "boualem khoukhi": 1,
+    "ismael saibari": 1,
+    "vinicius junior": 1,
+    "john mcginn": 1,
+    "nestor irankunda": 1,
+    "connor metcalfe": 1
+  }
 }

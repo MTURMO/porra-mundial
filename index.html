@@ -124,6 +124,24 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
 .stat-card.red .num { color: var(--red); }
 .stat-card.blue .num { color: var(--blue); }
 
+/* ── SCORER BANNER ───────────────────────────────── */
+.scorer-banner {
+  background: var(--surface); border: 1px solid var(--gold2);
+  border-radius: var(--radius); padding: 14px 18px;
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 24px;
+  background: linear-gradient(135deg, var(--surface) 0%, rgba(240,192,64,0.05) 100%);
+}
+.scorer-flag { font-size: 1.8rem; flex-shrink: 0; }
+.scorer-info { flex: 1; min-width: 0; }
+.scorer-lbl { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+.scorer-name { font-size: 1rem; font-weight: 800; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.scorer-stat { text-align: center; flex-shrink: 0; }
+.scorer-num { font-size: 1.4rem; font-weight: 800; color: var(--text); }
+.scorer-num.gold { color: var(--gold); }
+.scorer-sub { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.scorer-eq { font-size: 0.9rem; color: var(--muted); flex-shrink: 0; }
+
 /* ── MATCH TABLE ─────────────────────────────────── */
 .match-table { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 24px; }
 .match-head {
@@ -297,6 +315,14 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
   .stat-card .num { font-size: 1.35rem; }
   .stat-card .lbl { font-size: 0.63rem; }
 
+  /* Scorer banner */
+  .scorer-banner { padding: 10px 12px; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .scorer-flag { font-size: 1.4rem; }
+  .scorer-info { min-width: 100px; }
+  .scorer-name { font-size: 0.85rem; }
+  .scorer-num { font-size: 1.15rem; }
+  .scorer-eq { font-size: 0.75rem; }
+
   /* Finals */
   .finals-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .final-card { padding: 12px 10px; }
@@ -319,6 +345,7 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
       <div class="pill" id="api-pill"><div class="dot amber" id="api-dot"></div><span id="api-text">Cargando datos...</span></div>
       <div class="pill"><span>👥 <span id="total-parts">—</span> participantes</span></div>
       <div class="pill"><span>🕐 <span id="update-time">—</span></span></div>
+      <div class="pill" id="scorers-pill" style="display:none"><span>👟 Goleadores: <span id="scorers-updated">—</span></span></div>
     </div>
   </div>
 </header>
@@ -377,6 +404,7 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
     <div id="pts-content" style="display:none">
       <div class="sec-title" id="pts-title">Puntuación de —</div>
       <div class="stats-row" id="pts-stats"></div>
+      <div id="pts-scorer-banner"></div>
       <div class="match-table">
         <div class="match-head pts-head">
           <span>#</span>
@@ -410,34 +438,59 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
 // CONFIG
 // ═══════════════════════════════════════════════════════
 const DATA_URL      = 'data.json';
-// Primary: worldcup26.ir — live scores, no API key
-const API_PRIMARY   = 'https://worldcup26.ir/get/games';
-// Fallback: openfootball — updated ~daily by hand, no API key
-const API_FALLBACK  = 'https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json';
+// Manually-updated goal tallies for predicted top scorers (last-resort fallback)
+const SCORERS_URL   = 'scorers.json';
+
+// ── PRIMARY: live-data.json ─────────────────────────────
+// Generated hourly by a GitHub Action (see scripts/update_live_data.py)
+// using API-Football (api-sports.io, free tier). The API key lives only
+// in GitHub Secrets — never exposed to visitors, and the 100 req/day
+// quota is independent of how many people open this page.
+const LIVE_DATA_URL = 'live-data.json';
+
+// ── FALLBACK: openfootball (matches only, no key, daily) ──
+const API_FALLBACK = 'https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json';
 
 const PTS_EXACT = 15;
+const PTS_PER_GOAL_SCORER = 20;
 
 // ═══════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════
-let DATA        = null;
-// Normalised results: array of {t1, t2, g1, g2}
-let API_RESULTS = [];
-let SCORES      = {};
-let RANKINGS    = [];
-let currentUser = null;
-let lbPage      = 0;
+let DATA          = null;
+let API_RESULTS   = [];   // array of {t1, t2, g1, g2}
+let SCORES        = {};
+let PLAYER_GOALS  = {};   // manual fallback: normalized name -> goals
+let API_TOPSCORERS = {};  // live data: normalized name -> goals
+let RANKINGS      = [];
+let currentUser   = null;
+let lbPage        = 0;
 const LB_PAGE_SIZE = 50;
+
+// ═══════════════════════════════════════════════════════
+// SCORER NAME NORMALIZATION
+// Strips accents, parentheses (e.g. "(COL)"), case — so
+// "RAPHINHA", "Raphinha", "Vinícius Júnior" and "Vinicius" align
+// ═══════════════════════════════════════════════════════
+function normalizeScorerName(name) {
+  if (!name) return '';
+  return name
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\(.*?\)/g, '')
+    .trim()
+    .replace(/\s+/g, ' ');
+}
 
 // ═══════════════════════════════════════════════════════
 // HELPERS
 // ═══════════════════════════════════════════════════════
 
 // Cross-browser fetch with timeout (AbortSignal.timeout not in Safari < 17)
-function fetchWithTimeout(url, ms) {
+function fetchWithTimeout(url, ms, opts = {}) {
   const ctrl = new AbortController();
   const id = setTimeout(() => ctrl.abort(), ms);
-  return fetch(url, { signal: ctrl.signal }).finally(() => clearTimeout(id));
+  return fetch(url, { ...opts, signal: ctrl.signal }).finally(() => clearTimeout(id));
 }
 
 // ═══════════════════════════════════════════════════════
@@ -448,11 +501,11 @@ const TEAM_MAP = {
   "korea republic":"South Korea","republic of korea":"South Korea",
   "czech republic":"Czech Republic","czechia":"Czech Republic",
   "ivory coast":"Ivory Coast","cote d'ivoire":"Ivory Coast","côte d'ivoire":"Ivory Coast",
-  "usa":"USA","united states":"USA",
+  "usa":"USA","united states":"USA","united states of america":"USA",
   "netherlands":"Netherlands","holland":"Netherlands",
   "new zealand":"New Zealand",
   "saudi arabia":"Saudi Arabia","ksa":"Saudi Arabia",
-  "cape verde":"Cape Verde","cabo verde":"Cape Verde",
+  "cape verde":"Cape Verde","cabo verde":"Cape Verde","cape verde islands":"Cape Verde",
   "bosnia-herzegovina":"Bosnia Herzegovina","bosnia & herzegovina":"Bosnia Herzegovina",
   "bosnia and herzegovina":"Bosnia Herzegovina",
   "curaçao":"Curaçao","curacao":"Curaçao",
@@ -469,22 +522,29 @@ function normTeam(n) {
 // PARSERS
 // ═══════════════════════════════════════════════════════
 
-// worldcup26.ir: array of { homeTeam:{name}, awayTeam:{name}, homeScore, awayScore }
-function parseWorldcup26(data) {
-  const arr = Array.isArray(data) ? data : (data.games || data.matches || data.data || []);
+// API-Football: { response: [{ teams:{home:{name},away:{name}}, goals:{home,away} }] }
+function parseApiFootballFixtures(json) {
+  const arr = json.response || [];
   return arr.map(m => {
-    const rawT1 = m.homeTeam || m.home_team || m.team1 || '';
-    const rawT2 = m.awayTeam || m.away_team || m.team2 || '';
-    const t1 = normTeam(typeof rawT1 === 'object' ? (rawT1.name || rawT1.nameEn || '') : String(rawT1));
-    const t2 = normTeam(typeof rawT2 === 'object' ? (rawT2.name || rawT2.nameEn || '') : String(rawT2));
-    // homeScore / awayScore are the confirmed field names per the Apify example
-    const rawG1 = m.homeScore ?? m.home_score ?? m.score1 ?? null;
-    const rawG2 = m.awayScore ?? m.away_score ?? m.score2 ?? null;
-    const g1 = (rawG1 !== null && rawG1 !== '' && rawG1 !== undefined) ? Number(rawG1) : null;
-    const g2 = (rawG2 !== null && rawG2 !== '' && rawG2 !== undefined) ? Number(rawG2) : null;
-    const played = g1 !== null && g2 !== null && !isNaN(g1) && !isNaN(g2);
-    return { t1, t2, g1: played ? g1 : null, g2: played ? g2 : null };
+    const t1 = normTeam(m.teams?.home?.name || '');
+    const t2 = normTeam(m.teams?.away?.name || '');
+    const rawG1 = m.goals?.home;
+    const rawG2 = m.goals?.away;
+    const played = rawG1 !== null && rawG2 !== null && rawG1 !== undefined && rawG2 !== undefined;
+    return { t1, t2, g1: played ? Number(rawG1) : null, g2: played ? Number(rawG2) : null };
   }).filter(m => m.t1 && m.t2);
+}
+
+// API-Football top scorers: { response: [{ player:{name}, statistics:[{goals:{total}}] }] }
+function parseApiFootballTopscorers(json) {
+  const arr = json.response || [];
+  const out = {};
+  for (const item of arr) {
+    const name = normalizeScorerName(item.player?.name || '');
+    const goals = item.statistics?.[0]?.goals?.total || 0;
+    if (name) out[name] = goals;
+  }
+  return out;
 }
 
 // openfootball 2026: { matches:[{ team1, team2, score1, score2 }] }
@@ -522,22 +582,42 @@ async function init() {
     return;
   }
 
-  // 2. Try worldcup26.ir (primary, live), fall back to openfootball
-  let loaded = false;
+  // 2. Load manual scorer goal tallies (last-resort fallback)
   try {
-    const r2 = await fetchWithTimeout(API_PRIMARY, 7000);
-    // 200 OK or 304 Not Modified (browser serves from cache with full body)
-    if (r2.status !== 200 && r2.status !== 304) throw new Error('HTTP ' + r2.status);
-    const j = await r2.json();
-    const parsed = parseWorldcup26(j);
-    if (parsed.length === 0) throw new Error('empty response');
-    API_RESULTS = parsed;
-    loaded = true;
-    setApiStatus('ok', `worldcup26.ir · ${API_RESULTS.length} partidos · en vivo`);
+    const rs = await fetch(SCORERS_URL);
+    if (rs.ok) {
+      const js = await rs.json();
+      PLAYER_GOALS = js.player_goals || {};
+      if (js.last_updated) {
+        document.getElementById('scorers-updated').textContent = js.last_updated;
+        document.getElementById('scorers-pill').style.display = 'flex';
+      }
+    }
   } catch(e) {
-    console.warn('worldcup26.ir failed:', e.message, '— trying openfootball fallback');
+    console.warn('scorers.json not available');
   }
 
+  // 3. Primary source: live-data.json (refreshed hourly by GitHub Actions
+  //    from API-Football — fixtures + top scorers, no key needed client-side)
+  let loaded = false;
+  try {
+    const rl = await fetchWithTimeout(LIVE_DATA_URL, 6000);
+    if (rl.ok) {
+      const jl = await rl.json();
+      const parsedFixtures = parseApiFootballFixtures(jl.fixtures || {});
+      if (parsedFixtures.length > 0) {
+        API_RESULTS = parsedFixtures;
+        loaded = true;
+        const updatedStr = jl.updated ? new Date(jl.updated).toLocaleString('es-ES') : '';
+        setApiStatus('ok', `API-Football · ${API_RESULTS.length} partidos · act. ${updatedStr}`);
+      }
+      API_TOPSCORERS = parseApiFootballTopscorers(jl.topscorers || {});
+    }
+  } catch(e) {
+    console.warn('live-data.json not available:', e.message);
+  }
+
+  // 4. Fallback: openfootball (matches only, no key, daily updates)
   if (!loaded) {
     try {
       const r3 = await fetchWithTimeout(API_FALLBACK, 9000);
@@ -546,10 +626,10 @@ async function init() {
       const parsed = parseOpenfootball(j);
       API_RESULTS = parsed;
       loaded = true;
-      setApiStatus('warn', `openfootball · ${API_RESULTS.length} partidos · actualización diaria`);
+      setApiStatus('warn', `openfootball (backup) · ${API_RESULTS.length} partidos · actualización diaria`);
     } catch(e2) {
       console.warn('openfootball fallback also failed:', e2.message);
-      setApiStatus('warn', 'Sin resultados en tiempo real — ambas APIs no disponibles');
+      setApiStatus('warn', 'Sin resultados en tiempo real — fuentes no disponibles');
     }
   }
 
@@ -592,6 +672,23 @@ function buildScores() {
 }
 
 // ═══════════════════════════════════════════════════════
+// SCORER GOALS LOOKUP — live API data first, manual fallback
+// ═══════════════════════════════════════════════════════
+function getScorerGoals(scorerRaw) {
+  const key = normalizeScorerName(scorerRaw);
+  if (!key) return 0;
+  // 1. Live API-Football data — match by substring (handles
+  //    "Vinicius" predicted vs "Vinícius Júnior" from the API)
+  for (const [apiName, goals] of Object.entries(API_TOPSCORERS)) {
+    if (apiName === key || apiName.includes(key) || key.includes(apiName)) {
+      return goals;
+    }
+  }
+  // 2. Manually-maintained fallback
+  return PLAYER_GOALS[key] || 0;
+}
+
+// ═══════════════════════════════════════════════════════
 // POINTS CALCULATION
 // ═══════════════════════════════════════════════════════
 function calcPts(pred1, pred2, g1, g2) {
@@ -618,7 +715,11 @@ function scoreParticipant(p) {
     else if (r.reason==='sign') sign++;
     else wrong++;
   }
-  return {total, exact, sign, wrong, pending, played: exact+sign+wrong};
+  // Top scorer bonus: goals scored by predicted player × 20 pts
+  const scorerGoals = getScorerGoals(p.scorer);
+  const scorerPts = scorerGoals * PTS_PER_GOAL_SCORER;
+  total += scorerPts;
+  return {total, exact, sign, wrong, pending, played: exact+sign+wrong, scorerGoals, scorerPts};
 }
 
 function computeRankings() {
@@ -877,16 +978,41 @@ function renderUserPts() {
   const avg = played ? (total/played).toFixed(1) : '—';
   const userEntry = RANKINGS.find(r=>r.id===p.id);
   const userRank = userEntry?.rank ?? '—';
+  const scorerGoals = userEntry?.scorerGoals ?? 0;
+  const scorerPts = userEntry?.scorerPts ?? 0;
+  const totalWithScorer = total + scorerPts;
 
   document.getElementById('pts-stats').innerHTML = `
-    <div class="stat-card gold"><div class="num">${total}</div><div class="lbl">Puntos totales</div></div>
+    <div class="stat-card gold"><div class="num">${totalWithScorer}</div><div class="lbl">Puntos totales</div></div>
     <div class="stat-card green"><div class="num">${exact}</div><div class="lbl">Exactos (×15)</div></div>
     <div class="stat-card amber"><div class="num">${sign}</div><div class="lbl">Signo correcto</div></div>
     <div class="stat-card red"><div class="num">${wrong}</div><div class="lbl">Fallos</div></div>
     <div class="stat-card blue"><div class="num">${played}</div><div class="lbl">Jugados</div></div>
-    <div class="stat-card"><div class="num">${avg}</div><div class="lbl">Pts/partido</div></div>
+    <div class="stat-card"><div class="num">${avg}</div><div class="lbl">Pts/partido (grupos)</div></div>
     <div class="stat-card gold"><div class="num">#${userRank}</div><div class="lbl">Posición</div></div>
   `;
+
+  // Top scorer breakdown banner
+  const scorerName = p.scorer || '—';
+  document.getElementById('pts-scorer-banner').innerHTML = `
+    <div class="scorer-banner">
+      <span class="scorer-flag">👟</span>
+      <div class="scorer-info">
+        <div class="scorer-lbl">Tu máximo goleador</div>
+        <div class="scorer-name">${scorerName}</div>
+      </div>
+      <div class="scorer-stat">
+        <div class="scorer-num">${scorerGoals}</div>
+        <div class="scorer-sub">${scorerGoals === 1 ? 'gol' : 'goles'}</div>
+      </div>
+      <div class="scorer-eq">×20 =</div>
+      <div class="scorer-stat">
+        <div class="scorer-num gold">${scorerPts}</div>
+        <div class="scorer-sub">pts</div>
+      </div>
+    </div>
+  `;
+
   document.getElementById('pts-rows').innerHTML = html;
 }
 

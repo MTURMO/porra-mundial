@@ -1,0 +1,38 @@
+name: Update live World Cup data
+
+on:
+  schedule:
+    # Every hour. Adjust frequency as needed — API-Football free tier
+    # allows 100 requests/day, and this workflow uses 2 per run.
+    - cron: '0 * * * *'
+  workflow_dispatch: {}   # allows manual runs from the Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  update-live-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Fetch latest data from API-Football
+        env:
+          APIFOOTBALL_KEY: ${{ secrets.APIFOOTBALL_KEY }}
+        run: python3 scripts/update_live_data.py
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add live-data.json
+          git diff --quiet --cached || git commit -m "chore: update live World Cup data"
+          git push origin master

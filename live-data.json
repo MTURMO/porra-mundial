@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-14T15:11:50.028406+00:00",
+  "updated": "2026-06-14T17:38:03.626911+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -53,8 +53,8 @@
     {
       "t1": "Germany",
       "t2": "Curaçao",
-      "g1": null,
-      "g2": null
+      "g1": 1,
+      "g2": 1
     },
     {
       "t1": "Netherlands",
@@ -452,6 +452,8 @@
     "vinicius junior": 1,
     "john mcginn": 1,
     "nestor irankunda": 1,
-    "connor metcalfe": 1
+    "connor metcalfe": 1,
+    "felix kalu nmecha": 1,
+    "livano comenencia": 1
   }
 }

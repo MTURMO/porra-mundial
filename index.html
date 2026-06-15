@@ -157,6 +157,7 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
 }
 .match-row:hover { background: var(--surface2); }
 .match-row .num { font-size: 0.72rem; color: var(--muted); font-weight: 600; }
+.x2-badge { background: var(--gold); color: #0a0a0a; font-size: 0.62rem; font-weight: 800; border-radius: 4px; padding: 1px 4px; margin-left: 2px; }
 .match-row .team { font-size: 0.84rem; font-weight: 600; }
 .match-row .t1 { text-align: right; }
 .match-row .t2 { text-align: left; }
@@ -775,14 +776,18 @@ function getScorerGoals(scorerRaw) {
 // ═══════════════════════════════════════════════════════
 // POINTS CALCULATION
 // ═══════════════════════════════════════════════════════
-function calcPts(pred1, pred2, g1, g2) {
+// Matches involving Spain score double points (see DOUBLE_PTS_MATCHES use below)
+const DOUBLE_PTS_MATCHES = new Set(['13', '37', '64']);
+
+function calcPts(pred1, pred2, g1, g2, mn = null) {
   if (pred1 === null || pred2 === null || g1 === null || g2 === null) return null;
-  if (pred1 === g1 && pred2 === g2) return {pts: PTS_EXACT, reason:'exact'};
+  const mult = DOUBLE_PTS_MATCHES.has(String(mn)) ? 2 : 1;
+  if (pred1 === g1 && pred2 === g2) return {pts: PTS_EXACT * mult, reason:'exact'};
   const ps = Math.sign(pred1 - pred2);
   const rs = Math.sign(g1 - g2);
   if (ps === rs) {
     const diff = Math.abs(pred1 - g1) + Math.abs(pred2 - g2);
-    return {pts: Math.max(0, 10 - diff), reason:'sign', diff};
+    return {pts: Math.max(0, 10 - diff) * mult, reason:'sign', diff};
   }
   return {pts: 0, reason:'wrong'};
 }
@@ -792,7 +797,7 @@ function scoreParticipant(p) {
   for (const [mn, pr] of Object.entries(p.preds)) {
     const real = SCORES[mn];
     if (!real || real.g1 === null) { pending++; continue; }
-    const r = calcPts(pr[0], pr[1], real.g1, real.g2);
+    const r = calcPts(pr[0], pr[1], real.g1, real.g2, mn);
     if (!r) { pending++; continue; }
     total += r.pts;
     if (r.reason==='exact') exact++;
@@ -1026,7 +1031,7 @@ function renderUserPts() {
     if (!meta) continue;
     const prd = p.preds[mn] || [null,null];
     const real = SCORES[mn] || null;
-    const r = (real && real.g1 !== null) ? calcPts(prd[0], prd[1], real.g1, real.g2) : null;
+    const r = (real && real.g1 !== null) ? calcPts(prd[0], prd[1], real.g1, real.g2, mn) : null;
     const hasReal = real && real.g1 !== null;
     const p1 = prd[0]!==null?prd[0]:'?', p2 = prd[1]!==null?prd[1]:'?';
     const cls = getResultClass(prd[0],prd[1],real);
@@ -1043,9 +1048,10 @@ function renderUserPts() {
       else { wrong++; ptsBadge=`<span style="color:var(--red);font-weight:800">0</span>`; reasonBadge=`<span style="color:var(--red);font-size:.72rem">fallo</span>`; }
     } else { pending++; }
 
+    const x2Badge = DOUBLE_PTS_MATCHES.has(String(mn)) ? ' <span class="x2-badge" title="Puntos dobles">×2</span>' : '';
     html += `
       <div class="match-row pts-row" style="${rowBg}">
-        <div class="num">#${mn}</div>
+        <div class="num">#${mn}${x2Badge}</div>
         <div class="team t1">${meta.team1}</div>
         <div class="score-cell">
           <div class="score-pair">
@@ -1252,7 +1258,7 @@ function renderCompare() {
     html += `<tr><td>${mn}</td><td class="team-col">${meta.team1}</td><td>${hasReal ? `${real.g1}-${real.g2}` : '—'}</td><td class="team-col t2">${meta.team2}</td>`;
     for (const p of parts) {
       const prd = p.preds[mn] || [null, null];
-      const r = hasReal ? calcPts(prd[0], prd[1], real.g1, real.g2) : null;
+      const r = hasReal ? calcPts(prd[0], prd[1], real.g1, real.g2, mn) : null;
       const p1 = prd[0] !== null ? prd[0] : '?', p2 = prd[1] !== null ? prd[1] : '?';
       let color = 'var(--muted)';
       if (r) color = r.reason === 'exact' ? 'var(--green)' : r.reason === 'sign' ? 'var(--amber)' : 'var(--red)';
@@ -1310,9 +1316,10 @@ function renderMatchView() {
   const real = SCORES[mn] || null;
   const hasReal = real && real.g1 !== null;
 
+  const x2Badge = DOUBLE_PTS_MATCHES.has(String(mn)) ? ' <span class="x2-badge" title="Puntos dobles">×2</span>' : '';
   document.getElementById('match-info').innerHTML = `
     <div class="scorer-info">
-      <div class="scorer-lbl">Grupo ${meta.group} · Partido #${mn}</div>
+      <div class="scorer-lbl">Grupo ${meta.group} · Partido #${mn}${x2Badge}</div>
       <div class="scorer-name">${meta.team1} vs ${meta.team2}</div>
     </div>
     <div class="scorer-stat">
@@ -1336,7 +1343,7 @@ function renderMatchView() {
     const pct = ((count / total) * 100).toFixed(1);
     let ptsLabel = '—';
     if (hasReal) {
-      const r = calcPts(g1, g2, real.g1, real.g2);
+      const r = calcPts(g1, g2, real.g1, real.g2, mn);
       ptsLabel = r ? r.pts : 0;
     }
     return `<tr><td>${key}</td><td>${count}</td><td>${pct}%</td><td>${ptsLabel}</td></tr>`;
@@ -1345,7 +1352,7 @@ function renderMatchView() {
   // All predictions
   const rows = DATA.participants.map(p => {
     const prd = p.preds[mn] || [null, null];
-    const r = hasReal ? calcPts(prd[0], prd[1], real.g1, real.g2) : null;
+    const r = hasReal ? calcPts(prd[0], prd[1], real.g1, real.g2, mn) : null;
     return { name: p.name, prd, pts: r ? r.pts : null, reason: r ? r.reason : null };
   });
   rows.sort((a, b) => (b.pts ?? -1) - (a.pts ?? -1) || a.name.localeCompare(b.name));

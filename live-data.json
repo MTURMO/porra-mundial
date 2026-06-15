@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-14T23:18:49.274430+00:00",
+  "updated": "2026-06-15T05:20:05.025184+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -71,8 +71,8 @@
     {
       "t1": "Sweden",
       "t2": "Tunisia",
-      "g1": null,
-      "g2": null
+      "g1": 5,
+      "g2": 1
     },
     {
       "t1": "Spain",
@@ -438,6 +438,7 @@
   "topscorers": {
     "folarin balogun": 2,
     "kai havertz": 2,
+    "yasin ayari": 2,
     "julian quinones": 1,
     "raul jimenez": 1,
     "ladislav krejci": 1,
@@ -463,6 +464,11 @@
     "virgil van dijk": 1,
     "keito nakamura": 1,
     "crysencio summerville": 1,
-    "daichi kamada": 1
+    "daichi kamada": 1,
+    "amad diallo": 1,
+    "alexander isak": 1,
+    "omar rekik": 1,
+    "viktor gyokeres": 1,
+    "mattias svanberg": 1
   }
 }

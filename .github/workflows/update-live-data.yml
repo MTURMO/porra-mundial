@@ -2,9 +2,12 @@ name: Update live World Cup data
 
 on:
   schedule:
-    # Every hour. football-data.org free tier allows 10 req/min,
+    # Every 30 minutes. football-data.org free tier allows 10 req/min,
     # this workflow makes 2 calls per run — plenty of headroom.
-    - cron: '0 * * * *'
+    # Note: GitHub throttles scheduled runs on low-activity public repos,
+    # so the actual cadence ends up closer to ~hourly anyway — a tighter
+    # cron just increases the odds of a run landing near the hour.
+    - cron: '*/30 * * * *'
   workflow_dispatch: {}   # allows manual runs from the Actions tab
 
 permissions:

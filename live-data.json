@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-16T18:13:42.848428+00:00",
+  "updated": "2026-06-16T21:24:20.959097+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -101,8 +101,8 @@
     {
       "t1": "France",
       "t2": "Senegal",
-      "g1": null,
-      "g2": null
+      "g1": 3,
+      "g2": 1
     },
     {
       "t1": "Iraq",
@@ -440,6 +440,7 @@
     "kai havertz": 2,
     "yasin ayari": 2,
     "elijah just": 2,
+    "kylian mbappe": 2,
     "julian quinones": 1,
     "raul jimenez": 1,
     "ladislav krejci": 1,
@@ -475,6 +476,8 @@
     "abdulelah al amri": 1,
     "maximiliano araujo": 1,
     "ramin rezaeian": 1,
-    "mohammad mohebi": 1
+    "mohammad mohebi": 1,
+    "bradley barcola": 1,
+    "ibrahim m'baye": 1
   }
 }

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-16T02:05:58.937410+00:00",
+  "updated": "2026-06-16T08:25:03.686497+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -95,8 +95,8 @@
     {
       "t1": "Iran",
       "t2": "New Zealand",
-      "g1": null,
-      "g2": null
+      "g1": 2,
+      "g2": 2
     },
     {
       "t1": "France",
@@ -439,6 +439,7 @@
     "folarin balogun": 2,
     "kai havertz": 2,
     "yasin ayari": 2,
+    "elijah just": 2,
     "julian quinones": 1,
     "raul jimenez": 1,
     "ladislav krejci": 1,
@@ -473,7 +474,7 @@
     "emam ashour": 1,
     "abdulelah al amri": 1,
     "maximiliano araujo": 1,
-    "elijah just": 1,
-    "ramin rezaeian": 1
+    "ramin rezaeian": 1,
+    "mohammad mohebi": 1
   }
 }

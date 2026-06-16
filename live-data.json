@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-15T23:14:37.490078+00:00",
+  "updated": "2026-06-16T02:05:58.937410+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -89,8 +89,8 @@
     {
       "t1": "Saudi Arabia",
       "t2": "Uruguay",
-      "g1": null,
-      "g2": null
+      "g1": 1,
+      "g2": 1
     },
     {
       "t1": "Iran",
@@ -471,6 +471,9 @@
     "viktor gyokeres": 1,
     "mattias svanberg": 1,
     "emam ashour": 1,
-    "abdulelah al amri": 1
+    "abdulelah al amri": 1,
+    "maximiliano araujo": 1,
+    "elijah just": 1,
+    "ramin rezaeian": 1
   }
 }

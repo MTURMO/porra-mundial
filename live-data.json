@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-16T23:00:12.350719+00:00",
+  "updated": "2026-06-17T00:21:35.758533+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -107,8 +107,8 @@
     {
       "t1": "Iraq",
       "t2": "Norway",
-      "g1": null,
-      "g2": null
+      "g1": 1,
+      "g2": 4
     },
     {
       "t1": "Argentina",
@@ -480,6 +480,8 @@
     "mohammad mohebi": 1,
     "bradley barcola": 1,
     "ibrahim m'baye": 1,
-    "aymen hussein": 1
+    "aymen hussein": 1,
+    "leo østigard": 1,
+    "kristian thorstvedt": 1
   }
 }

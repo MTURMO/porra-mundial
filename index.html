@@ -1017,60 +1017,78 @@ function renderUserProns() {
 // ═══════════════════════════════════════════════════════
 // USER PUNTUACION
 // ═══════════════════════════════════════════════════════
+function buildPtsRowData(mn, p) {
+  const meta = DATA.matches[mn];
+  if (!meta) return null;
+  const prd = p.preds[mn] || [null, null];
+  const real = SCORES[mn] || null;
+  const hasReal = real && real.g1 !== null;
+  const r = hasReal ? calcPts(prd[0], prd[1], real.g1, real.g2, mn) : null;
+  const p1 = prd[0] !== null ? prd[0] : '?', p2 = prd[1] !== null ? prd[1] : '?';
+  let ptsBadge = '<span style="color:var(--muted)">—</span>';
+  let reasonBadge = '<span style="color:var(--muted);font-size:.72rem">pend.</span>';
+  let rowBg = '';
+  if (r) {
+    if (r.reason==='exact')      { ptsBadge=`<span style="color:var(--green);font-weight:800">${r.pts}</span>`;  reasonBadge=`<span style="color:var(--green);font-size:.72rem">exacto</span>`;    rowBg='background:rgba(46,204,113,.03);'; }
+    else if (r.reason==='sign')  { ptsBadge=`<span style="color:var(--amber);font-weight:800">${r.pts}</span>`; reasonBadge=`<span style="color:var(--amber);font-size:.72rem">10-${r.diff}</span>`; rowBg='background:rgba(243,156,18,.03);'; }
+    else                         { ptsBadge=`<span style="color:var(--red);font-weight:800">0</span>`;           reasonBadge=`<span style="color:var(--red);font-size:.72rem">fallo</span>`; }
+  }
+  const x2Badge = DOUBLE_PTS_MATCHES.has(String(mn)) ? ' <span class="x2-badge" title="Puntos dobles">×2</span>' : '';
+  const html = `
+    <div class="match-row pts-row" style="${rowBg}">
+      <div class="num">#${mn}${x2Badge}</div>
+      <div class="team t1">${meta.team1}</div>
+      <div class="score-cell">
+        <div class="score-pair">
+          <div class="s-box s-pred">${p1}</div>
+          <div class="s-dash">-</div>
+          <div class="s-box s-pred">${p2}</div>
+        </div>
+        <div class="score-pair">
+          <div class="s-box s-real ${hasReal?'':'tbd'}">${hasReal?real.g1:'—'}</div>
+          <div class="s-dash">-</div>
+          <div class="s-box s-real ${hasReal?'':'tbd'}">${hasReal?real.g2:'—'}</div>
+        </div>
+        <div class="score-lbl"><span>pred</span><span>real</span></div>
+      </div>
+      <div class="team t2">${meta.team2}</div>
+      <div style="text-align:center">${ptsBadge}</div>
+      <div style="text-align:center">${reasonBadge}</div>
+    </div>`;
+  return { mn, hasReal, r, html };
+}
+
 function renderUserPts() {
   const p = currentUser;
   document.getElementById('pts-title').textContent = `Puntuación de ${p.name}`;
   document.getElementById('pts-empty').style.display = 'none';
   document.getElementById('pts-content').style.display = 'block';
 
+  // Build all rows and compute totals
   let total=0, exact=0, sign=0, wrong=0, pending=0;
-  let html = '';
-
+  const allRows = [];
   for (let mn = 1; mn <= 72; mn++) {
-    const meta = DATA.matches[mn];
-    if (!meta) continue;
-    const prd = p.preds[mn] || [null,null];
-    const real = SCORES[mn] || null;
-    const r = (real && real.g1 !== null) ? calcPts(prd[0], prd[1], real.g1, real.g2, mn) : null;
-    const hasReal = real && real.g1 !== null;
-    const p1 = prd[0]!==null?prd[0]:'?', p2 = prd[1]!==null?prd[1]:'?';
-    const cls = getResultClass(prd[0],prd[1],real);
-    const dotCls = `dot-${cls}`;
-
-    let ptsBadge='<span style="color:var(--muted)">—</span>';
-    let reasonBadge='<span style="color:var(--muted);font-size:.72rem">pend.</span>';
-    let rowBg='';
-
-    if (r) {
-      total += r.pts;
-      if (r.reason==='exact') { exact++; ptsBadge=`<span style="color:var(--green);font-weight:800">${r.pts}</span>`; reasonBadge=`<span style="color:var(--green);font-size:.72rem">exacto</span>`; rowBg='background:rgba(46,204,113,.03);'; }
-      else if (r.reason==='sign') { sign++; ptsBadge=`<span style="color:var(--amber);font-weight:800">${r.pts}</span>`; reasonBadge=`<span style="color:var(--amber);font-size:.72rem">10-${r.diff}</span>`; rowBg='background:rgba(243,156,18,.03);'; }
-      else { wrong++; ptsBadge=`<span style="color:var(--red);font-weight:800">0</span>`; reasonBadge=`<span style="color:var(--red);font-size:.72rem">fallo</span>`; }
+    const d = buildPtsRowData(mn, p);
+    if (!d) continue;
+    allRows.push(d);
+    if (d.r) {
+      total += d.r.pts;
+      if (d.r.reason==='exact') exact++;
+      else if (d.r.reason==='sign') sign++;
+      else wrong++;
     } else { pending++; }
-
-    const x2Badge = DOUBLE_PTS_MATCHES.has(String(mn)) ? ' <span class="x2-badge" title="Puntos dobles">×2</span>' : '';
-    html += `
-      <div class="match-row pts-row" style="${rowBg}">
-        <div class="num">#${mn}${x2Badge}</div>
-        <div class="team t1">${meta.team1}</div>
-        <div class="score-cell">
-          <div class="score-pair">
-            <div class="s-box s-pred">${p1}</div>
-            <div class="s-dash">-</div>
-            <div class="s-box s-pred">${p2}</div>
-          </div>
-          <div class="score-pair">
-            <div class="s-box s-real ${hasReal?'':'tbd'}">${hasReal?real.g1:'—'}</div>
-            <div class="s-dash">-</div>
-            <div class="s-box s-real ${hasReal?'':'tbd'}">${hasReal?real.g2:'—'}</div>
-          </div>
-          <div class="score-lbl"><span>pred</span><span>real</span></div>
-        </div>
-        <div class="team t2">${meta.team2}</div>
-        <div style="text-align:center">${ptsBadge}</div>
-        <div style="text-align:center">${reasonBadge}</div>
-      </div>`;
   }
+
+  // Last 4 played (highest match numbers with a real result)
+  const played4 = allRows.filter(d => d.hasReal).slice(-4).reverse();
+
+  let html = '';
+  if (played4.length > 0) {
+    html += '<div class="grp-label">🔥 Últimos jugados</div>';
+    html += played4.map(d => d.html).join('');
+    html += '<div class="grp-label">📋 Todos los partidos</div>';
+  }
+  html += allRows.map(d => d.html).join('');
 
   const played = exact+sign+wrong;
   const avg = played ? (total/played).toFixed(1) : '—';
@@ -1292,16 +1310,22 @@ function populateMatchSelect() {
   const sel = document.getElementById('match-select');
   let html = '';
   let currentGroup = '';
+  let nextUnplayed = null;
   for (let mn = 1; mn <= 72; mn++) {
     const meta = DATA.matches[mn];
     if (!meta) continue;
+    if (nextUnplayed === null) {
+      const real = SCORES[mn] || null;
+      if (!real || real.g1 === null) nextUnplayed = mn;
+    }
     const grp = `Grupo ${meta.group}`;
     if (grp !== currentGroup) {
       if (currentGroup) html += '</optgroup>';
       html += `<optgroup label="${grp}">`;
       currentGroup = grp;
     }
-    html += `<option value="${mn}">#${mn} · ${meta.team1} - ${meta.team2}</option>`;
+    const isNext = (mn === nextUnplayed);
+    html += `<option value="${mn}"${isNext ? ' selected' : ''}>#${mn}${isNext ? ' ▶' : ''} · ${meta.team1} - ${meta.team2}</option>`;
   }
   if (currentGroup) html += '</optgroup>';
   sel.innerHTML = html;

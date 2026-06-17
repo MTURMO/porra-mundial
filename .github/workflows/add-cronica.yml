@@ -11,7 +11,7 @@ permissions:
 jobs:
   add-cronica:
     # Only run when the label added is exactly "cronica"
-    if: github.event.label.name == 'cronica'
+    if: ${{ github.event.label.name == 'cronica' }}
     runs-on: ubuntu-latest
 
     steps:

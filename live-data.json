@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-17T05:24:30.850069+00:00",
+  "updated": "2026-06-17T06:44:27.984082+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -119,8 +119,8 @@
     {
       "t1": "Austria",
       "t2": "Jordan",
-      "g1": null,
-      "g2": null
+      "g1": 3,
+      "g2": 1
     },
     {
       "t1": "Portugal",
@@ -484,6 +484,7 @@
     "aymen hussein": 1,
     "leo østigard": 1,
     "romano schmid": 1,
-    "ali olwan": 1
+    "ali olwan": 1,
+    "marko arnautovic": 1
   }
 }

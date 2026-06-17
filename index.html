@@ -217,6 +217,16 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
 .pg-btn.active { border-color: var(--gold); color: var(--gold); background: rgba(240,192,64,.06); }
 .pg-wrap { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px; align-items: center; }
 
+/* ── CRÓNICA ─────────────────────────────────────── */
+.cronica-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px 22px; margin-bottom: 16px;
+}
+.cronica-card:first-child { border-color: var(--gold2); }
+.cronica-fecha { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 6px; }
+.cronica-titulo { font-size: 1.1rem; font-weight: 800; color: var(--text); margin-bottom: 12px; }
+.cronica-texto { font-size: 0.9rem; color: var(--text); line-height: 1.7; white-space: pre-wrap; }
+
 /* ── COMPARE TAB ─────────────────────────────────── */
 .compare-search-wrap { margin-bottom: 10px; }
 .compare-input {
@@ -398,6 +408,7 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
     <button class="tab-btn" data-tab="mis-finals">⭐ Mi clasificación final</button>
     <button class="tab-btn" data-tab="comparar">🤝 Comparar con amigos</button>
     <button class="tab-btn" data-tab="por-partido">📊 Por partido</button>
+    <button class="tab-btn" data-tab="cronica">📰 Crónica</button>
   </div>
 </nav>
 
@@ -500,6 +511,17 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
         <table class="cmp-match-table" id="compare-match-table"></table>
       </div>
     </div>
+  </div>
+
+  <!-- CRÓNICA -->
+  <div id="tab-cronica" class="tab-panel">
+    <div class="sec-title">📰 Crónica del torneo</div>
+    <div id="cronica-loading" class="spinner-wrap"><div class="spinner"></div></div>
+    <div id="cronica-empty" class="empty" style="display:none">
+      <p style="font-size:1.2rem;margin-bottom:8px">📰</p>
+      <p>Todavía no hay crónicas publicadas</p>
+    </div>
+    <div id="cronica-list" style="display:none"></div>
   </div>
 
   <!-- POR PARTIDO -->
@@ -714,6 +736,7 @@ async function init() {
   renderRanking();
   populateMatchSelect();
   renderMatchView();
+  loadCronicas();
   document.getElementById('update-time').textContent = new Date().toLocaleTimeString('es-ES');
 
   // Pre-select a participant from the URL (?nick=Name), e.g. for sharing links
@@ -1205,6 +1228,42 @@ function renderUserFinals() {
       <div class="val">${p.goals_pred !== null ? p.goals_pred + ' goles' : '—'}</div>
     </div>
   `;
+}
+
+// ═══════════════════════════════════════════════════════
+// CRÓNICA
+// ═══════════════════════════════════════════════════════
+async function loadCronicas() {
+  try {
+    const r = await fetch('cronicas.json');
+    const data = await r.json();
+    document.getElementById('cronica-loading').style.display = 'none';
+    if (!data.length) {
+      document.getElementById('cronica-empty').style.display = 'block';
+      return;
+    }
+    const list = document.getElementById('cronica-list');
+    list.style.display = 'block';
+    list.innerHTML = data.map(c => `
+      <div class="cronica-card">
+        <div class="cronica-fecha">${formatFecha(c.fecha)}</div>
+        <div class="cronica-titulo">${escHtml(c.titulo)}</div>
+        <div class="cronica-texto">${escHtml(c.texto)}</div>
+      </div>
+    `).join('');
+  } catch(e) {
+    document.getElementById('cronica-loading').style.display = 'none';
+    document.getElementById('cronica-empty').style.display = 'block';
+  }
+}
+
+function formatFecha(iso) {
+  const d = new Date(iso + 'T12:00:00Z');
+  return d.toLocaleDateString('es-ES', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+}
+
+function escHtml(str) {
+  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 // ═══════════════════════════════════════════════════════

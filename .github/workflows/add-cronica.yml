@@ -1,0 +1,74 @@
+name: Añadir crónica
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  add-cronica:
+    # Only run when the label added is exactly "cronica"
+    if: github.event.label.name == 'cronica'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: Add entry to cronicas.json
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE:  ${{ github.event.issue.title }}
+          ISSUE_BODY:   ${{ github.event.issue.body }}
+          ISSUE_DATE:   ${{ github.event.issue.created_at }}
+        run: |
+          python3 - <<'EOF'
+          import json, os, re
+          from datetime import datetime, timezone
+
+          path = "cronicas.json"
+          data = json.load(open(path, encoding="utf-8")) if open(path).read().strip() != "[]" else []
+
+          raw_date = os.environ["ISSUE_DATE"]          # "2026-06-17T09:00:00Z"
+          fecha = raw_date[:10]                         # "2026-06-17"
+
+          # Next id
+          next_id = (max((c["id"] for c in data), default=0) + 1)
+
+          entry = {
+              "id":     next_id,
+              "fecha":  fecha,
+              "titulo": os.environ["ISSUE_TITLE"].strip(),
+              "texto":  os.environ["ISSUE_BODY"].strip(),
+              "issue":  int(os.environ["ISSUE_NUMBER"]),
+          }
+
+          # Most recent first
+          data.insert(0, entry)
+
+          with open(path, "w", encoding="utf-8") as f:
+              json.dump(data, f, ensure_ascii=False, indent=2)
+
+          print(f"Added entry #{next_id}: {entry['titulo']}")
+          EOF
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add cronicas.json
+          git diff --quiet --cached || git commit -m "cronica: ${{ github.event.issue.title }}"
+          git push origin master
+
+      - name: Comment and close issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue comment ${{ github.event.issue.number }} \
+            --body "✅ Crónica publicada correctamente en la web."
+          gh issue close ${{ github.event.issue.number }}

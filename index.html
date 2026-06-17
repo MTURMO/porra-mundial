@@ -759,11 +759,27 @@ function buildScores() {
 // ═══════════════════════════════════════════════════════
 // SCORER GOALS LOOKUP — live API data first, manual fallback
 // ═══════════════════════════════════════════════════════
+
+// Aliases for players commonly known by a nickname but whose API name differs.
+// Keys and values are already normalized (lowercase, no accents).
+const SCORER_ALIASES = {
+  'leo messi':        'lionel messi',
+  'messi':            'lionel messi',
+  'cr7':              'cristiano ronaldo',
+  'cristiano':        'cristiano ronaldo',
+  'vinicius':         'vinicius junior',
+  'vini':             'vinicius junior',
+  'vini jr':          'vinicius junior',
+  'raphinha':         'raphael dias belloli',
+  'neymar':           'neymar jr',
+};
+
 function getScorerGoals(scorerRaw) {
-  const key = normalizeScorerName(scorerRaw);
+  let key = normalizeScorerName(scorerRaw);
   if (!key) return 0;
-  // 1. Live API-Football data — match by substring (handles
-  //    "Vinicius" predicted vs "Vinícius Júnior" from the API)
+  // Apply alias map before anything else
+  key = SCORER_ALIASES[key] || key;
+  // 1. Live API data — exact match first, then substring
   for (const [apiName, goals] of Object.entries(API_TOPSCORERS)) {
     if (apiName === key || apiName.includes(key) || key.includes(apiName)) {
       return goals;

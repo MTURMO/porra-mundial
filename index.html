@@ -1080,7 +1080,7 @@ function renderUserPts() {
   }
 
   // Last 4 played + next 2 upcoming
-  const played4 = allRows.filter(d => d.hasReal).slice(-4).reverse();
+  const played4 = allRows.filter(d => d.hasReal).slice(-4);
   const next2 = allRows.filter(d => !d.hasReal).slice(0, 2);
   const recent = [...played4, ...next2];
 

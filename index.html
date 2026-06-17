@@ -1516,16 +1516,22 @@ scorerInput.addEventListener('keydown', e => {
 
 function renderScorerRanking() {
   if (!DATA) return;
-  const counts = {};
+  // Group case-insensitively; keep the most frequent capitalisation as display name
+  const groups = {}; // lowercase key -> {count, forms: {name: count}}
   for (const p of DATA.participants) {
-    const key = (p.scorer || '').trim();
-    if (!key) continue;
-    counts[key] = (counts[key] || 0) + 1;
+    const raw = (p.scorer || '').trim();
+    if (!raw) continue;
+    const key = raw.toLowerCase();
+    if (!groups[key]) groups[key] = { count: 0, forms: {} };
+    groups[key].count++;
+    groups[key].forms[raw] = (groups[key].forms[raw] || 0) + 1;
   }
   const total = DATA.participants.length;
-  const rows = Object.entries(counts).map(([name, count]) => ({
-    name, count, goals: getScorerGoals(name), pts: getScorerGoals(name) * PTS_PER_GOAL_SCORER,
-  }));
+  const rows = Object.entries(groups).map(([, g]) => {
+    // Pick the most common written form as canonical name
+    const name = Object.entries(g.forms).sort((a, b) => b[1] - a[1])[0][0];
+    return { name, count: g.count, goals: getScorerGoals(name), pts: getScorerGoals(name) * PTS_PER_GOAL_SCORER };
+  });
   rows.sort((a, b) => b.goals - a.goals || b.pts - a.pts || b.count - a.count);
 
   document.getElementById('scorer-ranking-body').innerHTML = rows.map((r, i) => {
@@ -1544,13 +1550,18 @@ function renderScorerRanking() {
 
 function allScorerNames() {
   if (!DATA) return [];
-  const seen = new Set();
-  const names = [];
+  // Deduplicate case-insensitively, keeping the most frequent form
+  const groups = {};
   for (const p of DATA.participants) {
-    const key = (p.scorer || '').trim();
-    if (key && !seen.has(key.toLowerCase())) { seen.add(key.toLowerCase()); names.push(key); }
+    const raw = (p.scorer || '').trim();
+    if (!raw) continue;
+    const key = raw.toLowerCase();
+    if (!groups[key]) groups[key] = {};
+    groups[key][raw] = (groups[key][raw] || 0) + 1;
   }
-  return names.sort((a, b) => a.localeCompare(b));
+  return Object.values(groups)
+    .map(forms => Object.entries(forms).sort((a, b) => b[1] - a[1])[0][0])
+    .sort((a, b) => a.localeCompare(b));
 }
 
 function onScorerInput() {

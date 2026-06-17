@@ -563,6 +563,23 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
       <input id="scorer-input" class="compare-input" type="text" placeholder="🔍 Escribe el nombre de un jugador..." autocomplete="off" />
     </div>
     <div id="scorer-suggestions" class="compare-suggestions"></div>
+    <div class="sec-title" style="margin-top:4px">Ranking de goleadores en la porra</div>
+    <div style="overflow-x:auto;margin-bottom:24px">
+      <table class="lb-table" id="scorer-ranking-table">
+        <thead>
+          <tr>
+            <th style="width:40px">#</th>
+            <th>Jugador</th>
+            <th>Goles</th>
+            <th>Pts que da</th>
+            <th>Elegido por</th>
+            <th style="width:80px">%</th>
+          </tr>
+        </thead>
+        <tbody id="scorer-ranking-body"></tbody>
+      </table>
+    </div>
+    <div class="sec-title">Buscar jugador</div>
     <div id="scorer-empty" class="empty">
       <p style="font-size:1.2rem;margin-bottom:8px">👟</p>
       <p>Busca un jugador para ver quién lo ha escogido como máximo goleador</p>
@@ -822,6 +839,7 @@ async function init() {
   renderRanking();
   populateMatchSelect();
   renderMatchView();
+  renderScorerRanking();
   loadCronicas();
   document.getElementById('update-time').textContent = new Date().toLocaleTimeString('es-ES');
 
@@ -1496,6 +1514,34 @@ scorerInput.addEventListener('keydown', e => {
   if (hit) renderScorerView(hit);
 });
 
+function renderScorerRanking() {
+  if (!DATA) return;
+  const counts = {};
+  for (const p of DATA.participants) {
+    const key = (p.scorer || '').trim();
+    if (!key) continue;
+    counts[key] = (counts[key] || 0) + 1;
+  }
+  const total = DATA.participants.length;
+  const rows = Object.entries(counts).map(([name, count]) => ({
+    name, count, goals: getScorerGoals(name), pts: getScorerGoals(name) * PTS_PER_GOAL_SCORER,
+  }));
+  rows.sort((a, b) => b.goals - a.goals || b.pts - a.pts || b.count - a.count);
+
+  document.getElementById('scorer-ranking-body').innerHTML = rows.map((r, i) => {
+    const pct = ((r.count / total) * 100).toFixed(1);
+    const goalsColor = r.goals > 0 ? 'var(--green)' : 'var(--muted)';
+    return `<tr style="cursor:pointer" onclick="renderScorerView('${r.name.replace(/'/g, "\\'")}')">
+      <td><span class="rank-num">${i + 1}</span></td>
+      <td><span class="lb-name">${r.name}</span></td>
+      <td style="color:${goalsColor};font-weight:800">${r.goals}</td>
+      <td><span class="lb-pts">${r.pts}</span></td>
+      <td>${r.count}</td>
+      <td style="color:var(--muted)">${pct}%</td>
+    </tr>`;
+  }).join('');
+}
+
 function allScorerNames() {
   if (!DATA) return [];
   const seen = new Set();
@@ -1662,7 +1708,7 @@ function showTab(tab) {
 // BOOT
 // ═══════════════════════════════════════════════════════
 init();
-setInterval(() => { buildScores(); computeRankings(); renderRanking(); if (currentUser) { renderUserPts(); } renderCompare(); renderMatchView(); }, 5*60*1000);
+setInterval(() => { buildScores(); computeRankings(); renderRanking(); if (currentUser) { renderUserPts(); } renderCompare(); renderMatchView(); renderScorerRanking(); }, 5*60*1000);
 </script>
 </body>
 </html>

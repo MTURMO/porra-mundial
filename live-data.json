@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-17T22:05:37.659530+00:00",
+  "updated": "2026-06-17T23:17:06.591460+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -17,8 +17,8 @@
     {
       "t1": "Canada",
       "t2": "Bosnia Herzegovina",
-      "g1": 1,
-      "g2": 1
+      "g1": null,
+      "g2": null
     },
     {
       "t1": "USA",
@@ -131,8 +131,8 @@
     {
       "t1": "England",
       "t2": "Croatia",
-      "g1": null,
-      "g2": null
+      "g1": 4,
+      "g2": 2
     },
     {
       "t1": "Ghana",

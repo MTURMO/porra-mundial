@@ -1079,13 +1079,15 @@ function renderUserPts() {
     } else { pending++; }
   }
 
-  // Last 4 played (highest match numbers with a real result)
+  // Last 4 played + next 2 upcoming
   const played4 = allRows.filter(d => d.hasReal).slice(-4).reverse();
+  const next2 = allRows.filter(d => !d.hasReal).slice(0, 2);
+  const recent = [...played4, ...next2];
 
   let html = '';
-  if (played4.length > 0) {
-    html += '<div class="grp-label">🔥 Últimos jugados</div>';
-    html += played4.map(d => d.html).join('');
+  if (recent.length > 0) {
+    html += '<div class="grp-label">🔥 Últimos jugados · Próximos</div>';
+    html += recent.map(d => d.html).join('');
     html += '<div class="grp-label">📋 Todos los partidos</div>';
   }
   html += allRows.map(d => d.html).join('');

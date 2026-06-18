@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-18T20:12:15.425852+00:00",
+  "updated": "2026-06-18T22:28:54.793409+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -155,8 +155,8 @@
     {
       "t1": "Switzerland",
       "t2": "Bosnia Herzegovina",
-      "g1": null,
-      "g2": null
+      "g1": 4,
+      "g2": 1
     },
     {
       "t1": "Canada",
@@ -437,6 +437,7 @@
   ],
   "topscorers": {
     "lionel messi": 3,
+    "cyle larin": 2,
     "folarin balogun": 2,
     "kai havertz": 2,
     "yasin ayari": 2,
@@ -444,13 +445,13 @@
     "kylian mbappe": 2,
     "erling haaland": 2,
     "harry kane": 2,
+    "johan manzambi": 2,
     "julian quinones": 1,
     "raul jimenez": 1,
     "ladislav krejci": 1,
     "in-beom hwang": 1,
     "hyun-gyu oh": 1,
     "jovo lukic": 1,
-    "cyle larin": 1,
     "mauricio": 1,
     "gio reyna": 1,
     "breel embolo": 1,
@@ -484,7 +485,6 @@
     "ibrahim m'baye": 1,
     "aymen hussein": 1,
     "leo østigard": 1,
-    "romano schmid": 1,
-    "ali olwan": 1
+    "romano schmid": 1
   }
 }

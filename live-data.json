@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-18T06:22:17.419334+00:00",
+  "updated": "2026-06-18T06:56:45.203263+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -137,8 +137,8 @@
     {
       "t1": "Ghana",
       "t2": "Panama",
-      "g1": 1,
-      "g2": 0
+      "g1": null,
+      "g2": null
     },
     {
       "t1": "Uzbekistan",

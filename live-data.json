@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-18T22:28:54.793409+00:00",
+  "updated": "2026-06-19T00:09:35.660609+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -161,8 +161,8 @@
     {
       "t1": "Canada",
       "t2": "Qatar",
-      "g1": null,
-      "g2": null
+      "g1": 6,
+      "g2": 0
     },
     {
       "t1": "Mexico",
@@ -437,6 +437,7 @@
   ],
   "topscorers": {
     "lionel messi": 3,
+    "jonathan david": 3,
     "cyle larin": 2,
     "folarin balogun": 2,
     "kai havertz": 2,
@@ -484,7 +485,6 @@
     "bradley barcola": 1,
     "ibrahim m'baye": 1,
     "aymen hussein": 1,
-    "leo østigard": 1,
-    "romano schmid": 1
+    "leo østigard": 1
   }
 }

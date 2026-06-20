@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-20T00:01:27.156377+00:00",
+  "updated": "2026-06-20T04:48:10.173218+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -179,14 +179,14 @@
     {
       "t1": "Scotland",
       "t2": "Morocco",
-      "g1": null,
-      "g2": null
+      "g1": 0,
+      "g2": 1
     },
     {
       "t1": "Brazil",
       "t2": "Haiti",
-      "g1": null,
-      "g2": null
+      "g1": 3,
+      "g2": 0
     },
     {
       "t1": "Turkey",
@@ -441,6 +441,7 @@
     "cyle larin": 2,
     "folarin balogun": 2,
     "ismael saibari": 2,
+    "vinicius junior": 2,
     "kai havertz": 2,
     "yasin ayari": 2,
     "elijah just": 2,
@@ -448,6 +449,7 @@
     "erling haaland": 2,
     "harry kane": 2,
     "johan manzambi": 2,
+    "matheus cunha": 2,
     "julian quinones": 1,
     "raul jimenez": 1,
     "ladislav krejci": 1,
@@ -458,7 +460,6 @@
     "gio reyna": 1,
     "breel embolo": 1,
     "boualem khoukhi": 1,
-    "vinicius junior": 1,
     "john mcginn": 1,
     "nestor irankunda": 1,
     "connor metcalfe": 1,
@@ -484,7 +485,6 @@
     "mohammad mohebi": 1,
     "bradley barcola": 1,
     "ibrahim m'baye": 1,
-    "aymen hussein": 1,
-    "leo østigard": 1
+    "aymen hussein": 1
   }
 }

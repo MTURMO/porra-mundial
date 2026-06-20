@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-20T22:00:11.717093+00:00",
+  "updated": "2026-06-20T23:13:27.941823+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -203,8 +203,8 @@
     {
       "t1": "Germany",
       "t2": "Ivory Coast",
-      "g1": null,
-      "g2": null
+      "g1": 2,
+      "g2": 1
     },
     {
       "t1": "Ecuador",

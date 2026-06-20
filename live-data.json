@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-20T17:52:41.584596+00:00",
+  "updated": "2026-06-20T19:10:37.107588+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -197,8 +197,8 @@
     {
       "t1": "Netherlands",
       "t2": "Sweden",
-      "g1": null,
-      "g2": null
+      "g1": 5,
+      "g2": 1
     },
     {
       "t1": "Germany",
@@ -451,6 +451,7 @@
     "johan manzambi": 2,
     "matheus cunha": 2,
     "brian brobbey": 2,
+    "cody gakpo": 2,
     "julian quinones": 1,
     "raul jimenez": 1,
     "ladislav krejci": 1,
@@ -484,7 +485,6 @@
     "maximiliano araujo": 1,
     "ramin rezaeian": 1,
     "mohammad mohebi": 1,
-    "bradley barcola": 1,
-    "ibrahim m'baye": 1
+    "bradley barcola": 1
   }
 }

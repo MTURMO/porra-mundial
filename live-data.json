@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-20T04:48:10.173218+00:00",
+  "updated": "2026-06-20T08:17:18.648481+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -191,8 +191,8 @@
     {
       "t1": "Turkey",
       "t2": "Paraguay",
-      "g1": null,
-      "g2": null
+      "g1": 0,
+      "g2": 1
     },
     {
       "t1": "Netherlands",

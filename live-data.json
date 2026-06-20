@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-20T20:47:35.827553+00:00",
+  "updated": "2026-06-20T22:00:11.717093+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -436,6 +436,7 @@
     }
   ],
   "topscorers": {
+    "deniz undav": 3,
     "lionel messi": 3,
     "jonathan david": 3,
     "cyle larin": 2,
@@ -470,7 +471,6 @@
     "nico schlotterbeck": 1,
     "jamal musiala": 1,
     "nathaniel brown": 1,
-    "deniz undav": 1,
     "virgil van dijk": 1,
     "keito nakamura": 1,
     "crysencio summerville": 1,

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-21T18:02:30.226352+00:00",
+  "updated": "2026-06-21T20:10:07.290549+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -221,8 +221,8 @@
     {
       "t1": "Spain",
       "t2": "Saudi Arabia",
-      "g1": null,
-      "g2": null
+      "g1": 5,
+      "g2": 0
     },
     {
       "t1": "Belgium",

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-22T18:00:14.095554+00:00",
+  "updated": "2026-06-22T20:54:11.908491+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -245,8 +245,8 @@
     {
       "t1": "Argentina",
       "t2": "Austria",
-      "g1": null,
-      "g2": null
+      "g1": 2,
+      "g2": 0
     },
     {
       "t1": "France",
@@ -436,7 +436,7 @@
     }
   ],
   "topscorers": {
-    "lionel messi": 4,
+    "lionel messi": 5,
     "deniz undav": 3,
     "jonathan david": 3,
     "cyle larin": 2,

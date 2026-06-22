@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-22T13:09:19.557539+00:00",
+  "updated": "2026-06-22T18:00:14.095554+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -17,8 +17,8 @@
     {
       "t1": "Canada",
       "t2": "Bosnia Herzegovina",
-      "g1": 1,
-      "g2": 1
+      "g1": null,
+      "g2": null
     },
     {
       "t1": "USA",
@@ -436,8 +436,8 @@
     }
   ],
   "topscorers": {
+    "lionel messi": 4,
     "deniz undav": 3,
-    "lionel messi": 3,
     "jonathan david": 3,
     "cyle larin": 2,
     "folarin balogun": 2,

@@ -768,39 +768,15 @@ function parseOpenfootball(data) {
 }
 
 // ═══════════════════════════════════════════════════════
-// LOAD DATA
+// LIVE RESULTS — fetched on load and re-fetched periodically so a long-open
+// tab doesn't keep showing whatever was live when the page was first opened.
 // ═══════════════════════════════════════════════════════
-async function init() {
-  // 1. Load participants data (mandatory)
-  try {
-    const r = await fetch(DATA_URL);
-    DATA = await r.json();
-    document.getElementById('total-parts').textContent = DATA.participants.length;
-  } catch(e) {
-    setApiStatus('error', 'No se pudo cargar data.json');
-    return;
-  }
-
-  // 2. Load manual scorer goal tallies (last-resort fallback)
-  try {
-    const rs = await fetch(SCORERS_URL);
-    if (rs.ok) {
-      const js = await rs.json();
-      PLAYER_GOALS = js.player_goals || {};
-      if (js.last_updated) {
-        document.getElementById('scorers-updated').textContent = js.last_updated;
-        document.getElementById('scorers-pill').style.display = 'flex';
-      }
-    }
-  } catch(e) {
-    console.warn('scorers.json not available');
-  }
-
-  // 3. Primary source: live-data.json (refreshed hourly by GitHub Actions —
-  //    fixtures + top scorer goals, already normalized server-side)
+async function refreshLiveData() {
+  // Primary source: live-data.json (refreshed periodically by GitHub Actions —
+  // fixtures + top scorer goals, already normalized server-side)
   let loaded = false;
   try {
-    const rl = await fetchWithTimeout(LIVE_DATA_URL, 6000);
+    const rl = await fetchWithTimeout(`${LIVE_DATA_URL}?t=${Date.now()}`, 6000);
     if (rl.ok) {
       const jl = await rl.json();
       if (Array.isArray(jl.fixtures) && jl.fixtures.length > 0) {
@@ -818,7 +794,7 @@ async function init() {
     console.warn('live-data.json not available:', e.message);
   }
 
-  // 4. Fallback: openfootball (matches only, no key, daily updates)
+  // Fallback: openfootball (matches only, no key, daily updates)
   if (!loaded) {
     try {
       const r3 = await fetchWithTimeout(API_FALLBACK, 9000);
@@ -833,6 +809,38 @@ async function init() {
       setApiStatus('warn', 'Sin resultados en tiempo real — fuentes no disponibles');
     }
   }
+}
+
+// ═══════════════════════════════════════════════════════
+// LOAD DATA
+// ═══════════════════════════════════════════════════════
+async function init() {
+  // 1. Load participants data (mandatory)
+  try {
+    const r = await fetch(`${DATA_URL}?t=${Date.now()}`);
+    DATA = await r.json();
+    document.getElementById('total-parts').textContent = DATA.participants.length;
+  } catch(e) {
+    setApiStatus('error', 'No se pudo cargar data.json');
+    return;
+  }
+
+  // 2. Load manual scorer goal tallies (last-resort fallback)
+  try {
+    const rs = await fetch(`${SCORERS_URL}?t=${Date.now()}`);
+    if (rs.ok) {
+      const js = await rs.json();
+      PLAYER_GOALS = js.player_goals || {};
+      if (js.last_updated) {
+        document.getElementById('scorers-updated').textContent = js.last_updated;
+        document.getElementById('scorers-pill').style.display = 'flex';
+      }
+    }
+  } catch(e) {
+    console.warn('scorers.json not available');
+  }
+
+  await refreshLiveData();
 
   buildScores();
   computeRankings();
@@ -1719,7 +1727,12 @@ function showTab(tab) {
 // BOOT
 // ═══════════════════════════════════════════════════════
 init();
-setInterval(() => { buildScores(); computeRankings(); renderRanking(); if (currentUser) { renderUserPts(); } renderCompare(); renderMatchView(); renderScorerRanking(); }, 5*60*1000);
+setInterval(async () => {
+  await refreshLiveData();
+  buildScores(); computeRankings(); renderRanking();
+  if (currentUser) { renderUserPts(); }
+  renderCompare(); renderMatchView(); renderScorerRanking();
+}, 5*60*1000);
 </script>
 </body>
 </html>

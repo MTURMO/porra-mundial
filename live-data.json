@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-22T01:45:12.202768+00:00",
+  "updated": "2026-06-22T06:53:34.756209+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -239,8 +239,8 @@
     {
       "t1": "New Zealand",
       "t2": "Egypt",
-      "g1": null,
-      "g2": null
+      "g1": 1,
+      "g2": 3
     },
     {
       "t1": "Argentina",

@@ -91,11 +91,15 @@ def from_football_data(token):
         t2 = norm_team(m.get("awayTeam", {}).get("name", ""))
         ft = (m.get("score") or {}).get("fullTime") or {}
         g1, g2 = ft.get("home"), ft.get("away")
-        # Only treat as a final result once the match has actually finished —
-        # otherwise an in-play scoreline gets locked in for an hour (until the
-        # next scheduled run) and points get computed on a half-finished match.
-        finished = m.get("status") in ("FINISHED", "AWARDED")
-        played = finished and g1 is not None and g2 is not None
+        # Exclude scorelines while the match is still being played — otherwise
+        # an in-play score gets locked in for an hour and points get computed
+        # on a half-finished match. Only exclude explicitly live statuses;
+        # treat anything else (including a missing/unexpected status) as final
+        # if a fullTime score is already present, since the API has been seen
+        # to omit/garble "status" for matches that finished hours ago.
+        live_statuses = ("IN_PLAY", "PAUSED", "SUSPENDED")
+        in_progress = m.get("status") in live_statuses
+        played = (not in_progress) and g1 is not None and g2 is not None
         if t1 and t2:
             fixtures.append({"t1": t1, "t2": t2,
                               "g1": g1 if played else None,

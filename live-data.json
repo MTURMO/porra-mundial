@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-23T00:00:07.391227+00:00",
+  "updated": "2026-06-23T03:57:51.687009+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -17,8 +17,8 @@
     {
       "t1": "Canada",
       "t2": "Bosnia Herzegovina",
-      "g1": 1,
-      "g2": 1
+      "g1": null,
+      "g2": null
     },
     {
       "t1": "USA",
@@ -251,14 +251,14 @@
     {
       "t1": "France",
       "t2": "Iraq",
-      "g1": null,
-      "g2": null
+      "g1": 3,
+      "g2": 0
     },
     {
       "t1": "Norway",
       "t2": "Senegal",
-      "g1": null,
-      "g2": null
+      "g1": 3,
+      "g2": 2
     },
     {
       "t1": "Jordan",
@@ -437,8 +437,9 @@
   ],
   "topscorers": {
     "lionel messi": 5,
+    "kylian mbappe": 4,
+    "erling haaland": 4,
     "deniz undav": 3,
-    "kylian mbappe": 3,
     "jonathan david": 3,
     "cyle larin": 2,
     "folarin balogun": 2,
@@ -449,7 +450,6 @@
     "yasin ayari": 2,
     "maximiliano araujo": 2,
     "elijah just": 2,
-    "erling haaland": 2,
     "harry kane": 2,
     "johan manzambi": 2,
     "matheus cunha": 2,
@@ -457,6 +457,7 @@
     "cody gakpo": 2,
     "ayase ueda": 2,
     "mikel oyarzabal": 2,
+    "ismaila sarr": 2,
     "julian quinones": 1,
     "raul jimenez": 1,
     "ladislav krejci": 1,
@@ -525,6 +526,9 @@
     "finn surman": 1,
     "mostafa ziko": 1,
     "mohamed salah": 1,
-    "trezeguet": 1
+    "trezeguet": 1,
+    "ousmane dembele": 1,
+    "marcus pedersen": 1,
+    "nizar al rashdan": 1
   }
 }

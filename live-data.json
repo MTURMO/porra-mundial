@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-23T03:57:51.687009+00:00",
+  "updated": "2026-06-23T06:12:41.269967+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -263,8 +263,8 @@
     {
       "t1": "Jordan",
       "t2": "Algeria",
-      "g1": null,
-      "g2": null
+      "g1": 1,
+      "g2": 2
     },
     {
       "t1": "Portugal",
@@ -529,6 +529,8 @@
     "trezeguet": 1,
     "ousmane dembele": 1,
     "marcus pedersen": 1,
-    "nizar al rashdan": 1
+    "nizar al rashdan": 1,
+    "nadhir benbouali": 1,
+    "amine gouiri": 1
   }
 }

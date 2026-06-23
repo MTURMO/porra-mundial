@@ -205,6 +205,32 @@ def main():
         print("ERROR: all fixture sources failed", file=sys.stderr)
         sys.exit(1)
 
+    # The upstream API has been observed to intermittently drop a scoreline
+    # it had already reported (flaky data for matches that finished hours
+    # earlier). Never regress a fixture from "has a result" to "no result" —
+    # once we've seen a final score for a matchup, keep it even if a later
+    # poll comes back empty.
+    try:
+        with open(OUTPUT_FILE, encoding="utf-8") as f:
+            previous = json.load(f).get("fixtures", [])
+    except (FileNotFoundError, json.JSONDecodeError):
+        previous = []
+
+    prev_by_pair = {}
+    for pf in previous:
+        if pf.get("g1") is not None and pf.get("g2") is not None:
+            prev_by_pair[(pf["t1"], pf["t2"])] = (pf["g1"], pf["g2"])
+
+    restored = 0
+    for fx in fixtures:
+        if fx["g1"] is None and fx["g2"] is None:
+            prev_score = prev_by_pair.get((fx["t1"], fx["t2"]))
+            if prev_score:
+                fx["g1"], fx["g2"] = prev_score
+                restored += 1
+    if restored:
+        print(f"  Restored {restored} fixture(s) that the API dropped but we'd already confirmed")
+
     out = {
         "updated": datetime.now(timezone.utc).isoformat(),
         "source": source,

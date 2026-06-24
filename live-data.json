@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-24T01:22:38.670174+00:00",
+  "updated": "2026-06-24T05:14:58.760291+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -287,8 +287,8 @@
     {
       "t1": "Colombia",
       "t2": "Congo",
-      "g1": null,
-      "g2": null
+      "g1": 1,
+      "g2": 0
     },
     {
       "t1": "Switzerland",
@@ -452,6 +452,7 @@
     "maximiliano araujo": 2,
     "elijah just": 2,
     "harry kane": 2,
+    "daniel munoz": 2,
     "johan manzambi": 2,
     "matheus cunha": 2,
     "brian brobbey": 2,
@@ -503,7 +504,6 @@
     "jude bellingham": 1,
     "marcus rashford": 1,
     "caleb yirenkyi": 1,
-    "daniel munoz": 1,
     "abbosbek fayzullaev": 1,
     "luis diaz": 1,
     "jaminton campaz": 1,

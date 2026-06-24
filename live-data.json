@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-24T20:17:37.337318+00:00",
+  "updated": "2026-06-24T21:52:04.293892+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -293,14 +293,14 @@
     {
       "t1": "Switzerland",
       "t2": "Canada",
-      "g1": null,
-      "g2": null
+      "g1": 2,
+      "g2": 1
     },
     {
       "t1": "Bosnia Herzegovina",
       "t2": "Qatar",
-      "g1": null,
-      "g2": null
+      "g1": 3,
+      "g2": 1
     },
     {
       "t1": "Morocco",
@@ -455,6 +455,7 @@
     "harry kane": 2,
     "daniel munoz": 2,
     "ruben vargas": 2,
+    "ermin mahmic": 2,
     "matheus cunha": 2,
     "brian brobbey": 2,
     "cody gakpo": 2,
@@ -510,7 +511,6 @@
     "jaminton campaz": 1,
     "michal sadilek": 1,
     "teboho mokoena": 1,
-    "ermin mahmic": 1,
     "granit xhaka": 1,
     "nathan-dylan saliba": 1,
     "luis romo": 1,
@@ -535,6 +535,6 @@
     "nuno mendes": 1,
     "rafael leao": 1,
     "ante budimir": 1,
-    "kerim alajbegovic": 1
+    "promise akinpelu": 1
   }
 }

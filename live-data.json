@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-23T23:08:01.786521+00:00",
+  "updated": "2026-06-24T01:22:38.670174+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -282,7 +282,7 @@
       "t1": "Panama",
       "t2": "Croatia",
       "g1": 0,
-      "g2": 0
+      "g2": 1
     },
     {
       "t1": "Colombia",
@@ -534,6 +534,7 @@
     "amine gouiri": 1,
     "nuno mendes": 1,
     "abduvakhid nematov": 1,
-    "rafael leao": 1
+    "rafael leao": 1,
+    "ante budimir": 1
   }
 }

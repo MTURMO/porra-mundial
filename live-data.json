@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-25T20:52:23.403604+00:00",
+  "updated": "2026-06-25T22:15:54.982662+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -329,14 +329,14 @@
     {
       "t1": "Ecuador",
       "t2": "Germany",
-      "g1": 1,
+      "g1": 2,
       "g2": 1
     },
     {
       "t1": "Curaçao",
       "t2": "Ivory Coast",
       "g1": 0,
-      "g2": 1
+      "g2": 2
     },
     {
       "t1": "Tunisia",
@@ -464,6 +464,7 @@
     "mikel oyarzabal": 2,
     "ismaila sarr": 2,
     "cristiano ronaldo": 2,
+    "nicolas pepe": 2,
     "raul jimenez": 1,
     "ladislav krejci": 1,
     "in-beom hwang": 1,
@@ -534,7 +535,6 @@
     "amine gouiri": 1,
     "nuno mendes": 1,
     "rafael leao": 1,
-    "ante budimir": 1,
-    "promise akinpelu": 1
+    "ante budimir": 1
   }
 }

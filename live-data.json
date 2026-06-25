@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-25T00:15:29.414538+00:00",
+  "updated": "2026-06-25T04:40:18.884380+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -317,14 +317,14 @@
     {
       "t1": "Czech Republic",
       "t2": "Mexico",
-      "g1": null,
-      "g2": null
+      "g1": 0,
+      "g2": 3
     },
     {
       "t1": "South Africa",
       "t2": "South Korea",
-      "g1": null,
-      "g2": null
+      "g1": 1,
+      "g2": 0
     },
     {
       "t1": "Ecuador",
@@ -445,6 +445,7 @@
     "johan manzambi": 3,
     "jonathan david": 3,
     "matheus cunha": 3,
+    "julian quinones": 2,
     "cyle larin": 2,
     "folarin balogun": 2,
     "kai havertz": 2,
@@ -463,7 +464,6 @@
     "mikel oyarzabal": 2,
     "ismaila sarr": 2,
     "cristiano ronaldo": 2,
-    "julian quinones": 1,
     "raul jimenez": 1,
     "ladislav krejci": 1,
     "in-beom hwang": 1,

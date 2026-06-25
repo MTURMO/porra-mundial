@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-24T22:59:17.863478+00:00",
+  "updated": "2026-06-25T00:15:29.414538+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -305,14 +305,14 @@
     {
       "t1": "Morocco",
       "t2": "Haiti",
-      "g1": null,
-      "g2": null
+      "g1": 4,
+      "g2": 2
     },
     {
       "t1": "Scotland",
       "t2": "Brazil",
-      "g1": null,
-      "g2": null
+      "g1": 0,
+      "g2": 3
     },
     {
       "t1": "Czech Republic",
@@ -444,6 +444,7 @@
     "deniz undav": 3,
     "johan manzambi": 3,
     "jonathan david": 3,
+    "matheus cunha": 3,
     "cyle larin": 2,
     "folarin balogun": 2,
     "kai havertz": 2,
@@ -456,7 +457,6 @@
     "daniel munoz": 2,
     "ruben vargas": 2,
     "ermin mahmic": 2,
-    "matheus cunha": 2,
     "brian brobbey": 2,
     "cody gakpo": 2,
     "ayase ueda": 2,

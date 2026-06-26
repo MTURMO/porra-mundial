@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-26T17:13:35.875847+00:00",
+  "updated": "2026-06-26T19:14:33.323605+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -365,14 +365,14 @@
     {
       "t1": "Norway",
       "t2": "France",
-      "g1": null,
-      "g2": null
+      "g1": 0,
+      "g2": 1
     },
     {
       "t1": "Senegal",
       "t2": "Iraq",
-      "g1": null,
-      "g2": null
+      "g1": 1,
+      "g2": 0
     },
     {
       "t1": "Uruguay",
@@ -433,6 +433,30 @@
       "t2": "Austria",
       "g1": null,
       "g2": null
+    },
+    {
+      "t1": "South Africa",
+      "t2": "Canada",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Brazil",
+      "t2": "Japan",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Netherlands",
+      "t2": "Morocco",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "USA",
+      "t2": "Bosnia Herzegovina",
+      "g1": null,
+      "g2": null
     }
   ],
   "topscorers": {
@@ -463,6 +487,7 @@
     "anthony elanga": 2,
     "ayase ueda": 2,
     "mikel oyarzabal": 2,
+    "ousmane dembele": 2,
     "ismaila sarr": 2,
     "cristiano ronaldo": 2,
     "nicolas pepe": 2,
@@ -528,7 +553,6 @@
     "mostafa ziko": 1,
     "mohamed salah": 1,
     "trezeguet": 1,
-    "ousmane dembele": 1,
     "marcus pedersen": 1,
     "nizar al rashdan": 1,
     "nadhir benbouali": 1,

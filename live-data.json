@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-25T23:49:42.122713+00:00",
+  "updated": "2026-06-26T02:30:48.063978+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -341,14 +341,14 @@
     {
       "t1": "Tunisia",
       "t2": "Netherlands",
-      "g1": null,
-      "g2": null
+      "g1": 1,
+      "g2": 3
     },
     {
       "t1": "Japan",
       "t2": "Sweden",
-      "g1": null,
-      "g2": null
+      "g1": 1,
+      "g2": 1
     },
     {
       "t1": "Turkey",
@@ -460,6 +460,7 @@
     "ruben vargas": 2,
     "ermin mahmic": 2,
     "cody gakpo": 2,
+    "anthony elanga": 2,
     "ayase ueda": 2,
     "mikel oyarzabal": 2,
     "ismaila sarr": 2,
@@ -517,7 +518,6 @@
     "luis romo": 1,
     "alex freeman": 1,
     "matias galarza": 1,
-    "anthony elanga": 1,
     "franck kessie": 1,
     "junya ito": 1,
     "lamine yamal": 1,

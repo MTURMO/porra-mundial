@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-27T18:02:54.090756+00:00",
+  "updated": "2026-06-27T19:50:24.114275+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -396,7 +396,7 @@
       "t1": "Egypt",
       "t2": "Iran",
       "g1": 1,
-      "g2": 1
+      "g2": 2
     },
     {
       "t1": "Panama",
@@ -431,6 +431,30 @@
     {
       "t1": "Algeria",
       "t2": "Austria",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "South Africa",
+      "t2": "Canada",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Brazil",
+      "t2": "Japan",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Netherlands",
+      "t2": "Morocco",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "USA",
+      "t2": "Bosnia Herzegovina",
       "g1": null,
       "g2": null
     }

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-27T02:33:45.436298+00:00",
+  "updated": "2026-06-27T06:22:27.083707+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -389,14 +389,14 @@
     {
       "t1": "New Zealand",
       "t2": "Belgium",
-      "g1": null,
-      "g2": null
+      "g1": 1,
+      "g2": 5
     },
     {
       "t1": "Egypt",
       "t2": "Iran",
-      "g1": null,
-      "g2": null
+      "g1": 1,
+      "g2": 1
     },
     {
       "t1": "Panama",
@@ -467,6 +467,7 @@
     "ousmane dembele": 4,
     "ismael saibari": 3,
     "deniz undav": 3,
+    "elijah just": 3,
     "johan manzambi": 3,
     "jonathan david": 3,
     "matheus cunha": 3,
@@ -480,7 +481,7 @@
     "daichi kamada": 2,
     "yasin ayari": 2,
     "maximiliano araujo": 2,
-    "elijah just": 2,
+    "ramin rezaeian": 2,
     "harry kane": 2,
     "daniel munoz": 2,
     "ruben vargas": 2,
@@ -492,6 +493,7 @@
     "cristiano ronaldo": 2,
     "nicolas pepe": 2,
     "pape gueye": 2,
+    "leandro trossard": 2,
     "raul jimenez": 1,
     "ladislav krejci": 1,
     "in-beom hwang": 1,
@@ -518,7 +520,6 @@
     "mattias svanberg": 1,
     "emam ashour": 1,
     "abdulelah al amri": 1,
-    "ramin rezaeian": 1,
     "mohammad mohebi": 1,
     "bradley barcola": 1,
     "ibrahim m'baye": 1,
@@ -558,7 +559,6 @@
     "nizar al rashdan": 1,
     "nadhir benbouali": 1,
     "amine gouiri": 1,
-    "nuno mendes": 1,
-    "rafael leao": 1
+    "nuno mendes": 1
   }
 }

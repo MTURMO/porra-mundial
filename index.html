@@ -325,32 +325,44 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
 .pts-subtab-panel { display: none; }
 .pts-subtab-panel.active { display: block; }
 
-/* ── KO BRACKET ──────────────────────────────────── */
-.ko-round-block { margin-bottom: 28px; }
-.ko-round-title {
-  font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 2px; color: var(--gold); margin-bottom: 10px;
+/* ── KO BRACKET (graphic) ────────────────────────── */
+#pts-ko-bracket { overflow-x: auto; padding: 30px 10px 24px 4px; }
+.bk-bracket { display: flex; align-items: flex-start; width: max-content; }
+.bk-col { display: flex; flex-direction: column; justify-content: space-around; position: relative; min-width: 168px; margin-right: 18px; }
+.bk-col:last-child { margin-right: 0; }
+.bk-round-label {
+  position: absolute; top: -22px; left: 0; right: 0; text-align: center;
+  font-size: 0.64rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--gold);
+  white-space: nowrap;
 }
-.ko-round-sub { color: var(--muted); font-weight: 500; text-transform: none; letter-spacing: 0; font-size: 0.72rem; }
-.ko-matches { display: flex; flex-direction: column; gap: 10px; }
-.ko-card {
-  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-  padding: 12px 14px; position: relative;
+.bk-slot { position: relative; padding: 0 18px 0 0; }
+.bk-col:last-child .bk-slot { padding-right: 0; }
+.bk-card-mini {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 7px 9px; font-size: 0.76rem;
 }
-.ko-card.ko-done { border-color: var(--gold2); }
-.ko-card-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.ko-team { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; font-weight: 600; flex: 1; min-width: 0; }
-.ko-team.ko-winner { color: var(--gold); font-weight: 800; }
-.ko-team.ko-loser { color: var(--muted); }
-.ko-team-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ko-team-name.ko-pending { color: var(--muted); font-style: italic; font-weight: 500; }
-.ko-vs { color: var(--muted); font-size: 0.72rem; flex-shrink: 0; }
-.ko-score { display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
-.ko-score-pair { display: flex; gap: 4px; align-items: center; font-size: 0.8rem; }
-.ko-meta-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); font-size: 0.72rem; color: var(--muted); }
-.ko-pts-badge { font-weight: 800; }
-.ko-advance { font-size: 0.68rem; color: var(--muted); margin-top: 6px; }
-.ko-advance .ko-next-team { color: var(--gold); font-weight: 700; }
+.bk-card-mini.bk-done { border-color: var(--gold2); }
+.bk-mini-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 2px 0; }
+.bk-mini-row.bk-winner { color: var(--gold); font-weight: 800; }
+.bk-mini-row.bk-loser { color: var(--muted); }
+.bk-mini-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bk-mini-name.ko-pending { font-style: italic; color: var(--muted); font-weight: 500; }
+.bk-mini-score { font-weight: 700; flex-shrink: 0; min-width: 14px; text-align: right; }
+.bk-mini-pts { font-size: 0.62rem; color: var(--muted); margin-top: 3px; white-space: nowrap; }
+
+/* connector: horizontal stub + vertical elbow into the gutter, meeting the
+   next round's card at its vertical center (guaranteed by the matching
+   flex `space-around` slot heights between columns) */
+.bk-slot.bk-pair-top::after, .bk-slot.bk-pair-bottom::after {
+  content: ''; position: absolute; right: 0; width: 18px; height: 2px; background: var(--border); top: 50%;
+}
+.bk-slot.bk-pair-top::before {
+  content: ''; position: absolute; right: 0; top: 50%; width: 2px; height: var(--elbow-h, 20px); background: var(--border);
+}
+.bk-slot.bk-pair-bottom::before {
+  content: ''; position: absolute; right: 0; bottom: 50%; width: 2px; height: var(--elbow-h, 20px); background: var(--border);
+}
+.bk-third { margin-top: 10px; padding: 26px 10px 0 4px; position: relative; max-width: 168px; }
 
 /* ── RESPONSIVE ──────────────────────────────────── */
 @media (max-width: 600px) {
@@ -1378,17 +1390,39 @@ function buildPtsRowData(mn, p) {
 
 // Where does the winner/loser of match `mn` go next? Scans the raw (unresolved)
 // team slots of every knockout match for a "W{mn}" / "L{mn}" reference.
-function findKoAdvancement(mn) {
-  for (const [nextMn, meta] of Object.entries(DATA.knockout_matches || {})) {
-    if (meta.team1 === `W${mn}` || meta.team2 === `W${mn}`) return { nextMn, role: 'W' };
-    if (meta.team1 === `L${mn}` || meta.team2 === `L${mn}`) return { nextMn, role: 'L' };
-  }
-  return null;
+// Match numbers (strings) that feed match `mn`'s team1/team2 slots via "W##"/"L##",
+// or [null, null] for round-of-32 matches (no knockout feeders, just group results).
+function feedersOf(mn) {
+  const meta = DATA.knockout_matches?.[mn];
+  if (!meta) return [null, null];
+  const f1 = meta.team1?.match(/^[WL](\d+)$/);
+  const f2 = meta.team2?.match(/^[WL](\d+)$/);
+  return [f1 ? f1[1] : null, f2 ? f2[1] : null];
 }
 
-function buildKoCard(mn, p) {
+// Walks the bracket backwards from the final to build, for every round, the
+// match numbers in true left-to-right *visual* order (siblings adjacent) —
+// match numbering/dates don't follow this order, so it has to be derived.
+function bracketLevels(finalMn) {
+  const levels = [[finalMn]];
+  let level = [finalMn];
+  while (true) {
+    const next = [];
+    for (const mn of level) {
+      const [a, b] = feedersOf(mn);
+      if (a) next.push(a);
+      if (b) next.push(b);
+    }
+    if (next.length === 0) break;
+    levels.push(next);
+    level = next;
+  }
+  return levels.reverse(); // round of 32 first, final last
+}
+
+function buildKoMiniCard(mn, p) {
   const meta = DATA.knockout_matches?.[mn];
-  if (!meta) return null;
+  if (!meta) return { html: '', hasReal: false };
   const resolved = KO_RESOLVED_TEAMS[mn] || { team1: meta.team1, team2: meta.team2 };
   const t1Resolved = isKoTeamResolved(resolved.team1);
   const t2Resolved = isKoTeamResolved(resolved.team2);
@@ -1396,76 +1430,77 @@ function buildKoCard(mn, p) {
   const real = (t1Resolved && t2Resolved) ? (SCORES_KO[mn] || null) : null;
   const hasReal = real && real.g1 !== null;
   const r = hasReal ? calcPtsKO(prd[0], prd[1], real.g1, real.g2, meta.round) : null;
-  const cfg = ROUND_POINTS[meta.round] || ROUND_POINTS.dieciseisavos;
 
   const winnerIsT1 = hasReal ? real.g1 > real.g2 : null;
-  const t1Cls = hasReal ? (winnerIsT1 ? 'ko-winner' : 'ko-loser') : '';
-  const t2Cls = hasReal ? (winnerIsT1 ? 'ko-loser' : 'ko-winner') : '';
-  const t1Name = t1Resolved ? resolved.team1 : `<span class="ko-team-name ko-pending">${resolved.team1 || '?'}</span>`;
-  const t2Name = t2Resolved ? resolved.team2 : `<span class="ko-team-name ko-pending">${resolved.team2 || '?'}</span>`;
+  const t1Cls = hasReal ? (winnerIsT1 ? 'bk-winner' : 'bk-loser') : '';
+  const t2Cls = hasReal ? (winnerIsT1 ? 'bk-loser' : 'bk-winner') : '';
+  const t1Name = t1Resolved ? resolved.team1 : `<span class="bk-mini-name ko-pending">${resolved.team1 || '?'}</span>`;
+  const t2Name = t2Resolved ? resolved.team2 : `<span class="bk-mini-name ko-pending">${resolved.team2 || '?'}</span>`;
+  const g1 = hasReal ? real.g1 : (t1Resolved && t2Resolved ? '-' : '');
+  const g2 = hasReal ? real.g2 : (t1Resolved && t2Resolved ? '-' : '');
 
-  const p1 = prd[0] !== null ? prd[0] : '?', p2 = prd[1] !== null ? prd[1] : '?';
-  let ptsBadge = '<span style="color:var(--muted)">—</span>';
-  let reasonLabel = 'pendiente';
+  let ptsLabel = '';
   if (r) {
-    if (r.reason==='exact')     { ptsBadge = `<span class="ko-pts-badge" style="color:var(--green)">${r.pts}</span>`; reasonLabel = 'exacto'; }
-    else if (r.reason==='sign') { ptsBadge = `<span class="ko-pts-badge" style="color:var(--amber)">${r.pts}</span>`; reasonLabel = `${cfg.base}-${r.diff}`; }
-    else                        { ptsBadge = `<span class="ko-pts-badge" style="color:var(--red)">0</span>`; reasonLabel = 'fallo'; }
-  }
-
-  let advanceHtml = '';
-  const adv = findKoAdvancement(mn);
-  if (hasReal && adv) {
-    const winnerName = winnerIsT1 ? resolved.team1 : resolved.team2;
-    advanceHtml = `<div class="ko-advance">→ <span class="ko-next-team">${winnerName}</span> avanza al partido #${adv.nextMn}</div>`;
-  } else if (adv) {
-    advanceHtml = `<div class="ko-advance">→ El ganador avanza al partido #${adv.nextMn}</div>`;
+    const color = r.reason === 'exact' ? 'var(--green)' : r.reason === 'sign' ? 'var(--amber)' : 'var(--red)';
+    ptsLabel = `<div class="bk-mini-pts" style="color:${color}">${r.pts} pts (tu ${prd[0]}-${prd[1]})</div>`;
+  } else if (t1Resolved && t2Resolved && (prd[0] !== null)) {
+    ptsLabel = `<div class="bk-mini-pts">tu pronóstico: ${prd[0]}-${prd[1]}</div>`;
   }
 
   const html = `
-    <div class="ko-card ${hasReal ? 'ko-done' : ''}">
-      <div class="ko-card-row">
-        <div class="ko-team ${t1Cls}"><span class="ko-team-name">${t1Name}</span></div>
-        <div class="ko-score">
-          <div class="ko-score-pair"><span class="s-box s-pred">${p1}</span><span class="s-dash">-</span><span class="s-box s-pred">${p2}</span></div>
-          <div class="ko-score-pair"><span class="s-box s-real ${hasReal?'':'tbd'}">${hasReal?real.g1:'—'}</span><span class="s-dash">-</span><span class="s-box s-real ${hasReal?'':'tbd'}">${hasReal?real.g2:'—'}</span></div>
-        </div>
-        <div class="ko-team ${t2Cls}" style="justify-content:flex-end"><span class="ko-team-name">${t2Name}</span></div>
-      </div>
-      <div class="ko-meta-row">
-        <span>#${mn} · pred / real</span>
-        <span>${ptsBadge} <span style="margin-left:4px">${reasonLabel}</span></span>
-      </div>
-      ${advanceHtml}
+    <div class="bk-card-mini ${hasReal ? 'bk-done' : ''}">
+      <div class="bk-mini-row ${t1Cls}"><span class="bk-mini-name">${t1Name}</span><span class="bk-mini-score">${g1}</span></div>
+      <div class="bk-mini-row ${t2Cls}"><span class="bk-mini-name">${t2Name}</span><span class="bk-mini-score">${g2}</span></div>
+      ${ptsLabel}
     </div>`;
-  return { mn, round: meta.round, hasReal, r, html };
+  return { mn, round: meta.round, hasReal, html };
 }
 
 function renderKoBracket(p) {
   const container = document.getElementById('pts-ko-bracket');
   const emptyEl = document.getElementById('pts-ko-empty');
-  const allMn = Object.keys(DATA.knockout_matches || {}).sort((a,b) => Number(a) - Number(b));
-  const cards = allMn.map(mn => buildKoCard(mn, p)).filter(Boolean);
-  // Only show rounds where at least one matchup already has two real teams
-  const anyResolved = cards.some(c => isKoTeamResolved(KO_RESOLVED_TEAMS[c.mn]?.team1) && isKoTeamResolved(KO_RESOLVED_TEAMS[c.mn]?.team2));
-  if (!anyResolved) {
-    container.innerHTML = '';
-    emptyEl.style.display = 'block';
-    return;
-  }
+  if (!DATA.knockout_matches) { container.innerHTML = ''; emptyEl.style.display = 'block'; return; }
+
+  const finalEntry = Object.entries(DATA.knockout_matches).find(([, m]) => m.round === 'final');
+  const thirdEntry = Object.entries(DATA.knockout_matches).find(([, m]) => m.round === 'tercer_cuarto');
+  if (!finalEntry) { container.innerHTML = ''; emptyEl.style.display = 'block'; return; }
+
+  const levels = bracketLevels(finalEntry[0]); // [roundOf32[], roundOf16[], cuartos[], semis[], final[]]
+
+  const anyResolved = levels.some(lvl => lvl.some(mn => {
+    const rt = KO_RESOLVED_TEAMS[mn];
+    return rt && isKoTeamResolved(rt.team1) && isKoTeamResolved(rt.team2);
+  }));
+  if (!anyResolved) { container.innerHTML = ''; emptyEl.style.display = 'block'; return; }
   emptyEl.style.display = 'none';
 
-  let html = '';
-  let currentRound = '';
-  for (const c of cards) {
-    if (c.round !== currentRound) {
-      if (currentRound) html += '</div></div>';
-      currentRound = c.round;
-      html += `<div class="ko-round-block"><div class="ko-round-title">${ROUND_LABELS[c.round] || c.round}</div><div class="ko-matches">`;
-    }
-    html += c.html;
+  const BASE_H = 92; // px per round-of-32 slot
+  const n0 = levels[0].length;
+  const totalH = n0 * BASE_H;
+
+  let html = '<div class="bk-bracket">';
+  levels.forEach((level, li) => {
+    const isLast = li === levels.length - 1;
+    const n = level.length;
+    const slotH = totalH / n;
+    const elbowH = slotH / 2;
+    const roundLabel = ROUND_LABELS[DATA.knockout_matches[level[0]]?.round] || '';
+    html += `<div class="bk-col" style="height:${totalH}px;--elbow-h:${elbowH}px">`;
+    html += `<div class="bk-round-label">${roundLabel}</div>`;
+    level.forEach((mn, idx) => {
+      const card = buildKoMiniCard(mn, p);
+      const pairCls = isLast ? '' : (idx % 2 === 0 ? 'bk-pair-top' : 'bk-pair-bottom');
+      html += `<div class="bk-slot ${pairCls}">${card.html}</div>`;
+    });
+    html += '</div>';
+  });
+  html += '</div>';
+
+  if (thirdEntry) {
+    const card = buildKoMiniCard(thirdEntry[0], p);
+    html += `<div class="bk-third"><div class="bk-round-label">${ROUND_LABELS.tercer_cuarto}</div>${card.html}</div>`;
   }
-  if (currentRound) html += '</div></div>';
+
   container.innerHTML = html;
 }
 

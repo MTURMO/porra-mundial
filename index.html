@@ -362,7 +362,13 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
 .bk-slot.bk-pair-bottom::before {
   content: ''; position: absolute; right: 0; bottom: 50%; width: 2px; height: var(--elbow-h, 20px); background: var(--border);
 }
-.bk-third { margin-top: 10px; padding: 26px 10px 0 4px; position: relative; max-width: 168px; }
+.bk-outer { display: flex; align-items: center; gap: 36px; }
+.bk-third { display: flex; flex-direction: column; align-items: center; min-width: 168px; flex-shrink: 0; }
+.bk-third-label {
+  font-size: 0.64rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--gold); white-space: nowrap; margin-bottom: 8px;
+}
+.bk-third .bk-card-mini { width: 168px; }
 
 /* ── RESPONSIVE ──────────────────────────────────── */
 @media (max-width: 600px) {
@@ -547,7 +553,8 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
 
       <div class="pts-subtabs">
         <button class="pts-subtab-btn active" data-ptstab="grupos">📋 Fase de grupos</button>
-        <button class="pts-subtab-btn" data-ptstab="ko">🏆 Fase eliminatoria</button>
+        <button class="pts-subtab-btn" data-ptstab="ko-list">📅 Eliminatoria (lista)</button>
+        <button class="pts-subtab-btn" data-ptstab="ko">🏆 Eliminatoria (cuadro)</button>
       </div>
 
       <div id="pts-subtab-grupos" class="pts-subtab-panel active">
@@ -561,6 +568,24 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
             <span style="text-align:center">Motivo</span>
           </div>
           <div id="pts-rows"></div>
+        </div>
+      </div>
+
+      <div id="pts-subtab-ko-list" class="pts-subtab-panel">
+        <div id="pts-ko-list-empty" class="empty" style="display:none">
+          <p style="font-size:1.2rem;margin-bottom:8px">📅</p>
+          <p>El cuadro de eliminatorias todavía no está definido</p>
+        </div>
+        <div class="match-table" id="pts-ko-list-table" style="display:none">
+          <div class="match-head pts-head">
+            <span>#</span>
+            <span style="text-align:right">Local</span>
+            <span style="text-align:center">Pred / Real</span>
+            <span>Visitante</span>
+            <span style="text-align:center">Pts</span>
+            <span style="text-align:center">Motivo</span>
+          </div>
+          <div id="pts-ko-list-rows"></div>
         </div>
       </div>
 
@@ -1456,6 +1481,80 @@ function buildKoMiniCard(mn, p) {
   return { mn, round: meta.round, hasReal, html };
 }
 
+function buildKoListRow(mn, p) {
+  const meta = DATA.knockout_matches?.[mn];
+  if (!meta) return null;
+  const resolved = KO_RESOLVED_TEAMS[mn] || { team1: meta.team1, team2: meta.team2 };
+  const t1Resolved = isKoTeamResolved(resolved.team1);
+  const t2Resolved = isKoTeamResolved(resolved.team2);
+  const prd = (p.preds_ko || {})[mn] || [null, null];
+  const real = (t1Resolved && t2Resolved) ? (SCORES_KO[mn] || null) : null;
+  const hasReal = real && real.g1 !== null;
+  const r = hasReal ? calcPtsKO(prd[0], prd[1], real.g1, real.g2, meta.round) : null;
+  const cfg = ROUND_POINTS[meta.round] || ROUND_POINTS.dieciseisavos;
+  const p1 = prd[0] !== null ? prd[0] : '?', p2 = prd[1] !== null ? prd[1] : '?';
+  const t1Name = t1Resolved ? resolved.team1 : `<span style="color:var(--muted);font-style:italic">${resolved.team1 || '?'}</span>`;
+  const t2Name = t2Resolved ? resolved.team2 : `<span style="color:var(--muted);font-style:italic">${resolved.team2 || '?'}</span>`;
+
+  let ptsBadge = '<span style="color:var(--muted)">—</span>';
+  let reasonBadge = '<span style="color:var(--muted);font-size:.72rem">pend.</span>';
+  let rowBg = '';
+  if (r) {
+    if (r.reason==='exact')      { ptsBadge=`<span style="color:var(--green);font-weight:800">${r.pts}</span>`;  reasonBadge=`<span style="color:var(--green);font-size:.72rem">exacto</span>`;    rowBg='background:rgba(46,204,113,.03);'; }
+    else if (r.reason==='sign')  { ptsBadge=`<span style="color:var(--amber);font-weight:800">${r.pts}</span>`; reasonBadge=`<span style="color:var(--amber);font-size:.72rem">${cfg.base}-${r.diff}</span>`; rowBg='background:rgba(243,156,18,.03);'; }
+    else                         { ptsBadge=`<span style="color:var(--red);font-weight:800">0</span>`;           reasonBadge=`<span style="color:var(--red);font-size:.72rem">fallo</span>`; }
+  }
+  const html = `
+    <div class="match-row pts-row" style="${rowBg}">
+      <div class="num">#${mn}</div>
+      <div class="team t1">${t1Name}</div>
+      <div class="score-cell">
+        <div class="score-pair">
+          <div class="s-box s-pred">${p1}</div>
+          <div class="s-dash">-</div>
+          <div class="s-box s-pred">${p2}</div>
+        </div>
+        <div class="score-pair">
+          <div class="s-box s-real ${hasReal?'':'tbd'}">${hasReal?real.g1:'—'}</div>
+          <div class="s-dash">-</div>
+          <div class="s-box s-real ${hasReal?'':'tbd'}">${hasReal?real.g2:'—'}</div>
+        </div>
+        <div class="score-lbl"><span>pred</span><span>real</span></div>
+      </div>
+      <div class="team t2">${t2Name}</div>
+      <div style="text-align:center">${ptsBadge}</div>
+      <div style="text-align:center">${reasonBadge}</div>
+    </div>`;
+  return { mn, round: meta.round, date: meta.date, html };
+}
+
+function renderKoList(p) {
+  const emptyEl = document.getElementById('pts-ko-list-empty');
+  const tableEl = document.getElementById('pts-ko-list-table');
+  const rowsEl = document.getElementById('pts-ko-list-rows');
+  if (!DATA.knockout_matches) { emptyEl.style.display = 'block'; tableEl.style.display = 'none'; return; }
+
+  const rows = Object.keys(DATA.knockout_matches)
+    .map(mn => buildKoListRow(mn, p))
+    .filter(Boolean)
+    .sort((a, b) => (a.date || '').localeCompare(b.date || '') || Number(a.mn) - Number(b.mn));
+
+  if (rows.length === 0) { emptyEl.style.display = 'block'; tableEl.style.display = 'none'; return; }
+  emptyEl.style.display = 'none';
+  tableEl.style.display = 'block';
+
+  let html = '';
+  let currentRound = '';
+  for (const row of rows) {
+    if (row.round !== currentRound) {
+      currentRound = row.round;
+      html += `<div class="grp-label">${ROUND_LABELS[row.round] || row.round}${row.date ? ` · ${row.date}` : ''}</div>`;
+    }
+    html += row.html;
+  }
+  rowsEl.innerHTML = html;
+}
+
 function renderKoBracket(p) {
   const container = document.getElementById('pts-ko-bracket');
   const emptyEl = document.getElementById('pts-ko-empty');
@@ -1478,7 +1577,7 @@ function renderKoBracket(p) {
   const n0 = levels[0].length;
   const totalH = n0 * BASE_H;
 
-  let html = '<div class="bk-bracket">';
+  let html = '<div class="bk-outer"><div class="bk-bracket">';
   levels.forEach((level, li) => {
     const isLast = li === levels.length - 1;
     const n = level.length;
@@ -1498,8 +1597,9 @@ function renderKoBracket(p) {
 
   if (thirdEntry) {
     const card = buildKoMiniCard(thirdEntry[0], p);
-    html += `<div class="bk-third"><div class="bk-round-label">${ROUND_LABELS.tercer_cuarto}</div>${card.html}</div>`;
+    html += `<div class="bk-third"><div class="bk-third-label">🥉 ${ROUND_LABELS.tercer_cuarto}</div>${card.html}</div>`;
   }
+  html += '</div>';
 
   container.innerHTML = html;
 }
@@ -1553,6 +1653,7 @@ function renderUserPts() {
     else if (r.reason==='sign') sign++;
     else wrong++;
   }
+  renderKoList(p);
   renderKoBracket(p);
 
   const played = exact+sign+wrong;

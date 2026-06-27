@@ -314,6 +314,44 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
 .match-row.pts-row { grid-template-columns: 44px 1fr 120px 1fr 46px 58px; }
 .match-head.pts-head { grid-template-columns: 44px 1fr 120px 1fr 46px 58px; }
 
+/* ── PTS SUB-TABS ────────────────────────────────── */
+.pts-subtabs { display: flex; gap: 8px; margin: 4px 0 18px; border-bottom: 1px solid var(--border); }
+.pts-subtab-btn {
+  background: transparent; border: none; color: var(--muted);
+  padding: 10px 4px; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.pts-subtab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+.pts-subtab-panel { display: none; }
+.pts-subtab-panel.active { display: block; }
+
+/* ── KO BRACKET ──────────────────────────────────── */
+.ko-round-block { margin-bottom: 28px; }
+.ko-round-title {
+  font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 2px; color: var(--gold); margin-bottom: 10px;
+}
+.ko-round-sub { color: var(--muted); font-weight: 500; text-transform: none; letter-spacing: 0; font-size: 0.72rem; }
+.ko-matches { display: flex; flex-direction: column; gap: 10px; }
+.ko-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 12px 14px; position: relative;
+}
+.ko-card.ko-done { border-color: var(--gold2); }
+.ko-card-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.ko-team { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; font-weight: 600; flex: 1; min-width: 0; }
+.ko-team.ko-winner { color: var(--gold); font-weight: 800; }
+.ko-team.ko-loser { color: var(--muted); }
+.ko-team-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ko-team-name.ko-pending { color: var(--muted); font-style: italic; font-weight: 500; }
+.ko-vs { color: var(--muted); font-size: 0.72rem; flex-shrink: 0; }
+.ko-score { display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
+.ko-score-pair { display: flex; gap: 4px; align-items: center; font-size: 0.8rem; }
+.ko-meta-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); font-size: 0.72rem; color: var(--muted); }
+.ko-pts-badge { font-weight: 800; }
+.ko-advance { font-size: 0.68rem; color: var(--muted); margin-top: 6px; }
+.ko-advance .ko-next-team { color: var(--gold); font-weight: 700; }
+
 /* ── RESPONSIVE ──────────────────────────────────── */
 @media (max-width: 600px) {
   /* Layout */
@@ -494,16 +532,32 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
       <div class="sec-title" id="pts-title">Puntuación de —</div>
       <div class="stats-row" id="pts-stats"></div>
       <div id="pts-scorer-banner"></div>
-      <div class="match-table">
-        <div class="match-head pts-head">
-          <span>#</span>
-          <span style="text-align:right">Local</span>
-          <span style="text-align:center">Pred / Real</span>
-          <span>Visitante</span>
-          <span style="text-align:center">Pts</span>
-          <span style="text-align:center">Motivo</span>
+
+      <div class="pts-subtabs">
+        <button class="pts-subtab-btn active" data-ptstab="grupos">📋 Fase de grupos</button>
+        <button class="pts-subtab-btn" data-ptstab="ko">🏆 Fase eliminatoria</button>
+      </div>
+
+      <div id="pts-subtab-grupos" class="pts-subtab-panel active">
+        <div class="match-table">
+          <div class="match-head pts-head">
+            <span>#</span>
+            <span style="text-align:right">Local</span>
+            <span style="text-align:center">Pred / Real</span>
+            <span>Visitante</span>
+            <span style="text-align:center">Pts</span>
+            <span style="text-align:center">Motivo</span>
+          </div>
+          <div id="pts-rows"></div>
         </div>
-        <div id="pts-rows"></div>
+      </div>
+
+      <div id="pts-subtab-ko" class="pts-subtab-panel">
+        <div id="pts-ko-empty" class="empty" style="display:none">
+          <p style="font-size:1.2rem;margin-bottom:8px">🏆</p>
+          <p>El cuadro de eliminatorias todavía no está definido</p>
+        </div>
+        <div id="pts-ko-bracket"></div>
       </div>
     </div>
   </div>
@@ -868,28 +922,29 @@ function setApiStatus(state, msg) {
   txt.textContent = msg;
 }
 
+function lookupApiResult(team1, team2) {
+  const t1 = normTeam(team1).toLowerCase();
+  const t2 = normTeam(team2).toLowerCase();
+  for (const m of API_RESULTS) {
+    const at1 = m.t1.toLowerCase();
+    const at2 = m.t2.toLowerCase();
+    const match12 = at1 === t1 && at2 === t2;
+    const match21 = at1 === t2 && at2 === t1;
+    if (match12 || match21) {
+      if (m.g1 !== null) {
+        return match12 ? {g1: m.g1, g2: m.g2} : {g1: m.g2, g2: m.g1};
+      }
+      return {g1: null, g2: null};
+    }
+  }
+  return null;
+}
+
 function buildScores() {
   SCORES = {};
   if (!DATA) return;
   for (const [mnum, meta] of Object.entries(DATA.matches)) {
-    const t1 = normTeam(meta.team1).toLowerCase();
-    const t2 = normTeam(meta.team2).toLowerCase();
-    let found = null;
-    for (const m of API_RESULTS) {
-      const at1 = m.t1.toLowerCase();
-      const at2 = m.t2.toLowerCase();
-      const match12 = at1 === t1 && at2 === t2;
-      const match21 = at1 === t2 && at2 === t1;
-      if (match12 || match21) {
-        if (m.g1 !== null) {
-          found = match12 ? {g1: m.g1, g2: m.g2} : {g1: m.g2, g2: m.g1};
-        } else {
-          found = {g1: null, g2: null};
-        }
-        break;
-      }
-    }
-    SCORES[mnum] = found;
+    SCORES[mnum] = lookupApiResult(meta.team1, meta.team2);
   }
 }
 
@@ -978,33 +1033,65 @@ function calcPtsKO(pred1, pred2, g1, g2, round) {
 }
 
 // A knockout slot is still unresolved if the bracket placeholder
-// (e.g. "3A/B/C/D/F", "W74") hasn't been replaced by a real team name yet.
+// (e.g. "3A/B/C/D/F", group standings we can't compute here, or "W74"/"L101"
+// which CAN be auto-resolved once that earlier match has a winner) hasn't
+// been replaced by a real team name yet.
 function isKoTeamResolved(name) {
   return !!name && !/^\d|^[WL]\d|\//.test(name);
 }
 
+// "W74" → winner of match #74, "L101" → loser of match #101. Recursively
+// resolves through the bracket so a Round-of-16 slot fills in automatically
+// the moment the Round-of-32 match it depends on gets a final score.
+let KO_RESOLVE_CACHE = {};
+function resolveKoTeam(name, depth = 0) {
+  if (!name || depth > 10) return name;
+  const m = name.match(/^([WL])(\d+)$/);
+  if (!m) return name; // already a real team name, or an unresolvable group placeholder
+  const cacheKey = name;
+  if (KO_RESOLVE_CACHE[cacheKey] !== undefined) return KO_RESOLVE_CACHE[cacheKey];
+  const [, wl, refMn] = m;
+  const refMeta = DATA.knockout_matches?.[refMn];
+  if (!refMeta) return name;
+  const t1 = resolveKoTeam(refMeta.team1, depth + 1);
+  const t2 = resolveKoTeam(refMeta.team2, depth + 1);
+  const real = SCORES_KO_RAW[refMn];
+  let result = name;
+  if (real && real.g1 !== null && isKoTeamResolved(t1) && isKoTeamResolved(t2) && real.g1 !== real.g2) {
+    const winner = real.g1 > real.g2 ? t1 : t2;
+    const loser  = real.g1 > real.g2 ? t2 : t1;
+    result = wl === 'W' ? winner : loser;
+  }
+  KO_RESOLVE_CACHE[cacheKey] = result;
+  return result;
+}
+
+// Resolved {team1, team2} per knockout match, filled in by buildScoresKO()
+let KO_RESOLVED_TEAMS = {};
+let SCORES_KO_RAW = {}; // real results keyed by match number, before placeholder resolution
+
 function buildScoresKO() {
   SCORES_KO = {};
+  KO_RESOLVE_CACHE = {};
   if (!DATA || !DATA.knockout_matches) return;
+
+  // Pass 1: match each knockout fixture's *already-resolved* teams (real
+  // names, no W/L placeholders) against live results — this fills SCORES_KO_RAW
+  // so resolveKoTeam() has something to recurse into for later rounds.
+  SCORES_KO_RAW = {};
   for (const [mnum, meta] of Object.entries(DATA.knockout_matches)) {
-    if (!isKoTeamResolved(meta.team1) || !isKoTeamResolved(meta.team2)) { SCORES_KO[mnum] = null; continue; }
-    const t1 = normTeam(meta.team1).toLowerCase();
-    const t2 = normTeam(meta.team2).toLowerCase();
-    let found = null;
-    for (const m of API_RESULTS) {
-      const at1 = m.t1.toLowerCase();
-      const at2 = m.t2.toLowerCase();
-      const match12 = at1 === t1 && at2 === t2;
-      const match21 = at1 === t2 && at2 === t1;
-      if (match12 || match21) {
-        if (m.g1 !== null) {
-          found = match12 ? {g1: m.g1, g2: m.g2} : {g1: m.g2, g2: m.g1};
-        } else {
-          found = {g1: null, g2: null};
-        }
-        break;
-      }
-    }
+    if (!isKoTeamResolved(meta.team1) || !isKoTeamResolved(meta.team2)) continue;
+    SCORES_KO_RAW[mnum] = lookupApiResult(meta.team1, meta.team2);
+  }
+
+  // Pass 2: resolve W/L placeholders (possibly several rounds deep) and
+  // look up results again for matches that just became resolvable.
+  for (const [mnum, meta] of Object.entries(DATA.knockout_matches)) {
+    const team1 = resolveKoTeam(meta.team1);
+    const team2 = resolveKoTeam(meta.team2);
+    KO_RESOLVED_TEAMS[mnum] = { team1, team2 };
+    if (!isKoTeamResolved(team1) || !isKoTeamResolved(team2)) { SCORES_KO[mnum] = null; continue; }
+    const found = SCORES_KO_RAW[mnum] !== undefined ? SCORES_KO_RAW[mnum] : lookupApiResult(team1, team2);
     SCORES_KO[mnum] = found;
   }
 }
@@ -1289,45 +1376,97 @@ function buildPtsRowData(mn, p) {
   return { mn, hasReal, r, html };
 }
 
-function buildKoRowData(mn, p) {
+// Where does the winner/loser of match `mn` go next? Scans the raw (unresolved)
+// team slots of every knockout match for a "W{mn}" / "L{mn}" reference.
+function findKoAdvancement(mn) {
+  for (const [nextMn, meta] of Object.entries(DATA.knockout_matches || {})) {
+    if (meta.team1 === `W${mn}` || meta.team2 === `W${mn}`) return { nextMn, role: 'W' };
+    if (meta.team1 === `L${mn}` || meta.team2 === `L${mn}`) return { nextMn, role: 'L' };
+  }
+  return null;
+}
+
+function buildKoCard(mn, p) {
   const meta = DATA.knockout_matches?.[mn];
-  if (!meta || !isKoTeamResolved(meta.team1) || !isKoTeamResolved(meta.team2)) return null;
+  if (!meta) return null;
+  const resolved = KO_RESOLVED_TEAMS[mn] || { team1: meta.team1, team2: meta.team2 };
+  const t1Resolved = isKoTeamResolved(resolved.team1);
+  const t2Resolved = isKoTeamResolved(resolved.team2);
   const prd = (p.preds_ko || {})[mn] || [null, null];
-  const real = SCORES_KO[mn] || null;
+  const real = (t1Resolved && t2Resolved) ? (SCORES_KO[mn] || null) : null;
   const hasReal = real && real.g1 !== null;
   const r = hasReal ? calcPtsKO(prd[0], prd[1], real.g1, real.g2, meta.round) : null;
+  const cfg = ROUND_POINTS[meta.round] || ROUND_POINTS.dieciseisavos;
+
+  const winnerIsT1 = hasReal ? real.g1 > real.g2 : null;
+  const t1Cls = hasReal ? (winnerIsT1 ? 'ko-winner' : 'ko-loser') : '';
+  const t2Cls = hasReal ? (winnerIsT1 ? 'ko-loser' : 'ko-winner') : '';
+  const t1Name = t1Resolved ? resolved.team1 : `<span class="ko-team-name ko-pending">${resolved.team1 || '?'}</span>`;
+  const t2Name = t2Resolved ? resolved.team2 : `<span class="ko-team-name ko-pending">${resolved.team2 || '?'}</span>`;
+
   const p1 = prd[0] !== null ? prd[0] : '?', p2 = prd[1] !== null ? prd[1] : '?';
   let ptsBadge = '<span style="color:var(--muted)">—</span>';
-  let reasonBadge = '<span style="color:var(--muted);font-size:.72rem">pend.</span>';
-  let rowBg = '';
-  const cfg = ROUND_POINTS[meta.round] || ROUND_POINTS.dieciseisavos;
+  let reasonLabel = 'pendiente';
   if (r) {
-    if (r.reason==='exact')      { ptsBadge=`<span style="color:var(--green);font-weight:800">${r.pts}</span>`;  reasonBadge=`<span style="color:var(--green);font-size:.72rem">exacto</span>`;    rowBg='background:rgba(46,204,113,.03);'; }
-    else if (r.reason==='sign')  { ptsBadge=`<span style="color:var(--amber);font-weight:800">${r.pts}</span>`; reasonBadge=`<span style="color:var(--amber);font-size:.72rem">${cfg.base}-${r.diff}</span>`; rowBg='background:rgba(243,156,18,.03);'; }
-    else                         { ptsBadge=`<span style="color:var(--red);font-weight:800">0</span>`;           reasonBadge=`<span style="color:var(--red);font-size:.72rem">fallo</span>`; }
+    if (r.reason==='exact')     { ptsBadge = `<span class="ko-pts-badge" style="color:var(--green)">${r.pts}</span>`; reasonLabel = 'exacto'; }
+    else if (r.reason==='sign') { ptsBadge = `<span class="ko-pts-badge" style="color:var(--amber)">${r.pts}</span>`; reasonLabel = `${cfg.base}-${r.diff}`; }
+    else                        { ptsBadge = `<span class="ko-pts-badge" style="color:var(--red)">0</span>`; reasonLabel = 'fallo'; }
   }
+
+  let advanceHtml = '';
+  const adv = findKoAdvancement(mn);
+  if (hasReal && adv) {
+    const winnerName = winnerIsT1 ? resolved.team1 : resolved.team2;
+    advanceHtml = `<div class="ko-advance">→ <span class="ko-next-team">${winnerName}</span> avanza al partido #${adv.nextMn}</div>`;
+  } else if (adv) {
+    advanceHtml = `<div class="ko-advance">→ El ganador avanza al partido #${adv.nextMn}</div>`;
+  }
+
   const html = `
-    <div class="match-row pts-row" style="${rowBg}">
-      <div class="num">#${mn}</div>
-      <div class="team t1">${meta.team1}</div>
-      <div class="score-cell">
-        <div class="score-pair">
-          <div class="s-box s-pred">${p1}</div>
-          <div class="s-dash">-</div>
-          <div class="s-box s-pred">${p2}</div>
+    <div class="ko-card ${hasReal ? 'ko-done' : ''}">
+      <div class="ko-card-row">
+        <div class="ko-team ${t1Cls}"><span class="ko-team-name">${t1Name}</span></div>
+        <div class="ko-score">
+          <div class="ko-score-pair"><span class="s-box s-pred">${p1}</span><span class="s-dash">-</span><span class="s-box s-pred">${p2}</span></div>
+          <div class="ko-score-pair"><span class="s-box s-real ${hasReal?'':'tbd'}">${hasReal?real.g1:'—'}</span><span class="s-dash">-</span><span class="s-box s-real ${hasReal?'':'tbd'}">${hasReal?real.g2:'—'}</span></div>
         </div>
-        <div class="score-pair">
-          <div class="s-box s-real ${hasReal?'':'tbd'}">${hasReal?real.g1:'—'}</div>
-          <div class="s-dash">-</div>
-          <div class="s-box s-real ${hasReal?'':'tbd'}">${hasReal?real.g2:'—'}</div>
-        </div>
-        <div class="score-lbl"><span>pred</span><span>real</span></div>
+        <div class="ko-team ${t2Cls}" style="justify-content:flex-end"><span class="ko-team-name">${t2Name}</span></div>
       </div>
-      <div class="team t2">${meta.team2}</div>
-      <div style="text-align:center">${ptsBadge}</div>
-      <div style="text-align:center">${reasonBadge}</div>
+      <div class="ko-meta-row">
+        <span>#${mn} · pred / real</span>
+        <span>${ptsBadge} <span style="margin-left:4px">${reasonLabel}</span></span>
+      </div>
+      ${advanceHtml}
     </div>`;
   return { mn, round: meta.round, hasReal, r, html };
+}
+
+function renderKoBracket(p) {
+  const container = document.getElementById('pts-ko-bracket');
+  const emptyEl = document.getElementById('pts-ko-empty');
+  const allMn = Object.keys(DATA.knockout_matches || {}).sort((a,b) => Number(a) - Number(b));
+  const cards = allMn.map(mn => buildKoCard(mn, p)).filter(Boolean);
+  // Only show rounds where at least one matchup already has two real teams
+  const anyResolved = cards.some(c => isKoTeamResolved(KO_RESOLVED_TEAMS[c.mn]?.team1) && isKoTeamResolved(KO_RESOLVED_TEAMS[c.mn]?.team2));
+  if (!anyResolved) {
+    container.innerHTML = '';
+    emptyEl.style.display = 'block';
+    return;
+  }
+  emptyEl.style.display = 'none';
+
+  let html = '';
+  let currentRound = '';
+  for (const c of cards) {
+    if (c.round !== currentRound) {
+      if (currentRound) html += '</div></div>';
+      currentRound = c.round;
+      html += `<div class="ko-round-block"><div class="ko-round-title">${ROUND_LABELS[c.round] || c.round}</div><div class="ko-matches">`;
+    }
+    html += c.html;
+  }
+  if (currentRound) html += '</div></div>';
+  container.innerHTML = html;
 }
 
 function renderUserPts() {
@@ -1364,29 +1503,22 @@ function renderUserPts() {
   }
   html += allRows.map(d => d.html).join('');
 
-  // Knockout stage — grouped by round, only resolved matchups, own point scale
-  let koTotal = 0;
-  const koRows = Object.keys(DATA.knockout_matches || {})
-    .map(mn => buildKoRowData(mn, p))
-    .filter(Boolean);
-  if (koRows.length > 0) {
-    html += '<div class="grp-label">🏆 Fase eliminatoria</div>';
-    let currentRound = '';
-    for (const d of koRows) {
-      if (d.r) {
-        koTotal += d.r.pts;
-        if (d.r.reason==='exact') exact++;
-        else if (d.r.reason==='sign') sign++;
-        else wrong++;
-      }
-      if (d.round !== currentRound) {
-        currentRound = d.round;
-        html += `<div class="grp-label">${ROUND_LABELS[d.round] || d.round}</div>`;
-      }
-      html += d.html;
-    }
+  // Knockout stage totals (rendered separately as a bracket — see renderKoBracket)
+  for (const mn of Object.keys(DATA.knockout_matches || {})) {
+    const meta = DATA.knockout_matches[mn];
+    const resolved = KO_RESOLVED_TEAMS[mn];
+    if (!resolved || !isKoTeamResolved(resolved.team1) || !isKoTeamResolved(resolved.team2)) continue;
+    const real = SCORES_KO[mn];
+    if (!real || real.g1 === null) continue;
+    const prd = (p.preds_ko || {})[mn] || [null, null];
+    const r = calcPtsKO(prd[0], prd[1], real.g1, real.g2, meta.round);
+    if (!r) continue;
+    total += r.pts;
+    if (r.reason==='exact') exact++;
+    else if (r.reason==='sign') sign++;
+    else wrong++;
   }
-  total += koTotal;
+  renderKoBracket(p);
 
   const played = exact+sign+wrong;
   const avg = played ? (total/played).toFixed(1) : '—';
@@ -1867,6 +1999,13 @@ function showTab(tab) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab===tab));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id===`tab-${tab}`));
 }
+
+document.querySelectorAll('.pts-subtab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.pts-subtab-btn').forEach(b => b.classList.toggle('active', b===btn));
+    document.querySelectorAll('.pts-subtab-panel').forEach(p => p.classList.toggle('active', p.id===`pts-subtab-${btn.dataset.ptstab}`));
+  });
+});
 
 // ═══════════════════════════════════════════════════════
 // BOOT

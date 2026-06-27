@@ -683,6 +683,7 @@ const PTS_PER_GOAL_SCORER = 20;
 let DATA          = null;
 let API_RESULTS   = [];   // array of {t1, t2, g1, g2}
 let SCORES        = {};
+let SCORES_KO      = {};   // real results for knockout matches (DATA.knockout_matches)
 let PLAYER_GOALS  = {};   // manual fallback: normalized name -> goals
 let API_TOPSCORERS = {};  // live data: normalized name -> goals
 let RANKINGS      = [];
@@ -843,6 +844,7 @@ async function init() {
   await refreshLiveData();
 
   buildScores();
+  buildScoresKO();
   computeRankings();
   renderRanking();
   populateMatchSelect();
@@ -943,6 +945,70 @@ function calcPts(pred1, pred2, g1, g2, mn = null) {
   return {pts: 0, reason:'wrong'};
 }
 
+// ── KNOCKOUT STAGE ──────────────────────────────────────
+// Points scale up per round; same exact/sign-but-wrong-diff logic as groups.
+const ROUND_POINTS = {
+  dieciseisavos: { exact: 20, base: 10 },
+  octavos:       { exact: 25, base: 15 },
+  cuartos:       { exact: 30, base: 20 },
+  semifinal:     { exact: 35, base: 25 },
+  tercer_cuarto: { exact: 40, base: 30 },
+  final:         { exact: 100, base: 50 },
+};
+const ROUND_LABELS = {
+  dieciseisavos: 'Dieciseisavos',
+  octavos: 'Octavos de final',
+  cuartos: 'Cuartos de final',
+  semifinal: 'Semifinal',
+  tercer_cuarto: '3º y 4º puesto',
+  final: 'Final',
+};
+
+function calcPtsKO(pred1, pred2, g1, g2, round) {
+  if (pred1 === null || pred2 === null || g1 === null || g2 === null) return null;
+  const cfg = ROUND_POINTS[round] || ROUND_POINTS.dieciseisavos;
+  if (pred1 === g1 && pred2 === g2) return {pts: cfg.exact, reason:'exact'};
+  const ps = Math.sign(pred1 - pred2);
+  const rs = Math.sign(g1 - g2);
+  if (ps === rs) {
+    const diff = Math.abs(pred1 - g1) + Math.abs(pred2 - g2);
+    return {pts: Math.max(0, cfg.base - diff), reason:'sign', diff};
+  }
+  return {pts: 0, reason:'wrong'};
+}
+
+// A knockout slot is still unresolved if the bracket placeholder
+// (e.g. "3A/B/C/D/F", "W74") hasn't been replaced by a real team name yet.
+function isKoTeamResolved(name) {
+  return !!name && !/^\d|^[WL]\d|\//.test(name);
+}
+
+function buildScoresKO() {
+  SCORES_KO = {};
+  if (!DATA || !DATA.knockout_matches) return;
+  for (const [mnum, meta] of Object.entries(DATA.knockout_matches)) {
+    if (!isKoTeamResolved(meta.team1) || !isKoTeamResolved(meta.team2)) { SCORES_KO[mnum] = null; continue; }
+    const t1 = normTeam(meta.team1).toLowerCase();
+    const t2 = normTeam(meta.team2).toLowerCase();
+    let found = null;
+    for (const m of API_RESULTS) {
+      const at1 = m.t1.toLowerCase();
+      const at2 = m.t2.toLowerCase();
+      const match12 = at1 === t1 && at2 === t2;
+      const match21 = at1 === t2 && at2 === t1;
+      if (match12 || match21) {
+        if (m.g1 !== null) {
+          found = match12 ? {g1: m.g1, g2: m.g2} : {g1: m.g2, g2: m.g1};
+        } else {
+          found = {g1: null, g2: null};
+        }
+        break;
+      }
+    }
+    SCORES_KO[mnum] = found;
+  }
+}
+
 function scoreParticipant(p) {
   let total=0, exact=0, sign=0, wrong=0, pending=0;
   for (const [mn, pr] of Object.entries(p.preds)) {
@@ -955,11 +1021,25 @@ function scoreParticipant(p) {
     else if (r.reason==='sign') sign++;
     else wrong++;
   }
+  // Knockout stage — separate point scale per round, added into the same total
+  let koTotal = 0;
+  for (const [mn, pr] of Object.entries(p.preds_ko || {})) {
+    const meta = DATA.knockout_matches?.[mn];
+    const real = SCORES_KO[mn];
+    if (!meta || !real || real.g1 === null) continue;
+    const r = calcPtsKO(pr[0], pr[1], real.g1, real.g2, meta.round);
+    if (!r) continue;
+    koTotal += r.pts;
+    if (r.reason==='exact') exact++;
+    else if (r.reason==='sign') sign++;
+    else wrong++;
+  }
+  total += koTotal;
   // Top scorer bonus: goals scored by predicted player × 20 pts
   const scorerGoals = getScorerGoals(p.scorer);
   const scorerPts = scorerGoals * PTS_PER_GOAL_SCORER;
   total += scorerPts;
-  return {total, exact, sign, wrong, pending, played: exact+sign+wrong, scorerGoals, scorerPts};
+  return {total, exact, sign, wrong, pending, played: exact+sign+wrong, scorerGoals, scorerPts, koTotal};
 }
 
 function computeRankings() {
@@ -1209,6 +1289,47 @@ function buildPtsRowData(mn, p) {
   return { mn, hasReal, r, html };
 }
 
+function buildKoRowData(mn, p) {
+  const meta = DATA.knockout_matches?.[mn];
+  if (!meta || !isKoTeamResolved(meta.team1) || !isKoTeamResolved(meta.team2)) return null;
+  const prd = (p.preds_ko || {})[mn] || [null, null];
+  const real = SCORES_KO[mn] || null;
+  const hasReal = real && real.g1 !== null;
+  const r = hasReal ? calcPtsKO(prd[0], prd[1], real.g1, real.g2, meta.round) : null;
+  const p1 = prd[0] !== null ? prd[0] : '?', p2 = prd[1] !== null ? prd[1] : '?';
+  let ptsBadge = '<span style="color:var(--muted)">—</span>';
+  let reasonBadge = '<span style="color:var(--muted);font-size:.72rem">pend.</span>';
+  let rowBg = '';
+  const cfg = ROUND_POINTS[meta.round] || ROUND_POINTS.dieciseisavos;
+  if (r) {
+    if (r.reason==='exact')      { ptsBadge=`<span style="color:var(--green);font-weight:800">${r.pts}</span>`;  reasonBadge=`<span style="color:var(--green);font-size:.72rem">exacto</span>`;    rowBg='background:rgba(46,204,113,.03);'; }
+    else if (r.reason==='sign')  { ptsBadge=`<span style="color:var(--amber);font-weight:800">${r.pts}</span>`; reasonBadge=`<span style="color:var(--amber);font-size:.72rem">${cfg.base}-${r.diff}</span>`; rowBg='background:rgba(243,156,18,.03);'; }
+    else                         { ptsBadge=`<span style="color:var(--red);font-weight:800">0</span>`;           reasonBadge=`<span style="color:var(--red);font-size:.72rem">fallo</span>`; }
+  }
+  const html = `
+    <div class="match-row pts-row" style="${rowBg}">
+      <div class="num">#${mn}</div>
+      <div class="team t1">${meta.team1}</div>
+      <div class="score-cell">
+        <div class="score-pair">
+          <div class="s-box s-pred">${p1}</div>
+          <div class="s-dash">-</div>
+          <div class="s-box s-pred">${p2}</div>
+        </div>
+        <div class="score-pair">
+          <div class="s-box s-real ${hasReal?'':'tbd'}">${hasReal?real.g1:'—'}</div>
+          <div class="s-dash">-</div>
+          <div class="s-box s-real ${hasReal?'':'tbd'}">${hasReal?real.g2:'—'}</div>
+        </div>
+        <div class="score-lbl"><span>pred</span><span>real</span></div>
+      </div>
+      <div class="team t2">${meta.team2}</div>
+      <div style="text-align:center">${ptsBadge}</div>
+      <div style="text-align:center">${reasonBadge}</div>
+    </div>`;
+  return { mn, round: meta.round, hasReal, r, html };
+}
+
 function renderUserPts() {
   const p = currentUser;
   document.getElementById('pts-title').textContent = `Puntuación de ${p.name}`;
@@ -1242,6 +1363,30 @@ function renderUserPts() {
     html += '<div class="grp-label">📋 Todos los partidos</div>';
   }
   html += allRows.map(d => d.html).join('');
+
+  // Knockout stage — grouped by round, only resolved matchups, own point scale
+  let koTotal = 0;
+  const koRows = Object.keys(DATA.knockout_matches || {})
+    .map(mn => buildKoRowData(mn, p))
+    .filter(Boolean);
+  if (koRows.length > 0) {
+    html += '<div class="grp-label">🏆 Fase eliminatoria</div>';
+    let currentRound = '';
+    for (const d of koRows) {
+      if (d.r) {
+        koTotal += d.r.pts;
+        if (d.r.reason==='exact') exact++;
+        else if (d.r.reason==='sign') sign++;
+        else wrong++;
+      }
+      if (d.round !== currentRound) {
+        currentRound = d.round;
+        html += `<div class="grp-label">${ROUND_LABELS[d.round] || d.round}</div>`;
+      }
+      html += d.html;
+    }
+  }
+  total += koTotal;
 
   const played = exact+sign+wrong;
   const avg = played ? (total/played).toFixed(1) : '—';
@@ -1729,7 +1874,7 @@ function showTab(tab) {
 init();
 setInterval(async () => {
   await refreshLiveData();
-  buildScores(); computeRankings(); renderRanking();
+  buildScores(); buildScoresKO(); computeRankings(); renderRanking();
   if (currentUser) { renderUserPts(); }
   renderCompare(); renderMatchView(); renderScorerRanking();
 }, 5*60*1000);

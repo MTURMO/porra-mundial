@@ -89,7 +89,8 @@ def from_football_data(token):
     for m in matches_data.get("matches", []):
         t1 = norm_team(m.get("homeTeam", {}).get("name", ""))
         t2 = norm_team(m.get("awayTeam", {}).get("name", ""))
-        ft = (m.get("score") or {}).get("fullTime") or {}
+        score = m.get("score") or {}
+        ft = score.get("fullTime") or {}
         g1, g2 = ft.get("home"), ft.get("away")
         # Exclude scorelines while the match is still being played — otherwise
         # an in-play score gets locked in for an hour and points get computed
@@ -99,7 +100,19 @@ def from_football_data(token):
         # to omit/garble "status" for matches that finished hours ago.
         live_statuses = ("IN_PLAY", "PAUSED", "SUSPENDED")
         in_progress = m.get("status") in live_statuses
-        played = (not in_progress) and g1 is not None and g2 is not None
+        # Knockout-stage predictions are scored on the 90-minute result only
+        # (no extra time / penalties). football-data.org's "fullTime" score
+        # includes extra time when it was played, and there's no separate
+        # 90-minute field — so if duration isn't REGULAR we can't trust
+        # fullTime for our purposes. Leave it unplayed rather than risk
+        # scoring against the wrong (ET-inclusive) scoreline; whoever runs
+        # this can patch live-data.json by hand with the 90' score once
+        # known for the rare match that needs it.
+        went_to_extra_time = score.get("duration") not in (None, "REGULAR")
+        played = (not in_progress) and (not went_to_extra_time) and g1 is not None and g2 is not None
+        if went_to_extra_time and g1 is not None:
+            print(f"  NOTE: {t1} vs {t2} went past 90' (duration={score.get('duration')}) — "
+                  f"leaving unplayed, patch live-data.json manually with the 90' score", file=sys.stderr)
         if t1 and t2:
             fixtures.append({"t1": t1, "t2": t2,
                               "g1": g1 if played else None,

@@ -2061,6 +2061,27 @@ function populateMatchSelect() {
     html += `<option value="${mn}"${isNext ? ' selected' : ''}>#${mn}${isNext ? ' ▶' : ''} · ${meta.team1} - ${meta.team2}</option>`;
   }
   if (currentGroup) html += '</optgroup>';
+
+  // Knockout matches, grouped by round, using resolved team names where known
+  if (DATA.knockout_matches) {
+    let currentRound = '';
+    const koMns = Object.keys(DATA.knockout_matches).sort((a, b) => Number(a) - Number(b));
+    for (const mn of koMns) {
+      const meta = DATA.knockout_matches[mn];
+      const resolved = KO_RESOLVED_TEAMS[mn] || { team1: meta.team1, team2: meta.team2 };
+      const t1 = isKoTeamResolved(resolved.team1) ? resolved.team1 : '?';
+      const t2 = isKoTeamResolved(resolved.team2) ? resolved.team2 : '?';
+      const label = ROUND_LABELS[meta.round] || meta.round;
+      if (label !== currentRound) {
+        if (currentRound) html += '</optgroup>';
+        html += `<optgroup label="${label}">`;
+        currentRound = label;
+      }
+      html += `<option value="${mn}">#${mn} · ${t1} - ${t2}</option>`;
+    }
+    if (currentRound) html += '</optgroup>';
+  }
+
   sel.innerHTML = html;
   sel.addEventListener('change', renderMatchView);
 }
@@ -2068,6 +2089,9 @@ function populateMatchSelect() {
 function renderMatchView() {
   if (!DATA) return;
   const mn = document.getElementById('match-select').value;
+  const isKo = !DATA.matches[mn] && !!DATA.knockout_matches?.[mn];
+  if (isKo) { renderMatchViewKo(mn); return; }
+
   const meta = DATA.matches[mn];
   if (!meta) return;
   const real = SCORES[mn] || null;
@@ -2110,6 +2134,71 @@ function renderMatchView() {
   const rows = DATA.participants.map(p => {
     const prd = p.preds[mn] || [null, null];
     const r = hasReal ? calcPts(prd[0], prd[1], real.g1, real.g2, mn) : null;
+    return { name: p.name, prd, pts: r ? r.pts : null, reason: r ? r.reason : null };
+  });
+  rows.sort((a, b) => (b.pts ?? -1) - (a.pts ?? -1) || a.name.localeCompare(b.name));
+  document.getElementById('match-all-body').innerHTML = rows.map(r => {
+    const p1 = r.prd[0] !== null ? r.prd[0] : '?', p2 = r.prd[1] !== null ? r.prd[1] : '?';
+    let ptsCell = '<span style="color:var(--muted)">—</span>';
+    if (r.pts !== null) {
+      const color = r.reason === 'exact' ? 'var(--green)' : r.reason === 'sign' ? 'var(--amber)' : 'var(--red)';
+      ptsCell = `<span style="color:${color};font-weight:800">${r.pts}</span>`;
+    }
+    return `<tr><td>${r.name}</td><td>${p1}-${p2}</td><td>${ptsCell}</td></tr>`;
+  }).join('');
+}
+
+function renderMatchViewKo(mn) {
+  const meta = DATA.knockout_matches[mn];
+  const resolved = KO_RESOLVED_TEAMS[mn] || { team1: meta.team1, team2: meta.team2 };
+  const t1Resolved = isKoTeamResolved(resolved.team1);
+  const t2Resolved = isKoTeamResolved(resolved.team2);
+  const real = (t1Resolved && t2Resolved) ? (SCORES_KO[mn] || null) : null;
+  const hasReal = real && real.g1 !== null;
+  const cfg = ROUND_POINTS[meta.round] || ROUND_POINTS.dieciseisavos;
+  const t1Label = t1Resolved ? resolved.team1 : `<span style="font-style:italic;color:var(--muted)">${resolved.team1 || '?'}</span>`;
+  const t2Label = t2Resolved ? resolved.team2 : `<span style="font-style:italic;color:var(--muted)">${resolved.team2 || '?'}</span>`;
+
+  document.getElementById('match-info').innerHTML = `
+    <div class="scorer-info">
+      <div class="scorer-lbl">${ROUND_LABELS[meta.round] || meta.round} · Partido #${mn} · exacto ${cfg.exact} pts</div>
+      <div class="scorer-name">${t1Label} vs ${t2Label}</div>
+    </div>
+    <div class="scorer-stat">
+      <div class="scorer-num ${hasReal ? 'gold' : ''}">${hasReal ? `${real.g1}-${real.g2}` : '—'}</div>
+      <div class="scorer-sub">${hasReal ? 'resultado' : 'pendiente'}</div>
+    </div>
+  `;
+
+  // Distribution of predicted scorelines
+  const dist = {};
+  for (const p of DATA.participants) {
+    const prd = (p.preds_ko || {})[mn] || [null, null];
+    if (prd[0] === null) continue;
+    const key = `${prd[0]}-${prd[1]}`;
+    dist[key] = (dist[key] || 0) + 1;
+  }
+  const total = DATA.participants.length;
+  const withPred = Object.values(dist).reduce((a, b) => a + b, 0);
+  const sorted = Object.entries(dist).sort((a, b) => b[1] - a[1]);
+  document.getElementById('match-dist-body').innerHTML = sorted.map(([key, count]) => {
+    const [g1, g2] = key.split('-').map(Number);
+    const pct = ((count / total) * 100).toFixed(1);
+    let ptsLabel = '—';
+    if (hasReal) {
+      const r = calcPtsKO(g1, g2, real.g1, real.g2, meta.round);
+      ptsLabel = r ? r.pts : 0;
+    }
+    return `<tr><td>${key}</td><td>${count}</td><td>${pct}%</td><td>${ptsLabel}</td></tr>`;
+  }).join('');
+  if (withPred === 0) {
+    document.getElementById('match-dist-body').innerHTML = `<tr><td colspan="4" style="color:var(--muted);text-align:center">Todavía no hay pronósticos cargados para este partido</td></tr>`;
+  }
+
+  // All predictions
+  const rows = DATA.participants.map(p => {
+    const prd = (p.preds_ko || {})[mn] || [null, null];
+    const r = hasReal ? calcPtsKO(prd[0], prd[1], real.g1, real.g2, meta.round) : null;
     return { name: p.name, prd, pts: r ? r.pts : null, reason: r ? r.reason : null };
   });
   rows.sort((a, b) => (b.pts ?? -1) - (a.pts ?? -1) || a.name.localeCompare(b.name));

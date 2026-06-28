@@ -2062,22 +2062,30 @@ function populateMatchSelect() {
   }
   if (currentGroup) html += '</optgroup>';
 
-  // Knockout matches, grouped by round, using resolved team names where known
+  // Knockout matches, grouped by round, using resolved team names where known.
+  // If every group match is already played, "next up" continues here.
   if (DATA.knockout_matches) {
     let currentRound = '';
     const koMns = Object.keys(DATA.knockout_matches).sort((a, b) => Number(a) - Number(b));
     for (const mn of koMns) {
       const meta = DATA.knockout_matches[mn];
       const resolved = KO_RESOLVED_TEAMS[mn] || { team1: meta.team1, team2: meta.team2 };
-      const t1 = isKoTeamResolved(resolved.team1) ? resolved.team1 : '?';
-      const t2 = isKoTeamResolved(resolved.team2) ? resolved.team2 : '?';
+      const t1Resolved = isKoTeamResolved(resolved.team1);
+      const t2Resolved = isKoTeamResolved(resolved.team2);
+      const t1 = t1Resolved ? resolved.team1 : '?';
+      const t2 = t2Resolved ? resolved.team2 : '?';
+      if (nextUnplayed === null && t1Resolved && t2Resolved) {
+        const real = SCORES_KO[mn] || null;
+        if (!real || real.g1 === null) nextUnplayed = mn;
+      }
       const label = ROUND_LABELS[meta.round] || meta.round;
       if (label !== currentRound) {
         if (currentRound) html += '</optgroup>';
         html += `<optgroup label="${label}">`;
         currentRound = label;
       }
-      html += `<option value="${mn}">#${mn} · ${t1} - ${t2}</option>`;
+      const isNext = (mn === nextUnplayed);
+      html += `<option value="${mn}"${isNext ? ' selected' : ''}>#${mn}${isNext ? ' ▶' : ''} · ${t1} - ${t2}</option>`;
     }
     if (currentRound) html += '</optgroup>';
   }

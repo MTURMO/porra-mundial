@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-28T20:39:57.557863+00:00",
+  "updated": "2026-06-28T21:54:49.748033+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -437,8 +437,8 @@
     {
       "t1": "South Africa",
       "t2": "Canada",
-      "g1": null,
-      "g2": null
+      "g1": 0,
+      "g2": 1
     },
     {
       "t1": "Brazil",

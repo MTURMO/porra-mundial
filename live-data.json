@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-27T23:55:52.658788+00:00",
+  "updated": "2026-06-28T02:46:40.564066+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -419,7 +419,7 @@
     {
       "t1": "Congo",
       "t2": "Uzbekistan",
-      "g1": 1,
+      "g1": 3,
       "g2": 1
     },
     {
@@ -431,32 +431,8 @@
     {
       "t1": "Algeria",
       "t2": "Austria",
-      "g1": null,
-      "g2": null
-    },
-    {
-      "t1": "South Africa",
-      "t2": "Canada",
-      "g1": null,
-      "g2": null
-    },
-    {
-      "t1": "Brazil",
-      "t2": "Japan",
-      "g1": null,
-      "g2": null
-    },
-    {
-      "t1": "Netherlands",
-      "t2": "Morocco",
-      "g1": null,
-      "g2": null
-    },
-    {
-      "t1": "USA",
-      "t2": "Bosnia Herzegovina",
-      "g1": null,
-      "g2": null
+      "g1": 0,
+      "g2": 1
     }
   ],
   "topscorers": {
@@ -468,6 +444,7 @@
     "ismael saibari": 3,
     "deniz undav": 3,
     "elijah just": 3,
+    "yoane wissa": 3,
     "harry kane": 3,
     "johan manzambi": 3,
     "jonathan david": 3,
@@ -483,6 +460,7 @@
     "yasin ayari": 2,
     "maximiliano araujo": 2,
     "ramin rezaeian": 2,
+    "marko arnautovic": 2,
     "jude bellingham": 2,
     "daniel munoz": 2,
     "ruben vargas": 2,
@@ -528,9 +506,7 @@
     "leo østigard": 1,
     "romano schmid": 1,
     "ali olwan": 1,
-    "marko arnautovic": 1,
     "joao neves": 1,
-    "yoane wissa": 1,
     "martin baturina": 1,
     "petar musa": 1,
     "marcus rashford": 1,

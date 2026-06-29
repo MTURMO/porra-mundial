@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-29T17:28:28.403703+00:00",
+  "updated": "2026-06-29T19:20:52.073482+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -443,8 +443,8 @@
     {
       "t1": "Brazil",
       "t2": "Japan",
-      "g1": null,
-      "g2": null
+      "g1": 2,
+      "g2": 1
     },
     {
       "t1": "Germany",

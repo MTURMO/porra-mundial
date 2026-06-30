@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-30T06:08:27.368751+00:00",
+  "updated": "2026-06-30T06:27:13.145144+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -459,8 +459,12 @@
     {
       "t1": "Netherlands",
       "t2": "Morocco",
-      "g1": null,
-      "g2": null
+      "g1": 1,
+      "g2": 1,
+      "et_g1": 0,
+      "et_g2": 0,
+      "pen_g1": 2,
+      "pen_g2": 3
     },
     {
       "t1": "Ivory Coast",

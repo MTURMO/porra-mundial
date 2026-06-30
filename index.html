@@ -552,12 +552,12 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
       <div id="pts-scorer-banner"></div>
 
       <div class="pts-subtabs">
-        <button class="pts-subtab-btn active" data-ptstab="grupos">📋 Fase de grupos</button>
-        <button class="pts-subtab-btn" data-ptstab="ko-list">📅 Eliminatoria (lista)</button>
+        <button class="pts-subtab-btn" data-ptstab="grupos">📋 Fase de grupos</button>
+        <button class="pts-subtab-btn active" data-ptstab="ko-list">📅 Eliminatoria (lista)</button>
         <button class="pts-subtab-btn" data-ptstab="ko">🏆 Eliminatoria (cuadro)</button>
       </div>
 
-      <div id="pts-subtab-grupos" class="pts-subtab-panel active">
+      <div id="pts-subtab-grupos" class="pts-subtab-panel">
         <div class="match-table">
           <div class="match-head pts-head">
             <span>#</span>
@@ -571,7 +571,7 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
         </div>
       </div>
 
-      <div id="pts-subtab-ko-list" class="pts-subtab-panel">
+      <div id="pts-subtab-ko-list" class="pts-subtab-panel active">
         <div id="pts-ko-list-empty" class="empty" style="display:none">
           <p style="font-size:1.2rem;margin-bottom:8px">📅</p>
           <p>El cuadro de eliminatorias todavía no está definido</p>
@@ -1883,28 +1883,70 @@ function renderCompare() {
     </tr>`;
   }).join('');
 
-  // Match-by-match comparison
+  // Match-by-match comparison — groups + knockout, last 5 played pinned on top
   const parts = allIds.map(id => DATA.participants.find(p => p.id === id)).filter(Boolean);
-  let html = `<thead><tr><th>#</th><th>Local</th><th>Real</th><th>Visitante</th>${parts.map(p => `<th>${p.name}</th>`).join('')}</tr></thead><tbody>`;
+  const allRows = [];
   for (let mn = 1; mn <= 72; mn++) {
     const meta = DATA.matches[mn];
     if (!meta) continue;
-    const real = SCORES[mn] || null;
-    const hasReal = real && real.g1 !== null;
-    html += `<tr><td>${mn}</td><td class="team-col">${meta.team1}</td><td>${hasReal ? `${real.g1}-${real.g2}` : '—'}</td><td class="team-col t2">${meta.team2}</td>`;
-    for (const p of parts) {
-      const prd = p.preds[mn] || [null, null];
-      const r = hasReal ? calcPts(prd[0], prd[1], real.g1, real.g2, mn) : null;
-      const p1 = prd[0] !== null ? prd[0] : '?', p2 = prd[1] !== null ? prd[1] : '?';
-      let color = 'var(--muted)';
-      if (r) color = r.reason === 'exact' ? 'var(--green)' : r.reason === 'sign' ? 'var(--amber)' : 'var(--red)';
-      const ptsLabel = r ? ` (${r.pts})` : '';
-      html += `<td><span class="cmp-pred" style="color:${color}">${p1}-${p2}${ptsLabel}</span></td>`;
-    }
-    html += '</tr>';
+    allRows.push(buildCompareGroupRow(mn, meta, parts));
   }
+  for (const mn of Object.keys(DATA.knockout_matches || {}).sort((a, b) => Number(a) - Number(b))) {
+    allRows.push(buildCompareKoRow(mn, parts));
+  }
+
+  const headHtml = `<tr><th>#</th><th>Local</th><th>Real</th><th>Visitante</th>${parts.map(p => `<th>${p.name}</th>`).join('')}</tr>`;
+  const last5 = allRows.filter(r => r.hasReal).slice(-5);
+
+  let html = `<thead>${headHtml}</thead><tbody>`;
+  if (last5.length > 0) {
+    html += `<tr><td colspan="${4 + parts.length}" style="background:var(--surface2);color:var(--gold);font-weight:700;font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;padding:6px 10px">🔥 Últimos 5 jugados</td></tr>`;
+    html += last5.map(r => r.html).join('');
+    html += `<tr><td colspan="${4 + parts.length}" style="background:var(--surface2);color:var(--gold);font-weight:700;font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;padding:6px 10px">📋 Todos los partidos</td></tr>`;
+  }
+  html += allRows.map(r => r.html).join('');
   html += '</tbody>';
   document.getElementById('compare-match-table').innerHTML = html;
+}
+
+function buildCompareGroupRow(mn, meta, parts) {
+  const real = SCORES[mn] || null;
+  const hasReal = real && real.g1 !== null;
+  let html = `<tr><td>${mn}</td><td class="team-col">${meta.team1}</td><td>${hasReal ? `${real.g1}-${real.g2}` : '—'}</td><td class="team-col t2">${meta.team2}</td>`;
+  for (const p of parts) {
+    const prd = p.preds[mn] || [null, null];
+    const r = hasReal ? calcPts(prd[0], prd[1], real.g1, real.g2, mn) : null;
+    const p1 = prd[0] !== null ? prd[0] : '?', p2 = prd[1] !== null ? prd[1] : '?';
+    let color = 'var(--muted)';
+    if (r) color = r.reason === 'exact' ? 'var(--green)' : r.reason === 'sign' ? 'var(--amber)' : 'var(--red)';
+    const ptsLabel = r ? ` (${r.pts})` : '';
+    html += `<td><span class="cmp-pred" style="color:${color}">${p1}-${p2}${ptsLabel}</span></td>`;
+  }
+  html += '</tr>';
+  return { mn, hasReal, html };
+}
+
+function buildCompareKoRow(mn, parts) {
+  const meta = DATA.knockout_matches[mn];
+  const resolved = KO_RESOLVED_TEAMS[mn] || { team1: meta.team1, team2: meta.team2 };
+  const t1Resolved = isKoTeamResolved(resolved.team1);
+  const t2Resolved = isKoTeamResolved(resolved.team2);
+  const real = (t1Resolved && t2Resolved) ? (SCORES_KO[mn] || null) : null;
+  const hasReal = real && real.g1 !== null;
+  const t1Label = t1Resolved ? resolved.team1 : `<span style="font-style:italic;color:var(--muted)">${resolved.team1 || '?'}</span>`;
+  const t2Label = t2Resolved ? resolved.team2 : `<span style="font-style:italic;color:var(--muted)">${resolved.team2 || '?'}</span>`;
+  let html = `<tr><td>${mn}</td><td class="team-col">${t1Label}</td><td>${hasReal ? `${real.g1}-${real.g2}` : '—'}</td><td class="team-col t2">${t2Label}</td>`;
+  for (const p of parts) {
+    const prd = (p.preds_ko || {})[mn] || [null, null];
+    const r = hasReal ? calcPtsKO(prd[0], prd[1], real.g1, real.g2, meta.round) : null;
+    const p1 = prd[0] !== null ? prd[0] : '?', p2 = prd[1] !== null ? prd[1] : '?';
+    let color = 'var(--muted)';
+    if (r) color = r.reason === 'exact' ? 'var(--green)' : r.reason === 'sign' ? 'var(--amber)' : 'var(--red)';
+    const ptsLabel = r ? ` (${r.pts})` : '';
+    html += `<td><span class="cmp-pred" style="color:${color}">${p1}-${p2}${ptsLabel}</span></td>`;
+  }
+  html += '</tr>';
+  return { mn, hasReal, html };
 }
 
 function clearCurrentUser() {

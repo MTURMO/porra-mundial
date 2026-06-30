@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-30T21:12:12.038170+00:00",
+  "updated": "2026-06-30T22:47:44.370982+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -546,10 +546,10 @@
     }
   ],
   "topscorers": {
+    "kylian mbappe": 6,
     "lionel messi": 6,
     "erling haaland": 5,
     "vinicius junior": 4,
-    "kylian mbappe": 4,
     "ousmane dembele": 4,
     "ismael saibari": 3,
     "kai havertz": 3,
@@ -572,6 +572,7 @@
     "yasin ayari": 2,
     "maximiliano araujo": 2,
     "ramin rezaeian": 2,
+    "bradley barcola": 2,
     "marko arnautovic": 2,
     "jude bellingham": 2,
     "daniel munoz": 2,
@@ -611,7 +612,6 @@
     "emam ashour": 1,
     "abdulelah al amri": 1,
     "mohammad mohebi": 1,
-    "bradley barcola": 1,
     "ibrahim m'baye": 1,
     "aymen hussein": 1,
     "leo østigard": 1,

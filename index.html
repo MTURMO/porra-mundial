@@ -158,6 +158,7 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
 .match-row:hover { background: var(--surface2); }
 .match-row .num { font-size: 0.72rem; color: var(--muted); font-weight: 600; }
 .x2-badge { background: var(--gold); color: #0a0a0a; font-size: 0.62rem; font-weight: 800; border-radius: 4px; padding: 1px 4px; margin-left: 2px; }
+.et-badge { font-size: 0.7rem; margin-left: 5px; cursor: help; opacity: 0.75; }
 .match-row .team { font-size: 0.84rem; font-weight: 600; }
 .match-row .t1 { text-align: right; }
 .match-row .t2 { text-align: left; }
@@ -982,12 +983,14 @@ function lookupApiResult(team1, team2) {
 }
 
 // Small "90' cuenta · final X-Y (pen Z-W)" note when a match needed extra time.
+// Small inline badge (native tooltip on hover/tap) instead of a full sentence —
+// only shown when a knockout match needed extra time / penalties.
 function extraTimeNote(real) {
   if (!real || real.et_g1 === undefined) return '';
-  let finalScore = `${real.et_g1}-${real.et_g2}`;
-  let penNote = '';
-  if (real.pen_g1 !== undefined) penNote = ` (pen. ${real.pen_g1}-${real.pen_g2})`;
-  return `<div style="font-size:0.68rem;color:var(--muted);margin-top:4px">⚠️ 90' ${real.g1}-${real.g2} (cuenta para la porra) · final tras prórroga ${finalScore}${penNote}</div>`;
+  const aetG1 = real.g1 + real.et_g1, aetG2 = real.g2 + real.et_g2;
+  let detail = `90' (cuenta): ${real.g1}-${real.g2} · prórroga: ${aetG1}-${aetG2}`;
+  if (real.pen_g1 !== undefined) detail += ` · penaltis: ${real.pen_g1}-${real.pen_g2}`;
+  return `<span class="et-badge" title="${detail}">⏱</span>`;
 }
 
 function buildScores() {
@@ -1534,11 +1537,10 @@ function buildKoListRow(mn, p) {
         </div>
         <div class="score-lbl"><span>pred</span><span>real</span></div>
       </div>
-      <div class="team t2">${t2Name}</div>
+      <div class="team t2">${t2Name}${hasReal ? extraTimeNote(real) : ''}</div>
       <div style="text-align:center">${ptsBadge}</div>
       <div style="text-align:center">${reasonBadge}</div>
-    </div>
-    ${hasReal ? extraTimeNote(real) : ''}`;
+    </div>`;
   return { mn, round: meta.round, date: meta.date, html };
 }
 
@@ -2229,11 +2231,10 @@ function renderMatchViewKo(mn) {
       <div class="scorer-name">${t1Label} vs ${t2Label}</div>
     </div>
     <div class="scorer-stat">
-      <div class="scorer-num ${hasReal ? 'gold' : ''}">${hasReal ? `${real.g1}-${real.g2}` : '—'}</div>
+      <div class="scorer-num ${hasReal ? 'gold' : ''}">${hasReal ? `${real.g1}-${real.g2}` : '—'}${hasReal ? extraTimeNote(real) : ''}</div>
       <div class="scorer-sub">${hasReal ? 'resultado' : 'pendiente'}</div>
     </div>
   `;
-  if (hasReal) document.getElementById('match-info').insertAdjacentHTML('beforeend', extraTimeNote(real));
 
   // Distribution of predicted scorelines
   const dist = {};

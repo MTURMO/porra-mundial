@@ -90,16 +90,22 @@ def from_football_data(token):
         t1 = norm_team(m.get("homeTeam", {}).get("name", ""))
         t2 = norm_team(m.get("awayTeam", {}).get("name", ""))
         score = m.get("score") or {}
-        # "fullTime" is the 90-minute (regulation) score — that's what the
-        # porra scores on. Extra time / penalties (when the match needed
-        # them) live in separate fields and are only used to show the real
-        # final outcome alongside the 90' score that counts, never for scoring.
+        # football-data.org's "fullTime" is NOT the 90-minute score when a
+        # match went past regulation — it's fullTime + extraTime + penalties
+        # all added together (e.g. 1-1 at 90', 0-0 in extra time, 3-4 on
+        # penalties comes back as fullTime: {home:4, away:5}). The porra only
+        # scores the 90-minute result, so we have to back it out:
+        #   90' score = fullTime - extraTime - penalties
+        # extraTime/penalties default to 0 when the match never needed them,
+        # so this collapses to plain fullTime for a normal 90-minute match.
         ft = score.get("fullTime") or {}
-        g1, g2 = ft.get("home"), ft.get("away")
         et = score.get("extraTime") or {}
         pens = score.get("penalties") or {}
+        ft_g1, ft_g2 = ft.get("home"), ft.get("away")
         et_g1, et_g2 = et.get("home"), et.get("away")
         pen_g1, pen_g2 = pens.get("home"), pens.get("away")
+        g1 = ft_g1 - (et_g1 or 0) - (pen_g1 or 0) if ft_g1 is not None else None
+        g2 = ft_g2 - (et_g2 or 0) - (pen_g2 or 0) if ft_g2 is not None else None
         # Exclude scorelines while the match is still being played — otherwise
         # an in-play score gets locked in for an hour and points get computed
         # on a half-finished match. Only exclude explicitly live statuses;

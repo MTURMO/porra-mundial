@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-30T17:21:36.382841+00:00",
+  "updated": "2026-06-30T19:14:57.027471+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -469,8 +469,8 @@
     {
       "t1": "Ivory Coast",
       "t2": "Norway",
-      "g1": null,
-      "g2": null
+      "g1": 1,
+      "g2": 2
     },
     {
       "t1": "France",
@@ -547,9 +547,9 @@
   ],
   "topscorers": {
     "lionel messi": 6,
+    "erling haaland": 5,
     "vinicius junior": 4,
     "kylian mbappe": 4,
-    "erling haaland": 4,
     "ousmane dembele": 4,
     "ismael saibari": 3,
     "kai havertz": 3,
@@ -568,6 +568,7 @@
     "folarin balogun": 2,
     "crysencio summerville": 2,
     "daichi kamada": 2,
+    "amad diallo": 2,
     "yasin ayari": 2,
     "maximiliano araujo": 2,
     "ramin rezaeian": 2,
@@ -603,7 +604,6 @@
     "nathaniel brown": 1,
     "virgil van dijk": 1,
     "keito nakamura": 1,
-    "amad diallo": 1,
     "alexander isak": 1,
     "omar rekik": 1,
     "viktor gyokeres": 1,

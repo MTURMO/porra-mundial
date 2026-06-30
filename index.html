@@ -968,13 +968,26 @@ function lookupApiResult(team1, team2) {
     const match12 = at1 === t1 && at2 === t2;
     const match21 = at1 === t2 && at2 === t1;
     if (match12 || match21) {
-      if (m.g1 !== null) {
-        return match12 ? {g1: m.g1, g2: m.g2} : {g1: m.g2, g2: m.g1};
-      }
-      return {g1: null, g2: null};
+      if (m.g1 === null) return {g1: null, g2: null};
+      // g1/g2 are always the 90'-minute score (the one the porra scores on).
+      // et_*/pen_* are extra-time/penalty scores, shown for context only.
+      const flip = !match12;
+      const out = { g1: flip ? m.g2 : m.g1, g2: flip ? m.g1 : m.g2 };
+      if (m.et_g1 !== undefined)  { out.et_g1  = flip ? m.et_g2  : m.et_g1;  out.et_g2  = flip ? m.et_g1  : m.et_g2; }
+      if (m.pen_g1 !== undefined) { out.pen_g1 = flip ? m.pen_g2 : m.pen_g1; out.pen_g2 = flip ? m.pen_g1 : m.pen_g2; }
+      return out;
     }
   }
   return null;
+}
+
+// Small "90' cuenta · final X-Y (pen Z-W)" note when a match needed extra time.
+function extraTimeNote(real) {
+  if (!real || real.et_g1 === undefined) return '';
+  let finalScore = `${real.et_g1}-${real.et_g2}`;
+  let penNote = '';
+  if (real.pen_g1 !== undefined) penNote = ` (pen. ${real.pen_g1}-${real.pen_g2})`;
+  return `<div style="font-size:0.68rem;color:var(--muted);margin-top:4px">⚠️ 90' ${real.g1}-${real.g2} (cuenta para la porra) · final tras prórroga ${finalScore}${penNote}</div>`;
 }
 
 function buildScores() {
@@ -1524,7 +1537,8 @@ function buildKoListRow(mn, p) {
       <div class="team t2">${t2Name}</div>
       <div style="text-align:center">${ptsBadge}</div>
       <div style="text-align:center">${reasonBadge}</div>
-    </div>`;
+    </div>
+    ${hasReal ? extraTimeNote(real) : ''}`;
   return { mn, round: meta.round, date: meta.date, html };
 }
 
@@ -2219,6 +2233,7 @@ function renderMatchViewKo(mn) {
       <div class="scorer-sub">${hasReal ? 'resultado' : 'pendiente'}</div>
     </div>
   `;
+  if (hasReal) document.getElementById('match-info').insertAdjacentHTML('beforeend', extraTimeNote(real));
 
   // Distribution of predicted scorelines
   const dist = {};

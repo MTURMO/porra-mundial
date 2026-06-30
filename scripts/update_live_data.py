@@ -90,8 +90,16 @@ def from_football_data(token):
         t1 = norm_team(m.get("homeTeam", {}).get("name", ""))
         t2 = norm_team(m.get("awayTeam", {}).get("name", ""))
         score = m.get("score") or {}
+        # "fullTime" is the 90-minute (regulation) score — that's what the
+        # porra scores on. Extra time / penalties (when the match needed
+        # them) live in separate fields and are only used to show the real
+        # final outcome alongside the 90' score that counts, never for scoring.
         ft = score.get("fullTime") or {}
         g1, g2 = ft.get("home"), ft.get("away")
+        et = score.get("extraTime") or {}
+        pens = score.get("penalties") or {}
+        et_g1, et_g2 = et.get("home"), et.get("away")
+        pen_g1, pen_g2 = pens.get("home"), pens.get("away")
         # Exclude scorelines while the match is still being played — otherwise
         # an in-play score gets locked in for an hour and points get computed
         # on a half-finished match. Only exclude explicitly live statuses;
@@ -100,23 +108,16 @@ def from_football_data(token):
         # to omit/garble "status" for matches that finished hours ago.
         live_statuses = ("IN_PLAY", "PAUSED", "SUSPENDED")
         in_progress = m.get("status") in live_statuses
-        # Knockout-stage predictions are scored on the 90-minute result only
-        # (no extra time / penalties). football-data.org's "fullTime" score
-        # includes extra time when it was played, and there's no separate
-        # 90-minute field — so if duration isn't REGULAR we can't trust
-        # fullTime for our purposes. Leave it unplayed rather than risk
-        # scoring against the wrong (ET-inclusive) scoreline; whoever runs
-        # this can patch live-data.json by hand with the 90' score once
-        # known for the rare match that needs it.
-        went_to_extra_time = score.get("duration") not in (None, "REGULAR")
-        played = (not in_progress) and (not went_to_extra_time) and g1 is not None and g2 is not None
-        if went_to_extra_time and g1 is not None:
-            print(f"  NOTE: {t1} vs {t2} went past 90' (duration={score.get('duration')}) — "
-                  f"leaving unplayed, patch live-data.json manually with the 90' score", file=sys.stderr)
+        played = (not in_progress) and g1 is not None and g2 is not None
         if t1 and t2:
-            fixtures.append({"t1": t1, "t2": t2,
-                              "g1": g1 if played else None,
-                              "g2": g2 if played else None})
+            fixture = {"t1": t1, "t2": t2,
+                       "g1": g1 if played else None,
+                       "g2": g2 if played else None}
+            if played and et_g1 is not None:
+                fixture["et_g1"], fixture["et_g2"] = et_g1, et_g2
+            if played and pen_g1 is not None:
+                fixture["pen_g1"], fixture["pen_g2"] = pen_g1, pen_g2
+            fixtures.append(fixture)
     if not fixtures:
         raise RuntimeError("football-data.org returned no matches")
 

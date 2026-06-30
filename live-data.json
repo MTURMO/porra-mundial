@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-30T06:08:27.368751+00:00",
+  "updated": "2026-06-30T06:16:26.621917+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -449,14 +449,22 @@
     {
       "t1": "Germany",
       "t2": "Paraguay",
-      "g1": null,
-      "g2": null
+      "g1": 4,
+      "g2": 5,
+      "et_g1": 0,
+      "et_g2": 0,
+      "pen_g1": 3,
+      "pen_g2": 4
     },
     {
       "t1": "Netherlands",
       "t2": "Morocco",
-      "g1": null,
-      "g2": null
+      "g1": 3,
+      "g2": 4,
+      "et_g1": 0,
+      "et_g2": 0,
+      "pen_g1": 2,
+      "pen_g2": 3
     },
     {
       "t1": "Ivory Coast",

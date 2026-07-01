@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-01T22:12:53.399505+00:00",
+  "updated": "2026-07-01T23:49:50.746598+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -493,8 +493,10 @@
     {
       "t1": "Belgium",
       "t2": "Senegal",
-      "g1": null,
-      "g2": null
+      "g1": 2,
+      "g2": 2,
+      "et_g1": 1,
+      "et_g2": 0
     },
     {
       "t1": "USA",
@@ -601,6 +603,7 @@
     "leandro trossard": 2,
     "romelu lukaku": 2,
     "riyad mahrez": 2,
+    "youri tielemans": 2,
     "ladislav krejci": 1,
     "in-beom hwang": 1,
     "hyun-gyu oh": 1,
@@ -656,7 +659,6 @@
     "mostafa ziko": 1,
     "mohamed salah": 1,
     "trezeguet": 1,
-    "marcus pedersen": 1,
-    "nizar al rashdan": 1
+    "marcus pedersen": 1
   }
 }

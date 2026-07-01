@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-01T03:59:08.746271+00:00",
+  "updated": "2026-07-01T08:15:30.149931+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -481,8 +481,8 @@
     {
       "t1": "Mexico",
       "t2": "Ecuador",
-      "g1": null,
-      "g2": null
+      "g1": 2,
+      "g2": 0
     },
     {
       "t1": "England",
@@ -541,6 +541,18 @@
     {
       "t1": "Canada",
       "t2": "Morocco",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Paraguay",
+      "t2": "France",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Brazil",
+      "t2": "Norway",
       "g1": null,
       "g2": null
     }

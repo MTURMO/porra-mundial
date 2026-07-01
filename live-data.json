@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-01T20:45:38.807035+00:00",
+  "updated": "2026-07-01T22:12:53.399505+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -564,6 +564,7 @@
     "harry kane": 5,
     "vinicius junior": 4,
     "ousmane dembele": 4,
+    "ismaila sarr": 4,
     "julian quinones": 3,
     "ismael saibari": 3,
     "kai havertz": 3,
@@ -575,7 +576,6 @@
     "matheus cunha": 3,
     "brian brobbey": 3,
     "cody gakpo": 3,
-    "ismaila sarr": 3,
     "raul jimenez": 2,
     "cyle larin": 2,
     "folarin balogun": 2,
@@ -599,6 +599,7 @@
     "habib diarra": 2,
     "pape gueye": 2,
     "leandro trossard": 2,
+    "romelu lukaku": 2,
     "riyad mahrez": 2,
     "ladislav krejci": 1,
     "in-beom hwang": 1,
@@ -656,7 +657,6 @@
     "mohamed salah": 1,
     "trezeguet": 1,
     "marcus pedersen": 1,
-    "nizar al rashdan": 1,
-    "nadhir benbouali": 1
+    "nizar al rashdan": 1
   }
 }

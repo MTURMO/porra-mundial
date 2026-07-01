@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-01T14:09:09.391719+00:00",
+  "updated": "2026-07-01T16:42:52.902789+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -487,8 +487,8 @@
     {
       "t1": "England",
       "t2": "Congo",
-      "g1": null,
-      "g2": null
+      "g1": 0,
+      "g2": 1
     },
     {
       "t1": "Belgium",

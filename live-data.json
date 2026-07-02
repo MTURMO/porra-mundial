@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-01T23:49:50.746598+00:00",
+  "updated": "2026-07-02T02:26:57.611553+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -501,8 +501,8 @@
     {
       "t1": "USA",
       "t2": "Bosnia Herzegovina",
-      "g1": null,
-      "g2": null
+      "g1": 2,
+      "g2": 0
     },
     {
       "t1": "Spain",
@@ -568,6 +568,7 @@
     "ousmane dembele": 4,
     "ismaila sarr": 4,
     "julian quinones": 3,
+    "folarin balogun": 3,
     "ismael saibari": 3,
     "kai havertz": 3,
     "deniz undav": 3,
@@ -580,7 +581,6 @@
     "cody gakpo": 3,
     "raul jimenez": 2,
     "cyle larin": 2,
-    "folarin balogun": 2,
     "crysencio summerville": 2,
     "daichi kamada": 2,
     "amad diallo": 2,

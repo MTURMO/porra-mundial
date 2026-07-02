@@ -2419,17 +2419,24 @@ function buildEvolutionData() {
       scores[p.id] += pts;
     });
 
-    // Rank including scorer bonus accumulated up to this match
+    // Rank including scorer bonus:
+    // - If per-match goal data is available: use goals accumulated up to this match
+    // - Fallback: use current total (bonus applied uniformly — at least endpoint matches real ranking)
+    const hasScorerMatchData = Object.keys(SCORER_MATCH_GOALS_MAP).length > 0;
     const sorted = DATA.participants
       .map(p => {
-        const scorerKey = normalizeScorerName(p.scorer);
-        const scorerAlias = SCORER_ALIASES[scorerKey] || scorerKey;
-        // Find matching scorer in running totals (same fuzzy match as getScorerGoals)
-        let scorerGoals = 0;
-        for (const [k, g] of Object.entries(scorerGoalsRunning)) {
-          if (k === scorerAlias || k.includes(scorerAlias) || scorerAlias.includes(k)) {
-            scorerGoals = g; break;
+        let scorerGoals;
+        if (hasScorerMatchData) {
+          const scorerKey = normalizeScorerName(p.scorer);
+          const scorerAlias = SCORER_ALIASES[scorerKey] || scorerKey;
+          scorerGoals = 0;
+          for (const [k, g] of Object.entries(scorerGoalsRunning)) {
+            if (k === scorerAlias || k.includes(scorerAlias) || scorerAlias.includes(k)) {
+              scorerGoals = g; break;
+            }
           }
+        } else {
+          scorerGoals = getScorerGoals(p.scorer);
         }
         return { id: p.id, score: scores[p.id] + scorerGoals * PTS_PER_GOAL_SCORER, name: p.name };
       })

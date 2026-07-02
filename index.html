@@ -371,6 +371,38 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
 }
 .bk-third .bk-card-mini { width: 168px; }
 
+/* ── STATS TAB ───────────────────────────────────── */
+.stat-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 8px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.stat-card.gold { border-color: var(--gold2); }
+.stat-card-icon { font-size: 1.5rem; }
+.stat-card-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+.stat-card-value { font-size: 1.15rem; font-weight: 800; color: var(--gold); }
+.stat-card-sub { font-size: 0.78rem; color: var(--muted); }
+.evolution-chart-wrap {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 12px; overflow-x: auto;
+}
+.evolution-svg { display: block; min-width: 500px; width: 100%; max-width: 900px; margin: 0 auto; }
+.evolution-legend {
+  display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px;
+}
+.evo-legend-item {
+  display: flex; align-items: center; gap: 7px; font-size: 0.8rem; cursor: pointer;
+}
+.evo-legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
 /* ── RESPONSIVE ──────────────────────────────────── */
 @media (max-width: 600px) {
   /* Layout */
@@ -509,6 +541,7 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
     <button class="tab-btn" data-tab="comparar">🤝 Comparar con amigos</button>
     <button class="tab-btn" data-tab="por-partido">📊 Por partido</button>
     <button class="tab-btn" data-tab="goleadores">👟 Goleadores</button>
+    <button class="tab-btn" data-tab="stats">📈 Estadísticas</button>
   </div>
 </nav>
 
@@ -692,6 +725,23 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
           <tbody id="scorer-body"></tbody>
         </table>
       </div>
+    </div>
+  </div>
+
+  <!-- ESTADÍSTICAS -->
+  <div id="tab-stats" class="tab-panel">
+    <div class="sec-title">📈 Estadísticas y curiosidades</div>
+    <div id="stats-loading" class="spinner-wrap"><div class="spinner"></div><p style="margin-top:10px;color:var(--muted)">Calculando...</p></div>
+    <div id="stats-content" style="display:none">
+      <!-- Stat cards -->
+      <div class="stat-cards-grid" id="stat-cards"></div>
+      <!-- Evolution chart -->
+      <div class="sec-title" style="margin-top:28px">Evolución del top 5 partido a partido</div>
+      <p style="color:var(--muted);font-size:0.8rem;margin-bottom:12px">Posición en el ranking acumulada tras cada partido jugado (sin bonus goleador). Los 5 primeros de la clasificación actual.</p>
+      <div class="evolution-chart-wrap">
+        <svg id="evolution-svg" class="evolution-svg" viewBox="0 0 900 360" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+      <div id="evolution-legend" class="evolution-legend"></div>
     </div>
   </div>
 
@@ -1110,10 +1160,17 @@ function resolveKoTeam(name, depth = 0) {
   const t2 = resolveKoTeam(refMeta.team2, depth + 1);
   const real = SCORES_KO_RAW[refMn];
   let result = name;
-  if (real && real.g1 !== null && isKoTeamResolved(t1) && isKoTeamResolved(t2) && real.g1 !== real.g2) {
-    const winner = real.g1 > real.g2 ? t1 : t2;
-    const loser  = real.g1 > real.g2 ? t2 : t1;
-    result = wl === 'W' ? winner : loser;
+  if (real && real.g1 !== null && isKoTeamResolved(t1) && isKoTeamResolved(t2)) {
+    let winner, loser;
+    if (real.g1 !== real.g2) {
+      winner = real.g1 > real.g2 ? t1 : t2;
+      loser  = real.g1 > real.g2 ? t2 : t1;
+    } else if (real.pen_g1 !== undefined && real.pen_g1 !== real.pen_g2) {
+      // Decided on penalties (90' was a draw)
+      winner = real.pen_g1 > real.pen_g2 ? t1 : t2;
+      loser  = real.pen_g1 > real.pen_g2 ? t2 : t1;
+    }
+    if (winner) result = wl === 'W' ? winner : loser;
   }
   KO_RESOLVE_CACHE[cacheKey] = result;
   return result;
@@ -2280,6 +2337,301 @@ function renderMatchViewKo(mn) {
 }
 
 // ═══════════════════════════════════════════════════════
+// STATS TAB
+// ═══════════════════════════════════════════════════════
+const EVO_COLORS = ['#f0c040','#3498db','#2ecc71','#e74c3c','#a855f7'];
+
+function buildEvolutionData() {
+  // Ordered list of played matches (group stage by number, then KO by number)
+  const playedGroup = Object.entries(DATA.matches)
+    .filter(([mn]) => { const r = SCORES[mn]; return r && r.g1 !== null; })
+    .sort((a, b) => +a[0] - +b[0])
+    .map(([mn, meta]) => ({ mn, type: 'group', meta }));
+
+  const playedKO = Object.entries(DATA.knockout_matches || {})
+    .filter(([mn]) => { const r = SCORES_KO[mn]; return r && r.g1 !== null; })
+    .sort((a, b) => +a[0] - +b[0])
+    .map(([mn, meta]) => ({ mn, type: 'ko', meta }));
+
+  const allPlayed = [...playedGroup, ...playedKO];
+  if (!allPlayed.length) return [];
+
+  // Cumulative match-points only (scorer bonus excluded — no per-match timing)
+  const scores = {};
+  DATA.participants.forEach(p => { scores[p.id] = 0; });
+
+  const checkpoints = [];
+  for (const { mn, type, meta } of allPlayed) {
+    DATA.participants.forEach(p => {
+      let pts = 0;
+      if (type === 'group') {
+        const real = SCORES[mn];
+        const pr = p.preds?.[mn];
+        if (pr && real && real.g1 !== null) {
+          const r = calcPts(pr[0], pr[1], real.g1, real.g2, mn);
+          pts = r ? r.pts : 0;
+        }
+      } else {
+        const real = SCORES_KO[mn];
+        const pr = p.preds_ko?.[mn];
+        if (pr && real && real.g1 !== null) {
+          const r = calcPtsKO(pr[0], pr[1], real.g1, real.g2, meta.round);
+          pts = r ? r.pts : 0;
+        }
+      }
+      scores[p.id] += pts;
+    });
+
+    const sorted = DATA.participants
+      .map(p => ({ id: p.id, score: scores[p.id] }))
+      .sort((a, b) => b.score - a.score);
+
+    const ranks = {};
+    let rank = 1;
+    sorted.forEach((p, i) => {
+      if (i > 0 && sorted[i].score !== sorted[i-1].score) rank = i + 1;
+      ranks[p.id] = rank;
+    });
+
+    const label = type === 'group'
+      ? (meta.group ? `${meta.group}${+mn % 4 || 4}` : `P${mn}`)
+      : `E${mn}`;
+    checkpoints.push({ mn, type, label, ranks: { ...ranks } });
+  }
+
+  return checkpoints;
+}
+
+function buildStatCards() {
+  const cards = [];
+
+  // Most exact scores overall
+  const byExact = [...RANKINGS].sort((a, b) => b.exact - a.exact);
+  if (byExact[0]) {
+    cards.push({
+      icon: '🎯', label: 'Más resultados exactos', gold: true,
+      value: `${byExact[0].name}`, sub: `${byExact[0].exact} aciertos exactos`
+    });
+  }
+
+  // Most points in a single match (group stage)
+  let bestMatch = null, bestMatchPts = 0, bestMatchName = '', bestMatchMn = '';
+  DATA.participants.forEach(p => {
+    for (const [mn, pr] of Object.entries(p.preds)) {
+      const real = SCORES[mn];
+      if (!real || real.g1 === null) continue;
+      const r = calcPts(pr[0], pr[1], real.g1, real.g2, mn);
+      if (r && r.pts > bestMatchPts) {
+        bestMatchPts = r.pts;
+        bestMatchName = p.name;
+        bestMatchMn = mn;
+      }
+    }
+  });
+  if (bestMatchPts > 0) {
+    const m = DATA.matches[bestMatchMn];
+    cards.push({
+      icon: '⚡', label: 'Record en un partido',
+      value: bestMatchName, sub: `${bestMatchPts} pts · ${m ? `${m.team1} vs ${m.team2}` : `Partido ${bestMatchMn}`}`
+    });
+  }
+
+  // Most popular prediction (most repeated exact scoreline across all group matches)
+  const predCounts = {};
+  for (const [mn, meta] of Object.entries(DATA.matches)) {
+    const real = SCORES[mn];
+    if (!real || real.g1 === null) continue;
+    DATA.participants.forEach(p => {
+      const pr = p.preds?.[mn];
+      if (!pr) return;
+      const key = `${mn}:${pr[0]}-${pr[1]}`;
+      predCounts[key] = (predCounts[key] || 0) + 1;
+    });
+  }
+  const topPred = Object.entries(predCounts).sort((a, b) => b[1] - a[1])[0];
+  if (topPred) {
+    const [key, cnt] = topPred;
+    const [mn, score] = key.split(':');
+    const m = DATA.matches[mn];
+    cards.push({
+      icon: '🧠', label: 'Pronóstico más popular',
+      value: `${score}`, sub: `${cnt} personas · ${m ? `${m.team1} vs ${m.team2}` : ''}`
+    });
+  }
+
+  // Biggest climber (best rank now vs rank after match 1)
+  const checkpoints = window._evoCheckpoints || [];
+  if (checkpoints.length >= 2) {
+    const first = checkpoints[0].ranks;
+    const last = checkpoints[checkpoints.length - 1].ranks;
+    let biggestClimb = 0, climbName = '';
+    DATA.participants.forEach(p => {
+      const diff = (first[p.id] || 300) - (last[p.id] || 300);
+      if (diff > biggestClimb) { biggestClimb = diff; climbName = p.name; }
+    });
+    if (biggestClimb > 0) {
+      cards.push({
+        icon: '📈', label: 'Mayor escalada',
+        value: climbName, sub: `+${biggestClimb} posiciones ganadas`
+      });
+    }
+
+    // Biggest faller
+    let biggestFall = 0, fallName = '';
+    DATA.participants.forEach(p => {
+      const diff = (last[p.id] || 300) - (first[p.id] || 300);
+      if (diff > biggestFall) { biggestFall = diff; fallName = p.name; }
+    });
+    if (biggestFall > 0) {
+      cards.push({
+        icon: '📉', label: 'Mayor bajada',
+        value: fallName, sub: `-${biggestFall} posiciones perdidas`
+      });
+    }
+  }
+
+  // Participant who scored 0 in most matches (most wrong)
+  let mostZeros = 0, mostZerosName = '';
+  DATA.participants.forEach(p => {
+    let zeros = 0;
+    for (const [mn, pr] of Object.entries(p.preds)) {
+      const real = SCORES[mn];
+      if (!real || real.g1 === null) continue;
+      const r = calcPts(pr[0], pr[1], real.g1, real.g2, mn);
+      if (r && r.pts === 0) zeros++;
+    }
+    if (zeros > mostZeros) { mostZeros = zeros; mostZerosName = p.name; }
+  });
+  if (mostZeros > 0) {
+    cards.push({
+      icon: '🥄', label: 'Más fallos seguidos',
+      value: mostZerosName, sub: `${mostZeros} partidos a 0 pts`
+    });
+  }
+
+  return cards;
+}
+
+function renderEvolutionSVG(checkpoints, top5) {
+  const svg = document.getElementById('evolution-svg');
+  if (!checkpoints.length) { svg.innerHTML = '<text x="450" y="180" text-anchor="middle" fill="#6b7fa3" font-size="14">No hay datos aún</text>'; return; }
+
+  const W = 900, H = 360;
+  const padL = 52, padR = 130, padT = 24, padB = 38;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+
+  // Y range: rank 1 to max rank of any top-5 player across all checkpoints
+  let maxRank = 1;
+  top5.forEach(p => {
+    checkpoints.forEach(cp => { maxRank = Math.max(maxRank, cp.ranks[p.id] || 1); });
+  });
+  maxRank = Math.min(maxRank + 5, DATA.participants.length);
+  const yMin = 1, yMax = maxRank;
+
+  const xScale = i => padL + (checkpoints.length === 1 ? chartW / 2 : (i / (checkpoints.length - 1)) * chartW);
+  const yScale = r => padT + ((r - yMin) / (yMax - yMin)) * chartH;
+
+  let out = '';
+
+  // Grid lines (horizontal, every 10 ranks)
+  const step = yMax <= 20 ? 5 : yMax <= 50 ? 10 : 20;
+  for (let r = 1; r <= yMax; r += step) {
+    const y = yScale(r);
+    out += `<line x1="${padL}" y1="${y.toFixed(1)}" x2="${W - padR}" y2="${y.toFixed(1)}" stroke="#1e2a40" stroke-width="1"/>`;
+    out += `<text x="${padL - 6}" y="${(y + 4).toFixed(1)}" text-anchor="end" fill="#6b7fa3" font-size="11">${r}</text>`;
+  }
+
+  // X axis labels (show every ~10 checkpoints, or fewer if not many)
+  const xStep = checkpoints.length <= 20 ? 5 : checkpoints.length <= 50 ? 10 : 15;
+  checkpoints.forEach((cp, i) => {
+    if (i === 0 || i === checkpoints.length - 1 || i % xStep === 0) {
+      const x = xScale(i);
+      out += `<text x="${x.toFixed(1)}" y="${H - padB + 16}" text-anchor="middle" fill="#6b7fa3" font-size="10">${cp.mn}</text>`;
+    }
+  });
+
+  // Axes
+  out += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H - padB}" stroke="#1e2a40" stroke-width="1.5"/>`;
+  out += `<line x1="${padL}" y1="${H - padB}" x2="${W - padR}" y2="${H - padB}" stroke="#1e2a40" stroke-width="1.5"/>`;
+  out += `<text x="${padL - 6}" y="${(yScale(1) + 4).toFixed(1)}" text-anchor="end" fill="#f0c040" font-size="11" font-weight="700">1</text>`;
+
+  // Lines for each top-5 participant
+  top5.forEach((p, pi) => {
+    const color = EVO_COLORS[pi];
+    const pts = checkpoints.map((cp, i) => {
+      const r = cp.ranks[p.id] || yMax;
+      return `${xScale(i).toFixed(1)},${yScale(r).toFixed(1)}`;
+    }).join(' ');
+
+    out += `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.9"/>`;
+
+    // Dots at group→KO boundary
+    checkpoints.forEach((cp, i) => {
+      if (i > 0 && checkpoints[i-1].type !== cp.type) {
+        const r = cp.ranks[p.id] || yMax;
+        out += `<circle cx="${xScale(i).toFixed(1)}" cy="${yScale(r).toFixed(1)}" r="4" fill="${color}"/>`;
+      }
+    });
+
+    // Final dot + label
+    const lastIdx = checkpoints.length - 1;
+    const lastRank = checkpoints[lastIdx].ranks[p.id] || yMax;
+    const lx = xScale(lastIdx);
+    const ly = yScale(lastRank);
+    out += `<circle cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="5" fill="${color}"/>`;
+    const label = p.name.length > 14 ? p.name.slice(0, 13) + '…' : p.name;
+    out += `<text x="${(lx + 10).toFixed(1)}" y="${(ly + 4).toFixed(1)}" fill="${color}" font-size="11.5" font-weight="700">${label}</text>`;
+  });
+
+  // Y axis label
+  out += `<text x="${padL - 38}" y="${(padT + chartH / 2).toFixed(1)}" text-anchor="middle" fill="#6b7fa3" font-size="11" transform="rotate(-90,${padL - 38},${(padT + chartH / 2).toFixed(1)})">Posición</text>`;
+  // X axis label
+  out += `<text x="${(padL + chartW / 2).toFixed(1)}" y="${H - 2}" text-anchor="middle" fill="#6b7fa3" font-size="11">Nº partido</text>`;
+
+  svg.innerHTML = out;
+}
+
+function renderStats() {
+  if (!DATA || !RANKINGS.length) return;
+
+  document.getElementById('stats-loading').style.display = 'none';
+  document.getElementById('stats-content').style.display = '';
+
+  // Build evolution checkpoints (cached so stat cards can use them)
+  const checkpoints = buildEvolutionData();
+  window._evoCheckpoints = checkpoints;
+
+  // Top 5 by current final ranking
+  const top5 = RANKINGS.slice(0, 5).map(r => DATA.participants.find(p => p.id === r.id)).filter(Boolean);
+
+  // Stat cards
+  const cards = buildStatCards();
+  const cardEl = document.getElementById('stat-cards');
+  cardEl.innerHTML = cards.map(c => `
+    <div class="stat-card${c.gold ? ' gold' : ''}">
+      <span class="stat-card-icon">${c.icon}</span>
+      <span class="stat-card-label">${c.label}</span>
+      <span class="stat-card-value">${c.value}</span>
+      <span class="stat-card-sub">${c.sub}</span>
+    </div>`).join('');
+
+  // Evolution chart
+  renderEvolutionSVG(checkpoints, top5);
+
+  // Legend
+  const legendEl = document.getElementById('evolution-legend');
+  legendEl.innerHTML = top5.map((p, i) => {
+    const rank = RANKINGS.findIndex(r => r.id === p.id) + 1;
+    return `<div class="evo-legend-item">
+      <div class="evo-legend-dot" style="background:${EVO_COLORS[i]}"></div>
+      <span style="color:${EVO_COLORS[i]};font-weight:700">#${rank}</span>
+      <span>${p.name}</span>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
 // TAB SWITCHING
 // ═══════════════════════════════════════════════════════
 document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -2289,6 +2641,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 function showTab(tab) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab===tab));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id===`tab-${tab}`));
+  if (tab === 'stats') renderStats();
 }
 
 document.querySelectorAll('.pts-subtab-btn').forEach(btn => {
@@ -2307,6 +2660,7 @@ setInterval(async () => {
   buildScores(); buildScoresKO(); computeRankings(); renderRanking();
   if (currentUser) { renderUserPts(); }
   renderCompare(); renderMatchView(); renderScorerRanking();
+  if (document.querySelector('.tab-btn[data-tab="stats"]')?.classList.contains('active')) renderStats();
 }, 5*60*1000);
 </script>
 </body>

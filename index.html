@@ -402,6 +402,8 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
   display: flex; align-items: center; gap: 7px; font-size: 0.8rem; cursor: pointer;
 }
 .evo-legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.evo-selector { margin-bottom: 14px; }
+.evo-search-row { display: flex; gap: 8px; align-items: center; }
 
 /* ── RESPONSIVE ──────────────────────────────────── */
 @media (max-width: 600px) {
@@ -736,9 +738,17 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
       <!-- Stat cards -->
       <div class="stat-cards-grid" id="stat-cards"></div>
       <!-- Evolution chart -->
-      <div class="sec-title" style="margin-top:28px">Evolución del top 5 partido a partido</div>
-      <p style="color:var(--muted);font-size:0.8rem;margin-bottom:8px">Posición en el ranking acumulada tras cada partido jugado (sin bonus goleador). Los 5 primeros de la clasificación actual.</p>
-      <div id="evo-user-hint" style="display:none;font-size:0.82rem;margin-bottom:12px;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;"></div>
+      <div class="sec-title" style="margin-top:28px">Evolución del ranking partido a partido</div>
+      <p style="color:var(--muted);font-size:0.8rem;margin-bottom:10px">Posición acumulada tras cada partido (sin bonus goleador). Por defecto los 5 primeros; añade quien quieras.</p>
+      <!-- Selector de participantes -->
+      <div class="evo-selector">
+        <div class="evo-search-row">
+          <input id="evo-search-input" class="compare-input" type="text" placeholder="🔍 Añadir participante al gráfico..." autocomplete="off" style="flex:1"/>
+          <button class="pg-btn" onclick="evoResetTop5()" title="Volver al top 5">↺ Top 5</button>
+        </div>
+        <div id="evo-suggestions" class="compare-suggestions"></div>
+        <div id="evo-chips" class="chip-row"></div>
+      </div>
       <div class="evolution-chart-wrap">
         <svg id="evolution-svg" class="evolution-svg" viewBox="0 0 900 360" preserveAspectRatio="xMidYMid meet"></svg>
       </div>
@@ -2343,7 +2353,8 @@ function renderMatchViewKo(mn) {
 // ═══════════════════════════════════════════════════════
 // STATS TAB
 // ═══════════════════════════════════════════════════════
-const EVO_COLORS = ['#f0c040','#3498db','#2ecc71','#e74c3c','#a855f7'];
+const EVO_COLORS = ['#f0c040','#3498db','#2ecc71','#e74c3c','#a855f7','#f97316','#06b6d4','#ec4899'];
+let evoSelectedIds = []; // participant IDs currently shown on chart
 
 function buildEvolutionData() {
   // Ordered list of played matches (group stage by number, then KO by number)
@@ -2516,24 +2527,19 @@ function buildStatCards() {
   return cards;
 }
 
-function renderEvolutionSVG(checkpoints, top5, userParticipant) {
+function renderEvolutionSVG(checkpoints, participants) {
   const svg = document.getElementById('evolution-svg');
   if (!checkpoints.length) { svg.innerHTML = '<text x="450" y="180" text-anchor="middle" fill="#6b7fa3" font-size="14">No hay datos aún</text>'; return; }
+  if (!participants.length) { svg.innerHTML = '<text x="450" y="180" text-anchor="middle" fill="#6b7fa3" font-size="14">Añade participantes para ver su evolución</text>'; return; }
 
   const W = 900, H = 360;
   const padL = 52, padR = 130, padT = 24, padB = 38;
   const chartW = W - padL - padR;
   const chartH = H - padT - padB;
 
-  // All participants to draw: top5 + user if not already in top5
-  const userInTop5 = userParticipant && top5.some(p => p.id === userParticipant.id);
-  const allLines = userParticipant && !userInTop5
-    ? [...top5, userParticipant]
-    : top5;
-
   // Y range: encompass all drawn lines
   let maxRank = 1;
-  allLines.forEach(p => {
+  participants.forEach(p => {
     checkpoints.forEach(cp => { maxRank = Math.max(maxRank, cp.ranks[p.id] || 1); });
   });
   maxRank = Math.min(maxRank + 5, DATA.participants.length);
@@ -2566,27 +2572,21 @@ function renderEvolutionSVG(checkpoints, top5, userParticipant) {
   out += `<line x1="${padL}" y1="${H - padB}" x2="${W - padR}" y2="${H - padB}" stroke="#1e2a40" stroke-width="1.5"/>`;
   out += `<text x="${padL - 6}" y="${(yScale(1) + 4).toFixed(1)}" text-anchor="end" fill="#f0c040" font-size="11" font-weight="700">1</text>`;
 
-  // Draw lines: top5 first (behind), then user on top
-  allLines.forEach((p, pi) => {
-    const isUser = userParticipant && p.id === userParticipant.id;
-    const isUserInTop5Line = isUser && userInTop5;
-    const color = isUser && !userInTop5 ? '#ffffff' : EVO_COLORS[pi];
-    const strokeW = isUser ? 3 : 2.5;
-    const opacity = isUser ? '1' : '0.85';
-    const dash = isUser && !userInTop5 ? 'stroke-dasharray="6 3"' : '';
+  participants.forEach((p, pi) => {
+    const color = EVO_COLORS[pi % EVO_COLORS.length];
 
     const pts = checkpoints.map((cp, i) => {
       const r = cp.ranks[p.id] || yMax;
       return `${xScale(i).toFixed(1)},${yScale(r).toFixed(1)}`;
     }).join(' ');
 
-    out += `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="${strokeW}" stroke-linejoin="round" stroke-linecap="round" opacity="${opacity}" ${dash}/>`;
+    out += `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.9"/>`;
 
     // Dots at group→KO boundary
     checkpoints.forEach((cp, i) => {
       if (i > 0 && checkpoints[i-1].type !== cp.type) {
         const r = cp.ranks[p.id] || yMax;
-        out += `<circle cx="${xScale(i).toFixed(1)}" cy="${yScale(r).toFixed(1)}" r="${isUser ? 5 : 4}" fill="${color}"/>`;
+        out += `<circle cx="${xScale(i).toFixed(1)}" cy="${yScale(r).toFixed(1)}" r="4" fill="${color}"/>`;
       }
     });
 
@@ -2595,11 +2595,9 @@ function renderEvolutionSVG(checkpoints, top5, userParticipant) {
     const lastRank = checkpoints[lastIdx].ranks[p.id] || yMax;
     const lx = xScale(lastIdx);
     const ly = yScale(lastRank);
-    out += `<circle cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="${isUser ? 6 : 5}" fill="${color}" ${isUser && !userInTop5 ? `stroke="#0e1320" stroke-width="1.5"` : ''}/>`;
-    const nameStr = isUser && !userInTop5 ? `★ ${p.name}` : p.name;
-    const label = nameStr.length > 15 ? nameStr.slice(0, 14) + '…' : nameStr;
-    const fw = isUser ? 'font-weight="800"' : 'font-weight="700"';
-    out += `<text x="${(lx + 10).toFixed(1)}" y="${(ly + 4).toFixed(1)}" fill="${color}" font-size="${isUser && !userInTop5 ? 12 : 11.5}" ${fw}>${label}</text>`;
+    out += `<circle cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="5" fill="${color}"/>`;
+    const label = p.name.length > 14 ? p.name.slice(0, 13) + '…' : p.name;
+    out += `<text x="${(lx + 10).toFixed(1)}" y="${(ly + 4).toFixed(1)}" fill="${color}" font-size="11.5" font-weight="700">${label}</text>`;
   });
 
   // Y axis label
@@ -2610,38 +2608,115 @@ function renderEvolutionSVG(checkpoints, top5, userParticipant) {
   svg.innerHTML = out;
 }
 
+function evoGetParticipants() {
+  return evoSelectedIds.map(id => DATA.participants.find(p => p.id === id)).filter(Boolean);
+}
+
+function evoTop5Ids() {
+  return RANKINGS.slice(0, 5).map(r => r.id);
+}
+
+function evoResetTop5() {
+  evoSelectedIds = evoTop5Ids();
+  renderEvoChart();
+  renderEvoChips();
+}
+
+function evoAddId(id) {
+  if (evoSelectedIds.includes(id)) return;
+  if (evoSelectedIds.length >= 8) {
+    evoSelectedIds.shift(); // remove oldest to keep max 8
+  }
+  evoSelectedIds.push(id);
+  renderEvoChart();
+  renderEvoChips();
+  document.getElementById('evo-search-input').value = '';
+  document.getElementById('evo-suggestions').innerHTML = '';
+}
+
+function evoRemoveId(id) {
+  evoSelectedIds = evoSelectedIds.filter(x => x !== id);
+  renderEvoChart();
+  renderEvoChips();
+}
+
+function renderEvoChips() {
+  const el = document.getElementById('evo-chips');
+  if (!el || !DATA) return;
+  el.innerHTML = evoSelectedIds.map((id, i) => {
+    const p = DATA.participants.find(x => x.id === id);
+    if (!p) return '';
+    const color = EVO_COLORS[i % EVO_COLORS.length];
+    const rank = RANKINGS.findIndex(r => r.id === id) + 1;
+    return `<div class="compare-chip" style="border-color:${color}">
+      <span style="color:${color};font-weight:700">#${rank}</span>
+      <span style="margin-left:5px">${p.name}</span>
+      <span class="x" onclick="evoRemoveId(${id})">✕</span>
+    </div>`;
+  }).join('');
+}
+
+function renderEvoChart() {
+  if (!DATA || !window._evoCheckpoints) return;
+  const participants = evoGetParticipants();
+  renderEvolutionSVG(window._evoCheckpoints, participants);
+
+  const legendEl = document.getElementById('evolution-legend');
+  legendEl.innerHTML = participants.map((p, i) => {
+    const color = EVO_COLORS[i % EVO_COLORS.length];
+    const rank = RANKINGS.findIndex(r => r.id === p.id) + 1;
+    return `<div class="evo-legend-item">
+      <div class="evo-legend-dot" style="background:${color}"></div>
+      <span style="color:${color};font-weight:700">#${rank}</span>
+      <span>${p.name}</span>
+    </div>`;
+  }).join('');
+}
+
+// Search input for evolution chart
+document.addEventListener('DOMContentLoaded', () => {
+  const inp = document.getElementById('evo-search-input');
+  if (!inp) return;
+  inp.addEventListener('input', () => {
+    const q = inp.value.trim().toLowerCase();
+    const sugg = document.getElementById('evo-suggestions');
+    if (!q || !DATA) { sugg.innerHTML = ''; return; }
+    const hits = DATA.participants
+      .filter(p => p.name.toLowerCase().includes(q) && !evoSelectedIds.includes(p.id))
+      .slice(0, 6);
+    sugg.innerHTML = hits.map(p => {
+      const rank = RANKINGS.findIndex(r => r.id === p.id) + 1;
+      return `<span class="suggest-chip" onclick="evoAddId(${p.id})">#${rank} ${p.name}</span>`;
+    }).join('');
+  });
+  inp.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    const q = inp.value.trim().toLowerCase();
+    if (!DATA || !q) return;
+    const hit = DATA.participants.find(p => p.name.toLowerCase() === q && !evoSelectedIds.includes(p.id))
+             || DATA.participants.find(p => p.name.toLowerCase().includes(q) && !evoSelectedIds.includes(p.id));
+    if (hit) { evoAddId(hit.id); }
+  });
+});
+
 function renderStats() {
   if (!DATA || !RANKINGS.length) return;
 
   document.getElementById('stats-loading').style.display = 'none';
   document.getElementById('stats-content').style.display = '';
 
-  // Build evolution checkpoints (cached so stat cards can use them)
+  // Build evolution checkpoints (cached for re-renders)
   const checkpoints = buildEvolutionData();
   window._evoCheckpoints = checkpoints;
 
-  // Top 5 by current final ranking
-  const top5 = RANKINGS.slice(0, 5).map(r => DATA.participants.find(p => p.id === r.id)).filter(Boolean);
-
-  // Current user participant (if searched)
-  const userParticipant = currentUser ? DATA.participants.find(p => p.id === currentUser.id) : null;
-  const userInTop5 = userParticipant && top5.some(p => p.id === userParticipant.id);
-
-  // User hint banner
-  const hintEl = document.getElementById('evo-user-hint');
-  if (userParticipant) {
-    const userRank = RANKINGS.findIndex(r => r.id === userParticipant.id) + 1;
-    hintEl.innerHTML = `<span style="color:var(--gold);font-weight:700">★ Tu posición actual: #${userRank}</span>${userInTop5 ? ' · Ya estás en el top 5 🏆' : ' · Tu línea aparece en blanco discontinuo'}`;
-    hintEl.style.display = '';
-  } else {
-    hintEl.innerHTML = `<span style="color:var(--muted)">💡 Busca tu nick arriba para ver tu propia evolución en el gráfico</span>`;
-    hintEl.style.display = '';
+  // Initialize selection to top 5 only on first load
+  if (!evoSelectedIds.length) {
+    evoSelectedIds = evoTop5Ids();
   }
 
   // Stat cards
   const cards = buildStatCards();
-  const cardEl = document.getElementById('stat-cards');
-  cardEl.innerHTML = cards.map(c => `
+  document.getElementById('stat-cards').innerHTML = cards.map(c => `
     <div class="stat-card${c.gold ? ' gold' : ''}">
       <span class="stat-card-icon">${c.icon}</span>
       <span class="stat-card-label">${c.label}</span>
@@ -2649,29 +2724,8 @@ function renderStats() {
       <span class="stat-card-sub">${c.sub}</span>
     </div>`).join('');
 
-  // Evolution chart
-  renderEvolutionSVG(checkpoints, top5, userParticipant);
-
-  // Legend: top5 + user if not in top5
-  const legendEl = document.getElementById('evolution-legend');
-  const legendItems = top5.map((p, i) => {
-    const rank = RANKINGS.findIndex(r => r.id === p.id) + 1;
-    const isUserLine = userParticipant && p.id === userParticipant.id;
-    return `<div class="evo-legend-item">
-      <div class="evo-legend-dot" style="background:${EVO_COLORS[i]};${isUserLine ? 'box-shadow:0 0 0 2px #fff' : ''}"></div>
-      <span style="color:${EVO_COLORS[i]};font-weight:700">#${rank}</span>
-      <span${isUserLine ? ' style="font-weight:700"' : ''}>${p.name}${isUserLine ? ' ★' : ''}</span>
-    </div>`;
-  });
-  if (userParticipant && !userInTop5) {
-    const userRank = RANKINGS.findIndex(r => r.id === userParticipant.id) + 1;
-    legendItems.push(`<div class="evo-legend-item">
-      <div class="evo-legend-dot" style="background:#fff;border:2px dashed #999"></div>
-      <span style="color:#fff;font-weight:700">#${userRank}</span>
-      <span style="font-weight:700">${userParticipant.name} ★</span>
-    </div>`);
-  }
-  legendEl.innerHTML = legendItems.join('');
+  renderEvoChart();
+  renderEvoChips();
 }
 
 // ═══════════════════════════════════════════════════════

@@ -739,7 +739,7 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
       <div class="stat-cards-grid" id="stat-cards"></div>
       <!-- Evolution chart -->
       <div class="sec-title" style="margin-top:28px">Evolución del ranking partido a partido</div>
-      <p style="color:var(--muted);font-size:0.8rem;margin-bottom:10px">Posición en el ranking tras cada partido. Arriba = mejor posición. Por defecto los 5 primeros; añade quien quieras.</p>
+      <p style="color:var(--muted);font-size:0.8rem;margin-bottom:10px">Posición en el ranking tras cada partido (solo aciertos de partido, sin bonus goleador). Arriba = mejor posición.</p>
       <!-- Selector de participantes -->
       <div class="evo-selector">
         <div class="evo-search-row">
@@ -2371,12 +2371,6 @@ function buildEvolutionData() {
   const allPlayed = [...playedGroup, ...playedKO];
   if (!allPlayed.length) return [];
 
-  // Precompute scorer bonus per participant (fixed total, applied at every checkpoint)
-  const scorerBonus = {};
-  DATA.participants.forEach(p => {
-    scorerBonus[p.id] = getScorerGoals(p.scorer) * PTS_PER_GOAL_SCORER;
-  });
-
   const scores = {};
   DATA.participants.forEach(p => { scores[p.id] = 0; });
 
@@ -2402,21 +2396,15 @@ function buildEvolutionData() {
       scores[p.id] += pts;
     });
 
-    // Compute ranks including scorer bonus, with same tiebreakers as computeRankings()
-    // Track exact/sign counts incrementally per participant
+    // Rank by match-prediction points only (scorer bonus excluded — can't know
+    // per-match goal timing, so adding it as a fixed offset would distort history)
     const sorted = DATA.participants
-      .map(p => {
-        const ri = RANKINGS.find(r => r.id === p.id);
-        return { id: p.id, score: scores[p.id] + (scorerBonus[p.id] || 0), exact: ri?.exact || 0, sign: ri?.sign || 0, name: p.name };
-      })
-      .sort((a, b) => b.score - a.score || b.exact - a.exact || b.sign - a.sign || a.name.localeCompare(b.name));
+      .map(p => ({ id: p.id, score: scores[p.id], name: p.name }))
+      .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
     const ranks = {};
     let rank = 1;
     sorted.forEach((p, i) => {
-      if (i > 0) {
-        const prev = sorted[i-1], cur = sorted[i];
-        if (cur.score !== prev.score || cur.exact !== prev.exact || cur.sign !== prev.sign) rank = i + 1;
-      }
+      if (i > 0 && sorted[i].score !== sorted[i-1].score) rank = i + 1;
       ranks[p.id] = rank;
     });
 

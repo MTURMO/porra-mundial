@@ -739,7 +739,7 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
       <div class="stat-cards-grid" id="stat-cards"></div>
       <!-- Evolution chart -->
       <div class="sec-title" style="margin-top:28px">Evolución del ranking partido a partido</div>
-      <p style="color:var(--muted);font-size:0.8rem;margin-bottom:10px">Puntos acumulados partido a partido (incluyendo bonus goleador actual). Por defecto los 5 primeros; añade quien quieras.</p>
+      <p style="color:var(--muted);font-size:0.8rem;margin-bottom:10px">Posición en el ranking tras cada partido. Arriba = mejor posición. Por defecto los 5 primeros; añade quien quieras.</p>
       <!-- Selector de participantes -->
       <div class="evo-selector">
         <div class="evo-search-row">
@@ -2539,39 +2539,38 @@ function renderEvolutionSVG(checkpoints, participants) {
   if (!participants.length) { svg.innerHTML = '<text x="450" y="180" text-anchor="middle" fill="#6b7fa3" font-size="14">Añade participantes para ver su evolución</text>'; return; }
 
   const W = 900, H = 360;
-  const padL = 58, padR = 130, padT = 20, padB = 38;
+  const padL = 52, padR = 130, padT = 20, padB = 38;
   const chartW = W - padL - padR;
   const chartH = H - padT - padB;
 
-  // Y range: 0 pts at bottom, max pts at top
-  let maxPts = 0;
+  // Y range: rank 1 at TOP, worst rank at BOTTOM — cover all shown participants
+  let worstRank = 1;
   participants.forEach(p => {
-    checkpoints.forEach(cp => { maxPts = Math.max(maxPts, cp.scores[p.id] || 0); });
+    checkpoints.forEach(cp => { worstRank = Math.max(worstRank, cp.ranks[p.id] || 1); });
   });
-  maxPts = Math.max(maxPts + 20, 50);
-  // Round up to a clean grid step
-  const gridStep = maxPts <= 200 ? 50 : maxPts <= 500 ? 100 : 200;
-  maxPts = Math.ceil(maxPts / gridStep) * gridStep;
+  // Round up to a clean grid
+  const rankStep = worstRank <= 20 ? 5 : worstRank <= 50 ? 10 : worstRank <= 100 ? 20 : worstRank <= 200 ? 50 : 100;
+  worstRank = Math.ceil((worstRank + rankStep) / rankStep) * rankStep;
+  const bestRank = 1;
 
   const xScale = i => padL + (checkpoints.length === 1 ? chartW / 2 : (i / (checkpoints.length - 1)) * chartW);
-  // pts=0 → bottom (padT+chartH), pts=maxPts → top (padT)
-  const yScale = pts => padT + chartH - (pts / maxPts) * chartH;
+  // rank bestRank → top (padT), rank worstRank → bottom (padT+chartH)
+  const yScale = r => padT + ((r - bestRank) / (worstRank - bestRank)) * chartH;
 
   let out = '';
 
-  // Horizontal grid lines
-  for (let v = 0; v <= maxPts; v += gridStep) {
-    const y = yScale(v);
+  // Horizontal grid lines (rank values)
+  for (let r = bestRank; r <= worstRank; r += rankStep) {
+    const y = yScale(r);
     out += `<line x1="${padL}" y1="${y.toFixed(1)}" x2="${W - padR}" y2="${y.toFixed(1)}" stroke="#1e2a40" stroke-width="1"/>`;
-    out += `<text x="${padL - 6}" y="${(y + 4).toFixed(1)}" text-anchor="end" fill="#6b7fa3" font-size="11">${v}</text>`;
+    out += `<text x="${padL - 6}" y="${(y + 4).toFixed(1)}" text-anchor="end" fill="${r === 1 ? '#f0c040' : '#6b7fa3'}" font-size="11">${r}</text>`;
   }
 
-  // X axis labels (match numbers)
+  // X axis labels
   const xStep = checkpoints.length <= 20 ? 5 : checkpoints.length <= 50 ? 10 : 15;
   checkpoints.forEach((cp, i) => {
     if (i === 0 || i === checkpoints.length - 1 || i % xStep === 0) {
-      const x = xScale(i);
-      out += `<text x="${x.toFixed(1)}" y="${H - padB + 16}" text-anchor="middle" fill="#6b7fa3" font-size="10">${cp.mn}</text>`;
+      out += `<text x="${xScale(i).toFixed(1)}" y="${H - padB + 16}" text-anchor="middle" fill="#6b7fa3" font-size="10">${cp.mn}</text>`;
     }
   });
 
@@ -2579,7 +2578,7 @@ function renderEvolutionSVG(checkpoints, participants) {
   out += `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H - padB}" stroke="#1e2a40" stroke-width="1.5"/>`;
   out += `<line x1="${padL}" y1="${H - padB}" x2="${W - padR}" y2="${H - padB}" stroke="#1e2a40" stroke-width="1.5"/>`;
 
-  // Vertical divider at group→KO boundary (first KO match)
+  // Vertical divider at group→KO boundary
   const firstKO = checkpoints.findIndex(cp => cp.type === 'ko');
   if (firstKO > 0) {
     const kx = xScale(firstKO);
@@ -2587,29 +2586,29 @@ function renderEvolutionSVG(checkpoints, participants) {
     out += `<text x="${(kx + 4).toFixed(1)}" y="${(padT + 12).toFixed(1)}" fill="#6b7fa3" font-size="9">Elim.</text>`;
   }
 
-  // Lines, one per participant
+  // Lines
   participants.forEach((p, pi) => {
     const color = EVO_COLORS[pi % EVO_COLORS.length];
 
     const pts = checkpoints.map((cp, i) => {
-      const s = cp.scores[p.id] || 0;
-      return `${xScale(i).toFixed(1)},${yScale(s).toFixed(1)}`;
+      const r = cp.ranks[p.id] || worstRank;
+      return `${xScale(i).toFixed(1)},${yScale(r).toFixed(1)}`;
     }).join(' ');
 
     out += `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" opacity="0.9"/>`;
 
-    // Final dot + label with score
+    // Final dot + label with current rank
     const lastIdx = checkpoints.length - 1;
-    const lastScore = checkpoints[lastIdx].scores[p.id] || 0;
+    const lastRank = checkpoints[lastIdx].ranks[p.id] || worstRank;
     const lx = xScale(lastIdx);
-    const ly = yScale(lastScore);
+    const ly = yScale(lastRank);
     out += `<circle cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="5" fill="${color}"/>`;
     const label = p.name.length > 13 ? p.name.slice(0, 12) + '…' : p.name;
-    out += `<text x="${(lx + 10).toFixed(1)}" y="${(ly + 4).toFixed(1)}" fill="${color}" font-size="11" font-weight="700">${label} (${lastScore})</text>`;
+    out += `<text x="${(lx + 10).toFixed(1)}" y="${(ly + 4).toFixed(1)}" fill="${color}" font-size="11" font-weight="700">${label} (#${lastRank})</text>`;
   });
 
   // Y axis label
-  out += `<text x="${padL - 44}" y="${(padT + chartH / 2).toFixed(1)}" text-anchor="middle" fill="#6b7fa3" font-size="11" transform="rotate(-90,${padL - 44},${(padT + chartH / 2).toFixed(1)})">Puntos</text>`;
+  out += `<text x="${padL - 38}" y="${(padT + chartH / 2).toFixed(1)}" text-anchor="middle" fill="#6b7fa3" font-size="11" transform="rotate(-90,${padL - 38},${(padT + chartH / 2).toFixed(1)})">Posición</text>`;
   // X axis label
   out += `<text x="${(padL + chartW / 2).toFixed(1)}" y="${H - 2}" text-anchor="middle" fill="#6b7fa3" font-size="11">Nº partido</text>`;
 
@@ -2669,12 +2668,11 @@ function renderEvoChart() {
   const participants = evoGetParticipants();
   renderEvolutionSVG(window._evoCheckpoints, participants);
 
-  const lastCp = window._evoCheckpoints?.[window._evoCheckpoints.length - 1];
   const legendEl = document.getElementById('evolution-legend');
   legendEl.innerHTML = participants.map((p, i) => {
     const color = EVO_COLORS[i % EVO_COLORS.length];
     const rank = RANKINGS.findIndex(r => r.id === p.id) + 1;
-    const pts = lastCp ? (lastCp.scores[p.id] || 0) : 0;
+    const pts = RANKINGS.find(r => r.id === p.id)?.total || 0;
     return `<div class="evo-legend-item">
       <div class="evo-legend-dot" style="background:${color}"></div>
       <span style="color:${color};font-weight:700">#${rank}</span>

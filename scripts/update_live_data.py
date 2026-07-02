@@ -86,6 +86,7 @@ def from_football_data(token):
 
     matches_data = fetch_json(f"{FOOTBALL_DATA_BASE}/competitions/WC/matches", headers)
     fixtures = []
+    scorer_match_goals = []  # per-match scorer goal counts: [{t1,t2,goals:{name:n}}]
     for m in matches_data.get("matches", []):
         t1 = norm_team(m.get("homeTeam", {}).get("name", ""))
         t2 = norm_team(m.get("awayTeam", {}).get("name", ""))
@@ -124,6 +125,20 @@ def from_football_data(token):
             if played and pen_g1 is not None:
                 fixture["pen_g1"], fixture["pen_g2"] = pen_g1, pen_g2
             fixtures.append(fixture)
+
+            # Per-match scorer goals (for evolution chart accuracy)
+            if played:
+                match_goals = {}
+                for goal in m.get("goals", []):
+                    if goal.get("type") == "OWN":
+                        continue
+                    scorer_name = normalize_scorer_name(
+                        (goal.get("scorer") or {}).get("name", "")
+                    )
+                    if scorer_name:
+                        match_goals[scorer_name] = match_goals.get(scorer_name, 0) + 1
+                if match_goals:
+                    scorer_match_goals.append({"t1": t1, "t2": t2, "goals": match_goals})
     if not fixtures:
         raise RuntimeError("football-data.org returned no matches")
 
@@ -138,7 +153,7 @@ def from_football_data(token):
     except Exception as e:
         print(f"  football-data.org scorers failed (fixtures still OK): {e}", file=sys.stderr)
 
-    return fixtures, topscorers, "football-data.org"
+    return fixtures, topscorers, scorer_match_goals, "football-data.org"
 
 
 # ─────────────────────────────────────────────────────────
@@ -200,13 +215,13 @@ def from_openfootball():
 
 
 def main():
-    fixtures, topscorers, source = None, {}, None
+    fixtures, topscorers, scorer_match_goals, source = None, {}, [], None
 
     token = os.environ.get("FOOTBALL_DATA_TOKEN", "").strip()
     if token:
         try:
-            fixtures, topscorers, source = from_football_data(token)
-            print(f"  football-data.org OK: {len(fixtures)} fixtures, {len(topscorers)} scorers")
+            fixtures, topscorers, scorer_match_goals, source = from_football_data(token)
+            print(f"  football-data.org OK: {len(fixtures)} fixtures, {len(topscorers)} scorers, {len(scorer_match_goals)} match-scorer entries")
         except Exception as e:
             print(f"  football-data.org failed: {e}", file=sys.stderr)
     else:
@@ -232,14 +247,18 @@ def main():
     # poll comes back empty.
     try:
         with open(OUTPUT_FILE, encoding="utf-8") as f:
-            previous = json.load(f).get("fixtures", [])
+            prev_data = json.load(f)
+            previous = prev_data.get("fixtures", [])
+            prev_scorer_match_goals = prev_data.get("scorer_match_goals", [])
     except (FileNotFoundError, json.JSONDecodeError):
         previous = []
+        prev_scorer_match_goals = []
 
+    # Monotonic merge: never drop a confirmed fixture result
     prev_by_pair = {}
     for pf in previous:
         if pf.get("g1") is not None and pf.get("g2") is not None:
-            prev_by_pair[(pf["t1"], pf["t2"])] = pf  # store full fixture
+            prev_by_pair[(pf["t1"], pf["t2"])] = pf
 
     restored = 0
     for fx in fixtures:
@@ -254,11 +273,20 @@ def main():
     if restored:
         print(f"  Restored {restored} fixture(s) that the API dropped but we'd already confirmed")
 
+    # Monotonic merge for scorer_match_goals: keep any match already recorded
+    smg_by_pair = {(e["t1"], e["t2"]): e for e in scorer_match_goals}
+    for prev_smg in prev_scorer_match_goals:
+        key = (prev_smg["t1"], prev_smg["t2"])
+        if key not in smg_by_pair:
+            smg_by_pair[key] = prev_smg
+    scorer_match_goals = list(smg_by_pair.values())
+
     out = {
         "updated": datetime.now(timezone.utc).isoformat(),
         "source": source,
         "fixtures": fixtures,
         "topscorers": topscorers,
+        "scorer_match_goals": scorer_match_goals,
     }
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)

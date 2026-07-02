@@ -239,14 +239,17 @@ def main():
     prev_by_pair = {}
     for pf in previous:
         if pf.get("g1") is not None and pf.get("g2") is not None:
-            prev_by_pair[(pf["t1"], pf["t2"])] = (pf["g1"], pf["g2"])
+            prev_by_pair[(pf["t1"], pf["t2"])] = pf  # store full fixture
 
     restored = 0
     for fx in fixtures:
         if fx["g1"] is None and fx["g2"] is None:
-            prev_score = prev_by_pair.get((fx["t1"], fx["t2"]))
-            if prev_score:
-                fx["g1"], fx["g2"] = prev_score
+            prev = prev_by_pair.get((fx["t1"], fx["t2"]))
+            if prev:
+                fx["g1"], fx["g2"] = prev["g1"], prev["g2"]
+                for extra in ("et_g1", "et_g2", "pen_g1", "pen_g2"):
+                    if extra in prev:
+                        fx[extra] = prev[extra]
                 restored += 1
     if restored:
         print(f"  Restored {restored} fixture(s) that the API dropped but we'd already confirmed")

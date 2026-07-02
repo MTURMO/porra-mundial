@@ -1529,9 +1529,12 @@ function buildKoMiniCard(mn, p) {
   const hasReal = real && real.g1 !== null;
   const r = hasReal ? calcPtsKO(prd[0], prd[1], real.g1, real.g2, meta.round) : null;
 
-  const winnerIsT1 = hasReal ? real.g1 > real.g2 : null;
-  const t1Cls = hasReal ? (winnerIsT1 ? 'bk-winner' : 'bk-loser') : '';
-  const t2Cls = hasReal ? (winnerIsT1 ? 'bk-loser' : 'bk-winner') : '';
+  // Determine bracket winner: 90' score, or penalties if draw
+  const winnerIsT1 = hasReal
+    ? (real.g1 !== real.g2 ? real.g1 > real.g2 : (real.pen_g1 !== undefined ? real.pen_g1 > real.pen_g2 : null))
+    : null;
+  const t1Cls = winnerIsT1 !== null ? (winnerIsT1 ? 'bk-winner' : 'bk-loser') : '';
+  const t2Cls = winnerIsT1 !== null ? (winnerIsT1 ? 'bk-loser' : 'bk-winner') : '';
   const t1Name = t1Resolved ? resolved.team1 : `<span class="bk-mini-name ko-pending">${resolved.team1 || '?'}</span>`;
   const t2Name = t2Resolved ? resolved.team2 : `<span class="bk-mini-name ko-pending">${resolved.team2 || '?'}</span>`;
   const g1 = hasReal ? real.g1 : (t1Resolved && t2Resolved ? '-' : '');

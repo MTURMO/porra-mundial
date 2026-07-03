@@ -144,7 +144,7 @@ def from_football_data(token):
 
     topscorers = {}
     try:
-        scorers_data = fetch_json(f"{FOOTBALL_DATA_BASE}/competitions/WC/scorers?limit=100", headers)
+        scorers_data = fetch_json(f"{FOOTBALL_DATA_BASE}/competitions/WC/scorers?limit=200", headers)
         for s in scorers_data.get("scorers", []):
             name = normalize_scorer_name((s.get("player") or {}).get("name", ""))
             goals = s.get("goals") or 0

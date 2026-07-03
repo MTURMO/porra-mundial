@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-03T02:10:53.022413+00:00",
+  "updated": "2026-07-03T06:06:46.929585+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -519,8 +519,8 @@
     {
       "t1": "Switzerland",
       "t2": "Algeria",
-      "g1": null,
-      "g2": null
+      "g1": 2,
+      "g2": 0
     },
     {
       "t1": "Australia",
@@ -595,6 +595,7 @@
     "cristiano ronaldo": 3,
     "raul jimenez": 2,
     "cyle larin": 2,
+    "breel embolo": 2,
     "crysencio summerville": 2,
     "daichi kamada": 2,
     "amad diallo": 2,
@@ -622,7 +623,6 @@
     "jovo lukic": 1,
     "mauricio": 1,
     "gio reyna": 1,
-    "breel embolo": 1,
     "boualem khoukhi": 1,
     "john mcginn": 1,
     "nestor irankunda": 1,

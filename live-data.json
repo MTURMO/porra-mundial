@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-03T21:57:32.541726+00:00",
+  "updated": "2026-07-03T23:00:23.542048+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -576,8 +576,8 @@
     }
   ],
   "topscorers": {
+    "lionel messi": 7,
     "kylian mbappe": 6,
-    "lionel messi": 6,
     "erling haaland": 5,
     "harry kane": 5,
     "vinicius junior": 4,

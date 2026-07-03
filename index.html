@@ -1571,9 +1571,10 @@ function buildKoMiniCard(mn, p) {
     ptsLabel = `<div class="bk-mini-pts">tu pronóstico: ${prd[0]}-${prd[1]}</div>`;
   }
 
+  const x2Badge = koSpainMult(resolved.team1, resolved.team2) === 2 ? '<span class="x2-badge" title="Puntos dobles">×2</span> ' : '';
   const html = `
     <div class="bk-card-mini ${hasReal ? 'bk-done' : ''}">
-      <div class="bk-mini-row ${t1Cls}"><span class="bk-mini-name">${t1Name}</span><span class="bk-mini-score">${g1}</span></div>
+      <div class="bk-mini-row ${t1Cls}"><span class="bk-mini-name">${x2Badge}${t1Name}</span><span class="bk-mini-score">${g1}</span></div>
       <div class="bk-mini-row ${t2Cls}"><span class="bk-mini-name">${t2Name}</span><span class="bk-mini-score">${g2}</span></div>
       ${ptsLabel}
     </div>`;

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-02T23:55:44.954377+00:00",
+  "updated": "2026-07-03T02:10:53.022413+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -513,8 +513,8 @@
     {
       "t1": "Portugal",
       "t2": "Croatia",
-      "g1": null,
-      "g2": null
+      "g1": 2,
+      "g2": 1
     },
     {
       "t1": "Switzerland",
@@ -592,6 +592,7 @@
     "matheus cunha": 3,
     "brian brobbey": 3,
     "cody gakpo": 3,
+    "cristiano ronaldo": 3,
     "raul jimenez": 2,
     "cyle larin": 2,
     "crysencio summerville": 2,
@@ -608,7 +609,6 @@
     "ermin mahmic": 2,
     "anthony elanga": 2,
     "ayase ueda": 2,
-    "cristiano ronaldo": 2,
     "nicolas pepe": 2,
     "habib diarra": 2,
     "pape gueye": 2,

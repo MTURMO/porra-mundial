@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-04T19:02:07.368628+00:00",
+  "updated": "2026-07-04T20:27:11.863347+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -549,8 +549,8 @@
     {
       "t1": "Canada",
       "t2": "Morocco",
-      "g1": null,
-      "g2": null
+      "g1": 0,
+      "g2": 3
     },
     {
       "t1": "Paraguay",
@@ -635,6 +635,7 @@
     "ermin mahmic": 2,
     "anthony elanga": 2,
     "ayase ueda": 2,
+    "soufiane rahimi": 2,
     "nicolas pepe": 2,
     "habib diarra": 2,
     "pape gueye": 2,
@@ -708,7 +709,6 @@
     "hassan al haydos": 1,
     "achraf hakimi": 1,
     "wilson isidor": 1,
-    "soufiane rahimi": 1,
     "gessime yassine": 1,
     "mateo chavez": 1,
     "alvaro fidalgo": 1,

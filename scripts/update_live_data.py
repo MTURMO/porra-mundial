@@ -107,6 +107,10 @@ def from_football_data(token):
         pen_g1, pen_g2 = pens.get("home"), pens.get("away")
         g1 = ft_g1 - (et_g1 or 0) - (pen_g1 or 0) if ft_g1 is not None else None
         g2 = ft_g2 - (et_g2 or 0) - (pen_g2 or 0) if ft_g2 is not None else None
+        # If the API returns fullTime as 90'-only (not cumulative), subtracting ET/pens
+        # produces a negative score — treat it as no result to avoid corrupting data.
+        if g1 is not None and (g1 < 0 or g2 < 0):
+            g1, g2 = None, None
         # Exclude scorelines while the match is still being played — otherwise
         # an in-play score gets locked in for an hour and points get computed
         # on a half-finished match. Only exclude explicitly live statuses;
@@ -257,7 +261,7 @@ def main():
     # Monotonic merge: never drop a confirmed fixture result
     prev_by_pair = {}
     for pf in previous:
-        if pf.get("g1") is not None and pf.get("g2") is not None:
+        if pf.get("g1") is not None and pf.get("g2") is not None and pf["g1"] >= 0 and pf["g2"] >= 0:
             prev_by_pair[(pf["t1"], pf["t2"])] = pf
 
     restored = 0

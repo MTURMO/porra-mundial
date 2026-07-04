@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-04T01:04:50.916831+00:00",
+  "updated": "2026-07-04T05:01:46.681599+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -543,8 +543,8 @@
     {
       "t1": "Colombia",
       "t2": "Ghana",
-      "g1": null,
-      "g2": null
+      "g1": 1,
+      "g2": 0
     },
     {
       "t1": "Canada",
@@ -739,7 +739,8 @@
     "deroy duarte": 1,
     "lisandro martinez": 1,
     "sidny lopes cabral": 1,
-    "christian romero": 1
+    "christian romero": 1,
+    "jhon arias": 1
   },
   "scorer_match_goals": []
 }

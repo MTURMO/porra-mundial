@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-03T23:00:23.542048+00:00",
+  "updated": "2026-07-04T01:04:50.916831+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -535,8 +535,10 @@
     {
       "t1": "Argentina",
       "t2": "Cape Verde",
-      "g1": null,
-      "g2": null
+      "g1": 1,
+      "g2": 1,
+      "et_g1": 2,
+      "et_g2": 1
     },
     {
       "t1": "Colombia",
@@ -733,7 +735,11 @@
     "pedro porro": 1,
     "ivan perisic": 1,
     "goncalo ramos": 1,
-    "dan ndoye": 1
+    "dan ndoye": 1,
+    "deroy duarte": 1,
+    "lisandro martinez": 1,
+    "sidny lopes cabral": 1,
+    "christian romero": 1
   },
   "scorer_match_goals": []
 }

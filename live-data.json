@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-04T22:26:15.227339+00:00",
+  "updated": "2026-07-04T23:29:22.188657+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -556,7 +556,7 @@
       "t1": "Paraguay",
       "t2": "France",
       "g1": 0,
-      "g2": 0
+      "g2": 1
     },
     {
       "t1": "Brazil",
@@ -596,8 +596,8 @@
     }
   ],
   "topscorers": {
+    "kylian mbappe": 7,
     "lionel messi": 7,
-    "kylian mbappe": 6,
     "erling haaland": 5,
     "harry kane": 5,
     "vinicius junior": 4,

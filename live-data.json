@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-05T20:33:52.614758+00:00",
+  "updated": "2026-07-05T21:52:42.466395+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -561,8 +561,8 @@
     {
       "t1": "Brazil",
       "t2": "Norway",
-      "g1": null,
-      "g2": null
+      "g1": 0,
+      "g2": 1
     },
     {
       "t1": "Mexico",
@@ -603,8 +603,8 @@
   ],
   "topscorers": {
     "kylian mbappe": 7,
+    "erling haaland": 7,
     "lionel messi": 7,
-    "erling haaland": 5,
     "harry kane": 5,
     "vinicius junior": 4,
     "mikel oyarzabal": 4,

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-05T21:52:42.466395+00:00",
+  "updated": "2026-07-05T22:53:25.090068+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -561,8 +561,8 @@
     {
       "t1": "Brazil",
       "t2": "Norway",
-      "g1": 0,
-      "g2": 1
+      "g1": 1,
+      "g2": 2
     },
     {
       "t1": "Mexico",
@@ -764,7 +764,8 @@
     "deroy duarte": 1,
     "lisandro martinez": 1,
     "sidny lopes cabral": 1,
-    "jhon arias": 1
+    "jhon arias": 1,
+    "neymar": 1
   },
   "scorer_match_goals": []
 }

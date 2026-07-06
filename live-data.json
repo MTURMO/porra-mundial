@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-05T23:57:56.812103+00:00",
+  "updated": "2026-07-06T03:23:37.974312+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -567,8 +567,8 @@
     {
       "t1": "Mexico",
       "t2": "England",
-      "g1": null,
-      "g2": null
+      "g1": 2,
+      "g2": 3
     },
     {
       "t1": "Portugal",
@@ -605,12 +605,14 @@
     "kylian mbappe": 7,
     "erling haaland": 7,
     "lionel messi": 7,
-    "harry kane": 5,
+    "harry kane": 6,
+    "julian quinones": 4,
     "vinicius junior": 4,
+    "jude bellingham": 4,
     "mikel oyarzabal": 4,
     "ousmane dembele": 4,
     "ismaila sarr": 4,
-    "julian quinones": 3,
+    "raul jimenez": 3,
     "folarin balogun": 3,
     "ismael saibari": 3,
     "kai havertz": 3,
@@ -623,7 +625,6 @@
     "brian brobbey": 3,
     "cody gakpo": 3,
     "cristiano ronaldo": 3,
-    "raul jimenez": 2,
     "cyle larin": 2,
     "breel embolo": 2,
     "crysencio summerville": 2,
@@ -635,7 +636,6 @@
     "ramin rezaeian": 2,
     "bradley barcola": 2,
     "marko arnautovic": 2,
-    "jude bellingham": 2,
     "daniel munoz": 2,
     "ruben vargas": 2,
     "ermin mahmic": 2,

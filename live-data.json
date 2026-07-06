@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-06T20:20:09.083083+00:00",
+  "updated": "2026-07-06T21:52:19.691619+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -573,8 +573,8 @@
     {
       "t1": "Portugal",
       "t2": "Spain",
-      "g1": null,
-      "g2": null
+      "g1": 0,
+      "g2": 1
     },
     {
       "t1": "USA",
@@ -771,7 +771,8 @@
     "lisandro martinez": 1,
     "sidny lopes cabral": 1,
     "jhon arias": 1,
-    "neymar": 1
+    "neymar": 1,
+    "mikel merino": 1
   },
   "scorer_match_goals": []
 }

@@ -1187,8 +1187,12 @@ function resolveKoTeam(name, depth = 0) {
     if (real.g1 !== real.g2) {
       winner = real.g1 > real.g2 ? t1 : t2;
       loser  = real.g1 > real.g2 ? t2 : t1;
+    } else if (real.et_g1 !== undefined && real.et_g1 !== real.et_g2) {
+      // Decided in extra time (90' draw, ET not equal)
+      winner = real.et_g1 > real.et_g2 ? t1 : t2;
+      loser  = real.et_g1 > real.et_g2 ? t2 : t1;
     } else if (real.pen_g1 !== undefined && real.pen_g1 !== real.pen_g2) {
-      // Decided on penalties (90' was a draw)
+      // Decided on penalties (90' draw, ET 0-0)
       winner = real.pen_g1 > real.pen_g2 ? t1 : t2;
       loser  = real.pen_g1 > real.pen_g2 ? t2 : t1;
     }
@@ -1554,7 +1558,13 @@ function buildKoMiniCard(mn, p) {
 
   // Determine bracket winner: 90' score, or penalties if draw
   const winnerIsT1 = hasReal
-    ? (real.g1 !== real.g2 ? real.g1 > real.g2 : (real.pen_g1 !== undefined ? real.pen_g1 > real.pen_g2 : null))
+    ? (real.g1 !== real.g2
+        ? real.g1 > real.g2
+        : real.et_g1 !== undefined && real.et_g1 !== real.et_g2
+          ? real.et_g1 > real.et_g2
+          : real.pen_g1 !== undefined
+            ? real.pen_g1 > real.pen_g2
+            : null)
     : null;
   const t1Cls = winnerIsT1 !== null ? (winnerIsT1 ? 'bk-winner' : 'bk-loser') : '';
   const t2Cls = winnerIsT1 !== null ? (winnerIsT1 ? 'bk-loser' : 'bk-winner') : '';

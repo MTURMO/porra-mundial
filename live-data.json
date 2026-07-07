@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-07T13:30:47.102355+00:00",
+  "updated": "2026-07-07T16:18:27.794886+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -585,8 +585,8 @@
     {
       "t1": "Argentina",
       "t2": "Egypt",
-      "g1": null,
-      "g2": null
+      "g1": 0,
+      "g2": 0
     },
     {
       "t1": "Switzerland",
@@ -780,7 +780,8 @@
     "jhon arias": 1,
     "neymar": 1,
     "mikel merino": 1,
-    "hans vanaken": 1
+    "hans vanaken": 1,
+    "yasser ibrahim": 1
   },
   "scorer_match_goals": []
 }

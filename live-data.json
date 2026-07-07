@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-07T16:18:27.794886+00:00",
+  "updated": "2026-07-07T18:26:06.756872+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -585,8 +585,8 @@
     {
       "t1": "Argentina",
       "t2": "Egypt",
-      "g1": 0,
-      "g2": 0
+      "g1": 3,
+      "g2": 2
     },
     {
       "t1": "Switzerland",
@@ -614,9 +614,9 @@
     }
   ],
   "topscorers": {
+    "lionel messi": 8,
     "kylian mbappe": 7,
     "erling haaland": 7,
-    "lionel messi": 7,
     "harry kane": 6,
     "julian quinones": 4,
     "vinicius junior": 4,
@@ -654,6 +654,7 @@
     "ermin mahmic": 2,
     "anthony elanga": 2,
     "ayase ueda": 2,
+    "mostafa ziko": 2,
     "soufiane rahimi": 2,
     "nicolas pepe": 2,
     "habib diarra": 2,
@@ -714,7 +715,6 @@
     "agustin canobbio": 1,
     "helio varela": 1,
     "finn surman": 1,
-    "mostafa ziko": 1,
     "mohamed salah": 1,
     "trezeguet": 1,
     "marcus pedersen": 1,
@@ -781,7 +781,9 @@
     "neymar": 1,
     "mikel merino": 1,
     "hans vanaken": 1,
-    "yasser ibrahim": 1
+    "yasser ibrahim": 1,
+    "christian romero": 1,
+    "enzo fernandez": 1
   },
   "scorer_match_goals": []
 }

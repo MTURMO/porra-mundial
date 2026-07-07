@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-07T00:07:56.492917+00:00",
+  "updated": "2026-07-07T04:29:59.975040+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -579,8 +579,8 @@
     {
       "t1": "USA",
       "t2": "Belgium",
-      "g1": null,
-      "g2": null
+      "g1": 1,
+      "g2": 4
     },
     {
       "t1": "Argentina",
@@ -631,6 +631,7 @@
     "brian brobbey": 3,
     "cody gakpo": 3,
     "cristiano ronaldo": 3,
+    "romelu lukaku": 3,
     "cyle larin": 2,
     "breel embolo": 2,
     "crysencio summerville": 2,
@@ -652,10 +653,11 @@
     "habib diarra": 2,
     "pape gueye": 2,
     "leandro trossard": 2,
-    "romelu lukaku": 2,
     "riyad mahrez": 2,
     "youri tielemans": 2,
+    "malik tillman": 2,
     "azzedine ounahi": 2,
+    "charles de ketelaere": 2,
     "ladislav krejci": 1,
     "in-beom hwang": 1,
     "hyun-gyu oh": 1,
@@ -762,7 +764,6 @@
     "issa diop": 1,
     "antonio nusa": 1,
     "brian cipenga": 1,
-    "malik tillman": 1,
     "pedro porro": 1,
     "ivan perisic": 1,
     "goncalo ramos": 1,
@@ -772,7 +773,8 @@
     "sidny lopes cabral": 1,
     "jhon arias": 1,
     "neymar": 1,
-    "mikel merino": 1
+    "mikel merino": 1,
+    "hans vanaken": 1
   },
   "scorer_match_goals": []
 }

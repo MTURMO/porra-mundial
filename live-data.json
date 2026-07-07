@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-07T21:49:49.841409+00:00",
+  "updated": "2026-07-07T22:52:00.340961+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -591,8 +591,12 @@
     {
       "t1": "Switzerland",
       "t2": "Colombia",
-      "g1": null,
-      "g2": null
+      "g1": 1,
+      "g2": 0,
+      "et_g1": 0,
+      "et_g2": 0,
+      "pen_g1": 1,
+      "pen_g2": 1
     },
     {
       "t1": "France",

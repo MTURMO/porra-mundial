@@ -553,7 +553,13 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
   <div id="tab-ranking" class="tab-panel active">
     <div id="ranking-loading" class="spinner-wrap"><div class="spinner"></div><p style="margin-top:10px;color:var(--muted)">Calculando clasificación...</p></div>
     <div id="ranking-content" style="display:none">
-      <div class="sec-title">🏆 Clasificación general</div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:4px">
+        <div class="sec-title" style="margin-bottom:0">🏆 Clasificación general</div>
+        <div style="display:flex;gap:6px;margin-left:auto">
+          <button class="pg-btn" id="lb-mode-full" onclick="setRankingsMode('full')" style="font-size:0.75rem">Con goleador</button>
+          <button class="pg-btn" id="lb-mode-no-scorer" onclick="setRankingsMode('no_scorer')" style="font-size:0.75rem">Sin goleador</button>
+        </div>
+      </div>
       <div class="stats-row" id="lb-stats"></div>
       <div style="overflow-x:auto">
         <table class="lb-table" id="lb-table">
@@ -841,6 +847,8 @@ let PLAYER_GOALS  = {};   // manual fallback: normalized name -> goals
 let API_TOPSCORERS = {};  // live data: normalized name -> goals
 let SCORER_MATCH_GOALS_MAP = {}; // "T1|T2" -> {scorerName: goalsInMatch}
 let RANKINGS      = [];
+let RANKINGS_NO_SCORER = [];
+let rankingsMode  = 'full'; // 'full' | 'no_scorer'
 let currentUser   = null;
 let lbPage        = 0;
 const LB_PAGE_SIZE = 50;
@@ -1266,51 +1274,74 @@ function scoreParticipant(p) {
   return {total, exact, sign, wrong, pending, played: exact+sign+wrong, scorerGoals, scorerPts, koTotal};
 }
 
+function assignRanks(arr) {
+  arr.sort((a,b) => b.total - a.total || b.exact - a.exact || b.sign - a.sign || a.name.localeCompare(b.name));
+  let rank = 1;
+  for (let i = 0; i < arr.length; i++) {
+    if (i > 0) {
+      const prev = arr[i-1], cur = arr[i];
+      if (cur.total !== prev.total || cur.exact !== prev.exact || cur.sign !== prev.sign) rank = i + 1;
+    }
+    arr[i].rank = rank;
+  }
+}
+
 function computeRankings() {
   if (!DATA) return;
   RANKINGS = DATA.participants.map(p => ({...scoreParticipant(p), name: p.name, id: p.id}));
-  RANKINGS.sort((a,b) => b.total - a.total || b.exact - a.exact || b.sign - a.sign || a.name.localeCompare(b.name));
-  // Assign Olympic (dense) rank: ties share same position, next group skips
-  let rank = 1;
-  for (let i = 0; i < RANKINGS.length; i++) {
-    if (i > 0) {
-      const prev = RANKINGS[i-1];
-      const cur  = RANKINGS[i];
-      if (cur.total !== prev.total || cur.exact !== prev.exact || cur.sign !== prev.sign) {
-        rank = i + 1;
-      }
-    }
-    RANKINGS[i].rank = rank;
-  }
+  assignRanks(RANKINGS);
+
+  RANKINGS_NO_SCORER = DATA.participants.map(p => {
+    const s = scoreParticipant(p);
+    return {...s, total: s.total - s.scorerPts, scorerPts: 0, name: p.name, id: p.id};
+  });
+  assignRanks(RANKINGS_NO_SCORER);
 }
 
 // ═══════════════════════════════════════════════════════
 // LEADERBOARD RENDER
 // ═══════════════════════════════════════════════════════
+function activeRankings() {
+  return rankingsMode === 'no_scorer' ? RANKINGS_NO_SCORER : RANKINGS;
+}
+
+function setRankingsMode(mode) {
+  rankingsMode = mode;
+  document.getElementById('lb-mode-full').classList.toggle('active', mode === 'full');
+  document.getElementById('lb-mode-no-scorer').classList.toggle('active', mode === 'no_scorer');
+  lbPage = 0;
+  renderRanking();
+}
+
 function renderRanking() {
   const loadEl = document.getElementById('ranking-loading');
   const cont = document.getElementById('ranking-content');
   loadEl.style.display = 'none';
   cont.style.display = 'block';
 
-  // Stats summary
-  const totalPlayed = RANKINGS.reduce((a,r) => a + r.played, 0);
-  const maxPts = RANKINGS[0]?.total ?? 0;
-  const avgPts = RANKINGS.length ? (RANKINGS.reduce((a,r)=>a+r.total,0)/RANKINGS.length).toFixed(1) : 0;
+  // Update toggle button styles
+  document.getElementById('lb-mode-full').classList.toggle('active', rankingsMode === 'full');
+  document.getElementById('lb-mode-no-scorer').classList.toggle('active', rankingsMode === 'no_scorer');
+
+  const R = activeRankings();
+  const maxPts = R[0]?.total ?? 0;
+  const avgPts = R.length ? (R.reduce((a,r)=>a+r.total,0)/R.length).toFixed(1) : 0;
+  const modeLabel = rankingsMode === 'no_scorer' ? ' <span style="font-size:.7rem;color:var(--muted)">(sin bonus goleador)</span>' : '';
   document.getElementById('lb-stats').innerHTML = `
-    <div class="stat-card gold"><div class="num">${RANKINGS.length}</div><div class="lbl">Participantes</div></div>
-    <div class="stat-card gold"><div class="num">${maxPts}</div><div class="lbl">Máxima puntuación</div></div>
+    <div class="stat-card gold"><div class="num">${R.length}</div><div class="lbl">Participantes</div></div>
+    <div class="stat-card gold"><div class="num">${maxPts}</div><div class="lbl">Máxima puntuación${modeLabel}</div></div>
     <div class="stat-card blue"><div class="num">${avgPts}</div><div class="lbl">Media de puntos</div></div>
-    <div class="stat-card green"><div class="num">${totalPlayed > 0 ? RANKINGS[0]?.exact ?? 0 : '—'}</div><div class="lbl">Exactos del líder</div></div>
+    <div class="stat-card green"><div class="num">${R[0]?.exact ?? '—'}</div><div class="lbl">Exactos del líder</div></div>
   `;
 
   renderLbPage();
 }
 
 function renderLbPage() {
+  const R = activeRankings();
   const start = lbPage * LB_PAGE_SIZE;
-  const slice = RANKINGS.slice(start, start + LB_PAGE_SIZE);
-  const maxPts = RANKINGS[0]?.total || 1;
+  const slice = R.slice(start, start + LB_PAGE_SIZE);
+  const maxPts = R[0]?.total || 1;
   const highlightId = currentUser?.id;
 
   const body = document.getElementById('lb-body');
@@ -1333,7 +1364,7 @@ function renderLbPage() {
   }).join('');
 
   // Pagination
-  const totalPages = Math.ceil(RANKINGS.length / LB_PAGE_SIZE);
+  const totalPages = Math.ceil(R.length / LB_PAGE_SIZE);
   const pg = document.getElementById('pg-wrap');
   if (totalPages <= 1) { pg.innerHTML = ''; return; }
   let pgHtml = '<span style="color:var(--muted);font-size:.8rem">Página:</span> ';

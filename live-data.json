@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-09T21:00:23.364600+00:00",
+  "updated": "2026-07-09T22:47:18.575373+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -601,8 +601,8 @@
     {
       "t1": "France",
       "t2": "Morocco",
-      "g1": null,
-      "g2": null
+      "g1": 2,
+      "g2": 0
     },
     {
       "t1": "Spain",
@@ -624,15 +624,15 @@
     }
   ],
   "topscorers": {
+    "kylian mbappe": 8,
     "lionel messi": 8,
-    "kylian mbappe": 7,
     "erling haaland": 7,
     "harry kane": 6,
+    "ousmane dembele": 5,
     "julian quinones": 4,
     "vinicius junior": 4,
     "jude bellingham": 4,
     "mikel oyarzabal": 4,
-    "ousmane dembele": 4,
     "ismaila sarr": 4,
     "raul jimenez": 3,
     "folarin balogun": 3,

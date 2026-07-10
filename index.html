@@ -1228,15 +1228,26 @@ function buildScoresKO() {
     SCORES_KO_RAW[mnum] = lookupApiResult(meta.team1, meta.team2);
   }
 
-  // Pass 2: resolve W/L placeholders (possibly several rounds deep) and
-  // look up results again for matches that just became resolvable.
-  for (const [mnum, meta] of Object.entries(DATA.knockout_matches)) {
-    const team1 = resolveKoTeam(meta.team1);
-    const team2 = resolveKoTeam(meta.team2);
-    KO_RESOLVED_TEAMS[mnum] = { team1, team2 };
-    if (!isKoTeamResolved(team1) || !isKoTeamResolved(team2)) { SCORES_KO[mnum] = null; continue; }
-    const found = SCORES_KO_RAW[mnum] !== undefined ? SCORES_KO_RAW[mnum] : lookupApiResult(team1, team2);
-    SCORES_KO[mnum] = found;
+  // Pass 2: resolve placeholders round by round in numeric order.
+  // Each iteration may unlock the next round, so we repeat until stable.
+  const sortedMnums = Object.keys(DATA.knockout_matches).sort((a,b) => +a - +b);
+  let changed = true;
+  while (changed) {
+    changed = false;
+    KO_RESOLVE_CACHE = {}; // reset cache each pass so stale entries don't block resolution
+    for (const mnum of sortedMnums) {
+      const meta = DATA.knockout_matches[mnum];
+      const team1 = resolveKoTeam(meta.team1);
+      const team2 = resolveKoTeam(meta.team2);
+      KO_RESOLVED_TEAMS[mnum] = { team1, team2 };
+      if (!isKoTeamResolved(team1) || !isKoTeamResolved(team2)) { SCORES_KO[mnum] = null; continue; }
+      const found = SCORES_KO_RAW[mnum] !== undefined ? SCORES_KO_RAW[mnum] : lookupApiResult(team1, team2);
+      if (found && !SCORES_KO_RAW[mnum]) {
+        SCORES_KO_RAW[mnum] = found; // unlock next round's resolution
+        changed = true;
+      }
+      SCORES_KO[mnum] = found;
+    }
   }
 }
 

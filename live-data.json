@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-10T18:55:18.389009+00:00",
+  "updated": "2026-07-10T20:14:53.142283+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -648,6 +648,7 @@
     "cody gakpo": 3,
     "cristiano ronaldo": 3,
     "romelu lukaku": 3,
+    "charles de ketelaere": 3,
     "cyle larin": 2,
     "breel embolo": 2,
     "crysencio summerville": 2,
@@ -674,7 +675,6 @@
     "youri tielemans": 2,
     "malik tillman": 2,
     "azzedine ounahi": 2,
-    "charles de ketelaere": 2,
     "ladislav krejci": 1,
     "in-beom hwang": 1,
     "hyun-gyu oh": 1,
@@ -793,7 +793,8 @@
     "hans vanaken": 1,
     "yasser ibrahim": 1,
     "christian romero": 1,
-    "enzo fernandez": 1
+    "enzo fernandez": 1,
+    "fabian ruiz": 1
   },
   "scorer_match_goals": []
 }

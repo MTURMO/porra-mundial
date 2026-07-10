@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-10T20:14:53.142283+00:00",
+  "updated": "2026-07-10T21:32:20.353442+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -607,8 +607,8 @@
     {
       "t1": "Spain",
       "t2": "Belgium",
-      "g1": null,
-      "g2": null
+      "g1": 2,
+      "g2": 1
     },
     {
       "t1": "Norway",
@@ -675,6 +675,7 @@
     "youri tielemans": 2,
     "malik tillman": 2,
     "azzedine ounahi": 2,
+    "mikel merino": 2,
     "ladislav krejci": 1,
     "in-beom hwang": 1,
     "hyun-gyu oh": 1,
@@ -789,7 +790,6 @@
     "sidny lopes cabral": 1,
     "jhon arias": 1,
     "neymar": 1,
-    "mikel merino": 1,
     "hans vanaken": 1,
     "yasser ibrahim": 1,
     "christian romero": 1,

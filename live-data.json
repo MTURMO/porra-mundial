@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-11T20:38:38.103001+00:00",
+  "updated": "2026-07-11T21:40:18.016999+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -800,7 +800,8 @@
     "yasser ibrahim": 1,
     "christian romero": 1,
     "enzo fernandez": 1,
-    "fabian ruiz": 1
+    "fabian ruiz": 1,
+    "andreas schjelderup": 1
   },
   "scorer_match_goals": []
 }

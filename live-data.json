@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-12T01:50:32.239581+00:00",
+  "updated": "2026-07-12T05:18:39.194508+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -621,8 +621,10 @@
     {
       "t1": "Argentina",
       "t2": "Switzerland",
-      "g1": null,
-      "g2": null
+      "g1": 1,
+      "g2": 1,
+      "et_g1": 2,
+      "et_g2": 0
     },
     {
       "t1": "France",
@@ -679,9 +681,11 @@
     "habib diarra": 2,
     "pape gueye": 2,
     "leandro trossard": 2,
+    "lautaro martinez": 2,
     "riyad mahrez": 2,
     "youri tielemans": 2,
     "malik tillman": 2,
+    "dan ndoye": 2,
     "azzedine ounahi": 2,
     "mikel merino": 2,
     "ladislav krejci": 1,
@@ -776,7 +780,6 @@
     "eldor shomurodov": 1,
     "fiston mayele": 1,
     "giovani lo celso": 1,
-    "lautaro martinez": 1,
     "musa al taamari": 1,
     "rafik belghali": 1,
     "marcel sabitzer": 1,
@@ -792,7 +795,6 @@
     "pedro porro": 1,
     "ivan perisic": 1,
     "goncalo ramos": 1,
-    "dan ndoye": 1,
     "deroy duarte": 1,
     "lisandro martinez": 1,
     "sidny lopes cabral": 1,
@@ -804,7 +806,8 @@
     "enzo fernandez": 1,
     "fabian ruiz": 1,
     "andreas schjelderup": 1,
-    "alexis mac allister": 1
+    "alexis mac allister": 1,
+    "julian alvarez": 1
   },
   "scorer_match_goals": []
 }

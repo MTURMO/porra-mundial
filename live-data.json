@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-11T23:44:03.849373+00:00",
+  "updated": "2026-07-12T01:50:32.239581+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -613,8 +613,10 @@
     {
       "t1": "Norway",
       "t2": "England",
-      "g1": null,
-      "g2": null
+      "g1": 1,
+      "g2": 1,
+      "et_g1": 0,
+      "et_g2": 1
     },
     {
       "t1": "Argentina",
@@ -801,7 +803,8 @@
     "christian romero": 1,
     "enzo fernandez": 1,
     "fabian ruiz": 1,
-    "andreas schjelderup": 1
+    "andreas schjelderup": 1,
+    "alexis mac allister": 1
   },
   "scorer_match_goals": []
 }

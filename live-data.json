@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-14T20:05:19.433170+00:00",
+  "updated": "2026-07-14T21:28:28.094881+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -629,8 +629,8 @@
     {
       "t1": "France",
       "t2": "Spain",
-      "g1": null,
-      "g2": null
+      "g1": 0,
+      "g2": 2
     },
     {
       "t1": "England",
@@ -691,6 +691,7 @@
     "riyad mahrez": 2,
     "youri tielemans": 2,
     "malik tillman": 2,
+    "pedro porro": 2,
     "dan ndoye": 2,
     "azzedine ounahi": 2,
     "mikel merino": 2,
@@ -798,7 +799,6 @@
     "issa diop": 1,
     "antonio nusa": 1,
     "brian cipenga": 1,
-    "pedro porro": 1,
     "ivan perisic": 1,
     "goncalo ramos": 1,
     "deroy duarte": 1,

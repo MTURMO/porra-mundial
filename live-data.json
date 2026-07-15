@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-15T20:03:31.839342+00:00",
+  "updated": "2026-07-15T21:27:37.492584+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -635,8 +635,8 @@
     {
       "t1": "England",
       "t2": "Argentina",
-      "g1": null,
-      "g2": null
+      "g1": 1,
+      "g2": 2
     }
   ],
   "topscorers": {
@@ -664,6 +664,7 @@
     "cody gakpo": 3,
     "cristiano ronaldo": 3,
     "romelu lukaku": 3,
+    "lautaro martinez": 3,
     "charles de ketelaere": 3,
     "cyle larin": 2,
     "breel embolo": 2,
@@ -687,7 +688,6 @@
     "habib diarra": 2,
     "pape gueye": 2,
     "leandro trossard": 2,
-    "lautaro martinez": 2,
     "riyad mahrez": 2,
     "youri tielemans": 2,
     "malik tillman": 2,
@@ -695,6 +695,7 @@
     "dan ndoye": 2,
     "azzedine ounahi": 2,
     "mikel merino": 2,
+    "enzo fernandez": 2,
     "ladislav krejci": 1,
     "in-beom hwang": 1,
     "hyun-gyu oh": 1,
@@ -809,11 +810,11 @@
     "hans vanaken": 1,
     "yasser ibrahim": 1,
     "christian romero": 1,
-    "enzo fernandez": 1,
     "fabian ruiz": 1,
     "andreas schjelderup": 1,
     "alexis mac allister": 1,
-    "julian alvarez": 1
+    "julian alvarez": 1,
+    "anthony gordon": 1
   },
   "scorer_match_goals": []
 }

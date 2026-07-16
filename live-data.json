@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-16T03:56:46.547642+00:00",
+  "updated": "2026-07-16T06:13:01.427076+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -637,6 +637,18 @@
       "t2": "Argentina",
       "g1": 1,
       "g2": 2
+    },
+    {
+      "t1": "France",
+      "t2": "England",
+      "g1": null,
+      "g2": null
+    },
+    {
+      "t1": "Spain",
+      "t2": "Argentina",
+      "g1": null,
+      "g2": null
     }
   ],
   "topscorers": {

@@ -550,6 +550,11 @@ main { max-width: 1100px; margin: 0 auto; padding: 24px; }
 <main>
 
   <!-- RANKING -->
+  <div id="hide-final-banner" style="display:none;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;padding:14px 20px;border-radius:10px;margin-bottom:16px;text-align:center;font-size:0.95rem;line-height:1.5">
+    📧 <strong>Los resultados de la Final se comunicarán por correo electrónico.</strong><br>
+    <span style="opacity:0.85;font-size:0.85rem">La clasificación final definitiva se enviará a todos los participantes una vez concluya el torneo.</span>
+  </div>
+
   <div id="tab-ranking" class="tab-panel active">
     <div id="ranking-loading" class="spinner-wrap"><div class="spinner"></div><p style="margin-top:10px;color:var(--muted)">Calculando clasificación...</p></div>
     <div id="ranking-content" style="display:none">
@@ -836,6 +841,12 @@ const API_FALLBACK = 'https://raw.githubusercontent.com/openfootball/worldcup.js
 const PTS_EXACT = 15;
 const PTS_PER_GOAL_SCORER = 20;
 
+// ── RAMA PRE-FINAL ──────────────────────────────────────
+// Cuando esta rama está desplegada en GitHub Pages, se oculta
+// el resultado de la final y se muestra un aviso por email.
+const HIDE_FINAL = true;
+const HIDE_FINAL_MATCH = '104'; // número de partido de la final
+
 // ═══════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════
@@ -1010,6 +1021,10 @@ async function init() {
   }
 
   await refreshLiveData();
+
+  if (HIDE_FINAL) {
+    document.getElementById('hide-final-banner').style.display = 'block';
+  }
 
   buildScores();
   buildScoresKO();
@@ -1266,6 +1281,7 @@ function scoreParticipant(p) {
   // Knockout stage — separate point scale per round, added into the same total
   let koTotal = 0;
   for (const [mn, pr] of Object.entries(p.preds_ko || {})) {
+    if (HIDE_FINAL && mn === HIDE_FINAL_MATCH) continue;
     const meta = DATA.knockout_matches?.[mn];
     const real = SCORES_KO[mn];
     if (!meta || !real || real.g1 === null) continue;

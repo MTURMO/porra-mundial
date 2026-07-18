@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-18T20:50:41.462888+00:00",
+  "updated": "2026-07-18T21:40:57.593697+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -826,7 +826,10 @@
     "andreas schjelderup": 1,
     "alexis mac allister": 1,
     "julian alvarez": 1,
-    "anthony gordon": 1
+    "anthony gordon": 1,
+    "declan rice": 1,
+    "ezri konsa": 1,
+    "bukayo saka": 1
   },
   "scorer_match_goals": []
 }

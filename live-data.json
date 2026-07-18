@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-18T22:38:52.451241+00:00",
+  "updated": "2026-07-18T23:42:57.540763+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -641,8 +641,8 @@
     {
       "t1": "France",
       "t2": "England",
-      "g1": null,
-      "g2": null
+      "g1": 4,
+      "g2": 6
     },
     {
       "t1": "Spain",
@@ -655,10 +655,10 @@
     "kylian mbappe": 10,
     "lionel messi": 8,
     "erling haaland": 7,
+    "jude bellingham": 7,
     "harry kane": 6,
-    "jude bellingham": 6,
+    "ousmane dembele": 6,
     "mikel oyarzabal": 5,
-    "ousmane dembele": 5,
     "julian quinones": 4,
     "vinicius junior": 4,
     "ismaila sarr": 4,
@@ -679,6 +679,7 @@
     "romelu lukaku": 3,
     "lautaro martinez": 3,
     "charles de ketelaere": 3,
+    "bukayo saka": 3,
     "cyle larin": 2,
     "breel embolo": 2,
     "crysencio summerville": 2,
@@ -708,7 +709,6 @@
     "azzedine ounahi": 2,
     "mikel merino": 2,
     "enzo fernandez": 2,
-    "bukayo saka": 2,
     "ladislav krejci": 1,
     "in-beom hwang": 1,
     "hyun-gyu oh": 1,

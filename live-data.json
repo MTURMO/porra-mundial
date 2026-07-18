@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-18T21:40:57.593697+00:00",
+  "updated": "2026-07-18T22:38:52.451241+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -652,7 +652,7 @@
     }
   ],
   "topscorers": {
-    "kylian mbappe": 8,
+    "kylian mbappe": 10,
     "lionel messi": 8,
     "erling haaland": 7,
     "harry kane": 6,
@@ -668,6 +668,7 @@
     "kai havertz": 3,
     "deniz undav": 3,
     "elijah just": 3,
+    "bradley barcola": 3,
     "yoane wissa": 3,
     "johan manzambi": 3,
     "jonathan david": 3,
@@ -687,7 +688,6 @@
     "emam ashour": 2,
     "maximiliano araujo": 2,
     "ramin rezaeian": 2,
-    "bradley barcola": 2,
     "marko arnautovic": 2,
     "daniel munoz": 2,
     "ruben vargas": 2,
@@ -708,6 +708,7 @@
     "azzedine ounahi": 2,
     "mikel merino": 2,
     "enzo fernandez": 2,
+    "bukayo saka": 2,
     "ladislav krejci": 1,
     "in-beom hwang": 1,
     "hyun-gyu oh": 1,
@@ -828,8 +829,7 @@
     "julian alvarez": 1,
     "anthony gordon": 1,
     "declan rice": 1,
-    "ezri konsa": 1,
-    "bukayo saka": 1
+    "ezri konsa": 1
   },
   "scorer_match_goals": []
 }

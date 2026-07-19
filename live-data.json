@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-19T21:11:51.079285+00:00",
+  "updated": "2026-07-19T22:13:52.358197+00:00",
   "source": "football-data.org",
   "fixtures": [
     {
@@ -647,8 +647,10 @@
     {
       "t1": "Spain",
       "t2": "Argentina",
-      "g1": null,
-      "g2": null
+      "g1": 0,
+      "g2": 0,
+      "et_g1": 1,
+      "et_g2": 0
     }
   ],
   "topscorers": {
@@ -829,7 +831,8 @@
     "julian alvarez": 1,
     "anthony gordon": 1,
     "declan rice": 1,
-    "ezri konsa": 1
+    "ezri konsa": 1,
+    "ferran torres": 1
   },
   "scorer_match_goals": []
 }

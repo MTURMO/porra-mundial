@@ -1,6 +1,6 @@
 {
-  "updated": "2026-07-27T15:20:55.261749+00:00",
-  "source": "football-data.org",
+  "updated": "2026-07-27T17:14:59.474409+00:00",
+  "source": "openfootball",
   "fixtures": [
     {
       "t1": "Mexico",
@@ -15,140 +15,38 @@
       "g2": 1
     },
     {
+      "t1": "Czech Republic",
+      "t2": "South Africa",
+      "g1": 1,
+      "g2": 1
+    },
+    {
+      "t1": "Mexico",
+      "t2": "South Korea",
+      "g1": 1,
+      "g2": 0
+    },
+    {
+      "t1": "Czech Republic",
+      "t2": "Mexico",
+      "g1": 0,
+      "g2": 3
+    },
+    {
+      "t1": "South Africa",
+      "t2": "South Korea",
+      "g1": 1,
+      "g2": 0
+    },
+    {
       "t1": "Canada",
       "t2": "Bosnia Herzegovina",
       "g1": 1,
       "g2": 1
     },
     {
-      "t1": "USA",
-      "t2": "Paraguay",
-      "g1": 4,
-      "g2": 1
-    },
-    {
       "t1": "Qatar",
       "t2": "Switzerland",
-      "g1": 1,
-      "g2": 1
-    },
-    {
-      "t1": "Brazil",
-      "t2": "Morocco",
-      "g1": 1,
-      "g2": 1
-    },
-    {
-      "t1": "Haiti",
-      "t2": "Scotland",
-      "g1": 0,
-      "g2": 1
-    },
-    {
-      "t1": "Australia",
-      "t2": "Turkey",
-      "g1": 2,
-      "g2": 0
-    },
-    {
-      "t1": "Germany",
-      "t2": "Curaçao",
-      "g1": 7,
-      "g2": 1
-    },
-    {
-      "t1": "Netherlands",
-      "t2": "Japan",
-      "g1": 2,
-      "g2": 2
-    },
-    {
-      "t1": "Ivory Coast",
-      "t2": "Ecuador",
-      "g1": 1,
-      "g2": 0
-    },
-    {
-      "t1": "Sweden",
-      "t2": "Tunisia",
-      "g1": 5,
-      "g2": 1
-    },
-    {
-      "t1": "Spain",
-      "t2": "Cape Verde",
-      "g1": 0,
-      "g2": 0
-    },
-    {
-      "t1": "Belgium",
-      "t2": "Egypt",
-      "g1": 1,
-      "g2": 1
-    },
-    {
-      "t1": "Saudi Arabia",
-      "t2": "Uruguay",
-      "g1": 1,
-      "g2": 1
-    },
-    {
-      "t1": "Iran",
-      "t2": "New Zealand",
-      "g1": 2,
-      "g2": 2
-    },
-    {
-      "t1": "France",
-      "t2": "Senegal",
-      "g1": 3,
-      "g2": 1
-    },
-    {
-      "t1": "Iraq",
-      "t2": "Norway",
-      "g1": 1,
-      "g2": 4
-    },
-    {
-      "t1": "Argentina",
-      "t2": "Algeria",
-      "g1": 3,
-      "g2": 0
-    },
-    {
-      "t1": "Austria",
-      "t2": "Jordan",
-      "g1": 3,
-      "g2": 1
-    },
-    {
-      "t1": "Portugal",
-      "t2": "Congo",
-      "g1": 1,
-      "g2": 1
-    },
-    {
-      "t1": "England",
-      "t2": "Croatia",
-      "g1": 4,
-      "g2": 2
-    },
-    {
-      "t1": "Ghana",
-      "t2": "Panama",
-      "g1": 1,
-      "g2": 0
-    },
-    {
-      "t1": "Uzbekistan",
-      "t2": "Colombia",
-      "g1": 1,
-      "g2": 3
-    },
-    {
-      "t1": "Czech Republic",
-      "t2": "South Africa",
       "g1": 1,
       "g2": 1
     },
@@ -165,16 +63,28 @@
       "g2": 0
     },
     {
-      "t1": "Mexico",
-      "t2": "South Korea",
-      "g1": 1,
-      "g2": 0
+      "t1": "Switzerland",
+      "t2": "Canada",
+      "g1": 2,
+      "g2": 1
     },
     {
-      "t1": "USA",
-      "t2": "Australia",
-      "g1": 2,
-      "g2": 0
+      "t1": "Bosnia Herzegovina",
+      "t2": "Qatar",
+      "g1": 3,
+      "g2": 1
+    },
+    {
+      "t1": "Brazil",
+      "t2": "Morocco",
+      "g1": 1,
+      "g2": 1
+    },
+    {
+      "t1": "Haiti",
+      "t2": "Scotland",
+      "g1": 0,
+      "g2": 1
     },
     {
       "t1": "Scotland",
@@ -189,118 +99,10 @@
       "g2": 0
     },
     {
-      "t1": "Turkey",
-      "t2": "Paraguay",
+      "t1": "Scotland",
+      "t2": "Brazil",
       "g1": 0,
-      "g2": 1
-    },
-    {
-      "t1": "Netherlands",
-      "t2": "Sweden",
-      "g1": 5,
-      "g2": 1
-    },
-    {
-      "t1": "Germany",
-      "t2": "Ivory Coast",
-      "g1": 2,
-      "g2": 1
-    },
-    {
-      "t1": "Ecuador",
-      "t2": "Curaçao",
-      "g1": 0,
-      "g2": 0
-    },
-    {
-      "t1": "Tunisia",
-      "t2": "Japan",
-      "g1": 0,
-      "g2": 4
-    },
-    {
-      "t1": "Spain",
-      "t2": "Saudi Arabia",
-      "g1": 4,
-      "g2": 0
-    },
-    {
-      "t1": "Belgium",
-      "t2": "Iran",
-      "g1": 0,
-      "g2": 0
-    },
-    {
-      "t1": "Uruguay",
-      "t2": "Cape Verde",
-      "g1": 2,
-      "g2": 2
-    },
-    {
-      "t1": "New Zealand",
-      "t2": "Egypt",
-      "g1": 1,
       "g2": 3
-    },
-    {
-      "t1": "Argentina",
-      "t2": "Austria",
-      "g1": 2,
-      "g2": 0
-    },
-    {
-      "t1": "France",
-      "t2": "Iraq",
-      "g1": 3,
-      "g2": 0
-    },
-    {
-      "t1": "Norway",
-      "t2": "Senegal",
-      "g1": 3,
-      "g2": 2
-    },
-    {
-      "t1": "Jordan",
-      "t2": "Algeria",
-      "g1": 1,
-      "g2": 2
-    },
-    {
-      "t1": "Portugal",
-      "t2": "Uzbekistan",
-      "g1": 5,
-      "g2": 0
-    },
-    {
-      "t1": "England",
-      "t2": "Ghana",
-      "g1": 0,
-      "g2": 0
-    },
-    {
-      "t1": "Panama",
-      "t2": "Croatia",
-      "g1": 0,
-      "g2": 1
-    },
-    {
-      "t1": "Colombia",
-      "t2": "Congo",
-      "g1": 1,
-      "g2": 0
-    },
-    {
-      "t1": "Switzerland",
-      "t2": "Canada",
-      "g1": 2,
-      "g2": 1
-    },
-    {
-      "t1": "Bosnia Herzegovina",
-      "t2": "Qatar",
-      "g1": 3,
-      "g2": 1
     },
     {
       "t1": "Morocco",
@@ -309,45 +111,27 @@
       "g2": 2
     },
     {
-      "t1": "Scotland",
-      "t2": "Brazil",
-      "g1": 0,
-      "g2": 3
-    },
-    {
-      "t1": "Czech Republic",
-      "t2": "Mexico",
-      "g1": 0,
-      "g2": 3
-    },
-    {
-      "t1": "South Africa",
-      "t2": "South Korea",
-      "g1": 1,
-      "g2": 0
-    },
-    {
-      "t1": "Ecuador",
-      "t2": "Germany",
-      "g1": 2,
+      "t1": "USA",
+      "t2": "Paraguay",
+      "g1": 4,
       "g2": 1
     },
     {
-      "t1": "Curaçao",
-      "t2": "Ivory Coast",
+      "t1": "Australia",
+      "t2": "Turkey",
+      "g1": 2,
+      "g2": 0
+    },
+    {
+      "t1": "USA",
+      "t2": "Australia",
+      "g1": 2,
+      "g2": 0
+    },
+    {
+      "t1": "Turkey",
+      "t2": "Paraguay",
       "g1": 0,
-      "g2": 2
-    },
-    {
-      "t1": "Tunisia",
-      "t2": "Netherlands",
-      "g1": 1,
-      "g2": 3
-    },
-    {
-      "t1": "Japan",
-      "t2": "Sweden",
-      "g1": 1,
       "g2": 1
     },
     {
@@ -363,6 +147,174 @@
       "g2": 0
     },
     {
+      "t1": "Germany",
+      "t2": "Curaçao",
+      "g1": 7,
+      "g2": 1
+    },
+    {
+      "t1": "Ivory Coast",
+      "t2": "Ecuador",
+      "g1": 1,
+      "g2": 0
+    },
+    {
+      "t1": "Germany",
+      "t2": "Ivory Coast",
+      "g1": 2,
+      "g2": 1
+    },
+    {
+      "t1": "Ecuador",
+      "t2": "Curaçao",
+      "g1": 0,
+      "g2": 0
+    },
+    {
+      "t1": "Curaçao",
+      "t2": "Ivory Coast",
+      "g1": 0,
+      "g2": 2
+    },
+    {
+      "t1": "Ecuador",
+      "t2": "Germany",
+      "g1": 2,
+      "g2": 1
+    },
+    {
+      "t1": "Netherlands",
+      "t2": "Japan",
+      "g1": 2,
+      "g2": 2
+    },
+    {
+      "t1": "Sweden",
+      "t2": "Tunisia",
+      "g1": 5,
+      "g2": 1
+    },
+    {
+      "t1": "Netherlands",
+      "t2": "Sweden",
+      "g1": 5,
+      "g2": 1
+    },
+    {
+      "t1": "Tunisia",
+      "t2": "Japan",
+      "g1": 0,
+      "g2": 4
+    },
+    {
+      "t1": "Japan",
+      "t2": "Sweden",
+      "g1": 1,
+      "g2": 1
+    },
+    {
+      "t1": "Tunisia",
+      "t2": "Netherlands",
+      "g1": 1,
+      "g2": 3
+    },
+    {
+      "t1": "Belgium",
+      "t2": "Egypt",
+      "g1": 1,
+      "g2": 1
+    },
+    {
+      "t1": "Iran",
+      "t2": "New Zealand",
+      "g1": 2,
+      "g2": 2
+    },
+    {
+      "t1": "Belgium",
+      "t2": "Iran",
+      "g1": 0,
+      "g2": 0
+    },
+    {
+      "t1": "New Zealand",
+      "t2": "Egypt",
+      "g1": 1,
+      "g2": 3
+    },
+    {
+      "t1": "Egypt",
+      "t2": "Iran",
+      "g1": 1,
+      "g2": 1
+    },
+    {
+      "t1": "New Zealand",
+      "t2": "Belgium",
+      "g1": 1,
+      "g2": 5
+    },
+    {
+      "t1": "Spain",
+      "t2": "Cape Verde",
+      "g1": 0,
+      "g2": 0
+    },
+    {
+      "t1": "Saudi Arabia",
+      "t2": "Uruguay",
+      "g1": 1,
+      "g2": 1
+    },
+    {
+      "t1": "Spain",
+      "t2": "Saudi Arabia",
+      "g1": 4,
+      "g2": 0
+    },
+    {
+      "t1": "Uruguay",
+      "t2": "Cape Verde",
+      "g1": 2,
+      "g2": 2
+    },
+    {
+      "t1": "Cape Verde",
+      "t2": "Saudi Arabia",
+      "g1": 0,
+      "g2": 0
+    },
+    {
+      "t1": "Uruguay",
+      "t2": "Spain",
+      "g1": 0,
+      "g2": 1
+    },
+    {
+      "t1": "France",
+      "t2": "Senegal",
+      "g1": 3,
+      "g2": 1
+    },
+    {
+      "t1": "Iraq",
+      "t2": "Norway",
+      "g1": 1,
+      "g2": 4
+    },
+    {
+      "t1": "France",
+      "t2": "Iraq",
+      "g1": 3,
+      "g2": 0
+    },
+    {
+      "t1": "Norway",
+      "t2": "Senegal",
+      "g1": 3,
+      "g2": 2
+    },
+    {
       "t1": "Norway",
       "t2": "France",
       "g1": 1,
@@ -375,27 +327,99 @@
       "g2": 0
     },
     {
-      "t1": "Uruguay",
-      "t2": "Spain",
-      "g1": 0,
+      "t1": "Argentina",
+      "t2": "Algeria",
+      "g1": 3,
+      "g2": 0
+    },
+    {
+      "t1": "Austria",
+      "t2": "Jordan",
+      "g1": 3,
       "g2": 1
     },
     {
-      "t1": "Cape Verde",
-      "t2": "Saudi Arabia",
+      "t1": "Argentina",
+      "t2": "Austria",
+      "g1": 2,
+      "g2": 0
+    },
+    {
+      "t1": "Jordan",
+      "t2": "Algeria",
+      "g1": 1,
+      "g2": 2
+    },
+    {
+      "t1": "Algeria",
+      "t2": "Austria",
+      "g1": 3,
+      "g2": 3
+    },
+    {
+      "t1": "Jordan",
+      "t2": "Argentina",
+      "g1": 1,
+      "g2": 3
+    },
+    {
+      "t1": "Portugal",
+      "t2": "Congo",
+      "g1": 1,
+      "g2": 1
+    },
+    {
+      "t1": "Uzbekistan",
+      "t2": "Colombia",
+      "g1": 1,
+      "g2": 3
+    },
+    {
+      "t1": "Portugal",
+      "t2": "Uzbekistan",
+      "g1": 5,
+      "g2": 0
+    },
+    {
+      "t1": "Colombia",
+      "t2": "Congo",
+      "g1": 1,
+      "g2": 0
+    },
+    {
+      "t1": "Colombia",
+      "t2": "Portugal",
       "g1": 0,
       "g2": 0
     },
     {
-      "t1": "New Zealand",
-      "t2": "Belgium",
-      "g1": 1,
-      "g2": 5
+      "t1": "Congo",
+      "t2": "Uzbekistan",
+      "g1": 3,
+      "g2": 1
     },
     {
-      "t1": "Egypt",
-      "t2": "Iran",
+      "t1": "England",
+      "t2": "Croatia",
+      "g1": 4,
+      "g2": 2
+    },
+    {
+      "t1": "Ghana",
+      "t2": "Panama",
       "g1": 1,
+      "g2": 0
+    },
+    {
+      "t1": "England",
+      "t2": "Ghana",
+      "g1": 0,
+      "g2": 0
+    },
+    {
+      "t1": "Panama",
+      "t2": "Croatia",
+      "g1": 0,
       "g2": 1
     },
     {
@@ -411,33 +435,21 @@
       "g2": 1
     },
     {
-      "t1": "Colombia",
-      "t2": "Portugal",
-      "g1": 0,
-      "g2": 0
-    },
-    {
-      "t1": "Congo",
-      "t2": "Uzbekistan",
-      "g1": 3,
-      "g2": 1
-    },
-    {
-      "t1": "Jordan",
-      "t2": "Argentina",
-      "g1": 1,
-      "g2": 3
-    },
-    {
-      "t1": "Algeria",
-      "t2": "Austria",
-      "g1": 3,
-      "g2": 3
-    },
-    {
       "t1": "South Africa",
       "t2": "Canada",
       "g1": 0,
+      "g2": 1
+    },
+    {
+      "t1": "Germany",
+      "t2": "Paraguay",
+      "g1": 1,
+      "g2": 1
+    },
+    {
+      "t1": "Netherlands",
+      "t2": "Morocco",
+      "g1": 1,
       "g2": 1
     },
     {
@@ -447,36 +459,16 @@
       "g2": 1
     },
     {
-      "t1": "Germany",
-      "t2": "Paraguay",
-      "g1": 1,
-      "g2": 1,
-      "et_g1": 0,
-      "et_g2": 0,
-      "pen_g1": 3,
-      "pen_g2": 4
-    },
-    {
-      "t1": "Netherlands",
-      "t2": "Morocco",
-      "g1": 1,
-      "g2": 1,
-      "et_g1": 0,
-      "et_g2": 0,
-      "pen_g1": 2,
-      "pen_g2": 3
+      "t1": "France",
+      "t2": "Sweden",
+      "g1": 3,
+      "g2": 0
     },
     {
       "t1": "Ivory Coast",
       "t2": "Norway",
       "g1": 1,
       "g2": 2
-    },
-    {
-      "t1": "France",
-      "t2": "Sweden",
-      "g1": 3,
-      "g2": 0
     },
     {
       "t1": "Mexico",
@@ -491,24 +483,16 @@
       "g2": 1
     },
     {
-      "t1": "Belgium",
-      "t2": "Senegal",
-      "g1": 2,
-      "g2": 2,
-      "et_g1": 1,
-      "et_g2": 0
-    },
-    {
       "t1": "USA",
       "t2": "Bosnia Herzegovina",
       "g1": 2,
       "g2": 0
     },
     {
-      "t1": "Spain",
-      "t2": "Austria",
-      "g1": 3,
-      "g2": 0
+      "t1": "Belgium",
+      "t2": "Senegal",
+      "g1": 2,
+      "g2": 2
     },
     {
       "t1": "Portugal",
@@ -517,28 +501,22 @@
       "g2": 1
     },
     {
+      "t1": "Spain",
+      "t2": "Austria",
+      "g1": 3,
+      "g2": 0
+    },
+    {
       "t1": "Switzerland",
       "t2": "Algeria",
       "g1": 2,
       "g2": 0
     },
     {
-      "t1": "Australia",
-      "t2": "Egypt",
-      "g1": 1,
-      "g2": 1,
-      "et_g1": 0,
-      "et_g2": 0,
-      "pen_g1": 2,
-      "pen_g2": 4
-    },
-    {
       "t1": "Argentina",
       "t2": "Cape Verde",
       "g1": 1,
-      "g2": 1,
-      "et_g1": 2,
-      "et_g2": 1
+      "g2": 1
     },
     {
       "t1": "Colombia",
@@ -547,16 +525,22 @@
       "g2": 0
     },
     {
-      "t1": "Canada",
-      "t2": "Morocco",
-      "g1": 0,
-      "g2": 3
+      "t1": "Australia",
+      "t2": "Egypt",
+      "g1": 1,
+      "g2": 1
     },
     {
       "t1": "Paraguay",
       "t2": "France",
       "g1": 0,
       "g2": 1
+    },
+    {
+      "t1": "Canada",
+      "t2": "Morocco",
+      "g1": 0,
+      "g2": 3
     },
     {
       "t1": "Brazil",
@@ -592,11 +576,7 @@
       "t1": "Switzerland",
       "t2": "Colombia",
       "g1": 0,
-      "g2": 0,
-      "et_g1": 0,
-      "et_g2": 0,
-      "pen_g1": 4,
-      "pen_g2": 3
+      "g2": 0
     },
     {
       "t1": "France",
@@ -614,17 +594,13 @@
       "t1": "Norway",
       "t2": "England",
       "g1": 1,
-      "g2": 1,
-      "et_g1": 0,
-      "et_g2": 1
+      "g2": 1
     },
     {
       "t1": "Argentina",
       "t2": "Switzerland",
       "g1": 1,
-      "g2": 1,
-      "et_g1": 2,
-      "et_g2": 0
+      "g2": 1
     },
     {
       "t1": "France",
@@ -648,191 +624,9 @@
       "t1": "Spain",
       "t2": "Argentina",
       "g1": 0,
-      "g2": 0,
-      "et_g1": 1,
-      "et_g2": 0
+      "g2": 0
     }
   ],
-  "topscorers": {
-    "kylian mbappe": 10,
-    "lionel messi": 8,
-    "erling haaland": 7,
-    "jude bellingham": 7,
-    "harry kane": 6,
-    "ousmane dembele": 6,
-    "mikel oyarzabal": 5,
-    "julian quinones": 4,
-    "vinicius junior": 4,
-    "ismaila sarr": 4,
-    "raul jimenez": 3,
-    "folarin balogun": 3,
-    "ismael saibari": 3,
-    "kai havertz": 3,
-    "deniz undav": 3,
-    "elijah just": 3,
-    "bradley barcola": 3,
-    "yoane wissa": 3,
-    "johan manzambi": 3,
-    "jonathan david": 3,
-    "matheus cunha": 3,
-    "brian brobbey": 3,
-    "cody gakpo": 3,
-    "cristiano ronaldo": 3,
-    "romelu lukaku": 3,
-    "lautaro martinez": 3,
-    "charles de ketelaere": 3,
-    "bukayo saka": 3,
-    "cyle larin": 2,
-    "breel embolo": 2,
-    "crysencio summerville": 2,
-    "daichi kamada": 2,
-    "amad diallo": 2,
-    "yasin ayari": 2,
-    "emam ashour": 2,
-    "maximiliano araujo": 2,
-    "ramin rezaeian": 2,
-    "marko arnautovic": 2,
-    "daniel munoz": 2,
-    "ruben vargas": 2,
-    "ermin mahmic": 2,
-    "anthony elanga": 2,
-    "ayase ueda": 2,
-    "mostafa ziko": 2,
-    "soufiane rahimi": 2,
-    "nicolas pepe": 2,
-    "habib diarra": 2,
-    "pape gueye": 2,
-    "leandro trossard": 2,
-    "riyad mahrez": 2,
-    "youri tielemans": 2,
-    "malik tillman": 2,
-    "pedro porro": 2,
-    "dan ndoye": 2,
-    "azzedine ounahi": 2,
-    "mikel merino": 2,
-    "enzo fernandez": 2,
-    "ladislav krejci": 1,
-    "in-beom hwang": 1,
-    "hyun-gyu oh": 1,
-    "jovo lukic": 1,
-    "mauricio": 1,
-    "gio reyna": 1,
-    "boualem khoukhi": 1,
-    "john mcginn": 1,
-    "nestor irankunda": 1,
-    "connor metcalfe": 1,
-    "felix kalu nmecha": 1,
-    "livano comenencia": 1,
-    "nico schlotterbeck": 1,
-    "jamal musiala": 1,
-    "nathaniel brown": 1,
-    "virgil van dijk": 1,
-    "keito nakamura": 1,
-    "alexander isak": 1,
-    "omar rekik": 1,
-    "viktor gyokeres": 1,
-    "mattias svanberg": 1,
-    "abdulelah al amri": 1,
-    "mohammad mohebi": 1,
-    "ibrahim m'baye": 1,
-    "aymen hussein": 1,
-    "leo østigard": 1,
-    "romano schmid": 1,
-    "ali olwan": 1,
-    "joao neves": 1,
-    "martin baturina": 1,
-    "petar musa": 1,
-    "marcus rashford": 1,
-    "caleb yirenkyi": 1,
-    "abbosbek fayzullaev": 1,
-    "luis diaz": 1,
-    "jaminton campaz": 1,
-    "michal sadilek": 1,
-    "teboho mokoena": 1,
-    "granit xhaka": 1,
-    "nathan-dylan saliba": 1,
-    "luis romo": 1,
-    "alex freeman": 1,
-    "matias galarza": 1,
-    "franck kessie": 1,
-    "junya ito": 1,
-    "lamine yamal": 1,
-    "kevin pina": 1,
-    "agustin canobbio": 1,
-    "helio varela": 1,
-    "finn surman": 1,
-    "mohamed salah": 1,
-    "trezeguet": 1,
-    "marcus pedersen": 1,
-    "nizar al rashdan": 1,
-    "nadhir benbouali": 1,
-    "amine gouiri": 1,
-    "nuno mendes": 1,
-    "rafael leao": 1,
-    "ante budimir": 1,
-    "promise akinpelu": 1,
-    "kerim alajbegovic": 1,
-    "hassan al haydos": 1,
-    "achraf hakimi": 1,
-    "wilson isidor": 1,
-    "gessime yassine": 1,
-    "mateo chavez": 1,
-    "alvaro fidalgo": 1,
-    "thapelo maseko": 1,
-    "leroy sane": 1,
-    "nilson angulo": 1,
-    "gonzalo plata": 1,
-    "hazem mastouri": 1,
-    "jan paul van hecke": 1,
-    "daizen maeda": 1,
-    "auston trusty": 1,
-    "arda guler": 1,
-    "orkun kokcu": 1,
-    "sebastian berhalter": 1,
-    "kaan ayhan": 1,
-    "thelo aasgaard": 1,
-    "desire doue": 1,
-    "iliman ndiaye": 1,
-    "alex baena": 1,
-    "kevin de bruyne": 1,
-    "alexis saelemaekers": 1,
-    "mahmoud saber": 1,
-    "petar sucic": 1,
-    "derrick luckassen": 1,
-    "nikola vlasic": 1,
-    "eldor shomurodov": 1,
-    "fiston mayele": 1,
-    "giovani lo celso": 1,
-    "musa al taamari": 1,
-    "rafik belghali": 1,
-    "marcel sabitzer": 1,
-    "sasa kalajdzic": 1,
-    "stephen eustaquio": 1,
-    "kaishu sano": 1,
-    "casemiro": 1,
-    "martinelli": 1,
-    "julio enciso": 1,
-    "issa diop": 1,
-    "antonio nusa": 1,
-    "brian cipenga": 1,
-    "ivan perisic": 1,
-    "goncalo ramos": 1,
-    "deroy duarte": 1,
-    "lisandro martinez": 1,
-    "sidny lopes cabral": 1,
-    "jhon arias": 1,
-    "neymar": 1,
-    "hans vanaken": 1,
-    "yasser ibrahim": 1,
-    "christian romero": 1,
-    "fabian ruiz": 1,
-    "andreas schjelderup": 1,
-    "alexis mac allister": 1,
-    "julian alvarez": 1,
-    "anthony gordon": 1,
-    "declan rice": 1,
-    "ezri konsa": 1,
-    "ferran torres": 1
-  },
+  "topscorers": {},
   "scorer_match_goals": []
 }
